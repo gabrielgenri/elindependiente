@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Maestro El Independiente 2030 — Plataforma de Transformación Digital</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display para títulos y Inter para cuerpo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            black: '#000000',
+                            white: '#FFFFFF',
+                            gray: {
+                                50: '#F9F9F9',
+                                100: '#F3F4F6',
+                                200: '#E5E7EB',
+                                300: '#D1D5DB',
+                                400: '#9CA3AF',
+                                500: '#6B7280',
+                                600: '#4B5563',
+                                700: '#374151',
+                                800: '#1F2937',
+                                900: '#111827',
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        .serif-header {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Transiciones suaves de opacidad */
+        .fade-transition {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        /* Custom ranges y sliders minimalistas */
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: #E5E7EB;
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            background: #000000;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .text-xs1 {
+    font-size: 0.95rem;
+    line-height: 1rem;
+}
+        /* ===== ANIMACIONES DE EXPERIENCIA ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(26px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes statePop {
+            from { transform: scale(0.97); opacity: 0.5; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        /* Entrada del header al cargar */
+        .header-anim {
+            opacity: 0;
+            animation: fadeInDown 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+        }
+        /* Entrada escalonada del bloque hero */
+        .hero-anim {
+            opacity: 0;
+            animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .hero-anim[data-delay="1"] { animation-delay: 0.10s; }
+        .hero-anim[data-delay="2"] { animation-delay: 0.20s; }
+        .hero-anim[data-delay="3"] { animation-delay: 0.32s; }
+        .hero-anim[data-delay="4"] { animation-delay: 0.44s; }
+        /* Aparición al hacer scroll (IntersectionObserver) */
+        .reveal {
+            opacity: 0;
+        }
+        .reveal.reveal-visible {
+            animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+            animation-delay: var(--reveal-delay, 0s);
+        }
+        /* Micro-interacción de menú móvil */
+        .menu-slide {
+            animation: fadeInDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* Pulsación de estado de la consola */
+        .state-pop {
+            animation: statePop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* ===== OPTIMIZACIÓN TIPOGRÁFICA PARA MÓVILES ===== */
+        @media (max-width: 640px) {
+            body .text-xs1 { font-size: 1rem; line-height: 1.5rem; }
+            body .text-\[9px\] { font-size: 10px; line-height: 1.35; }
+            body .text-\[10px\] { font-size: 11px; line-height: 1.35; }
+            body .text-\[11px\] { font-size: 12px; line-height: 1.4; }
+            body .text-lg { font-size: 1.1rem; line-height: 1.6; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .header-anim, .hero-anim, .reveal, .reveal.reveal-visible, .state-pop {
+                animation: none !important;
+                opacity: 1 !important;
+            }
+            * { scroll-behavior: auto !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-black selection:text-white">
+
+    <!-- TOP HEADER / BRANDING -->
+    <header class="border-b border-brand-gray-200 sticky top-0 bg-white/95 backdrop-blur z-50 transition-all duration-300 header-anim">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex flex-col cursor-pointer" onclick="navigateTo('inicio')">
+                <span class="text-[10px] uppercase tracking-[0.4em] text-brand-gray-500 font-bold">DIARIO EL INDEPENDIENTE</span>
+                <span class="serif-header text-2xl font-bold tracking-tight text-brand-black flex items-center">
+                    EL INDEPENDIENTE <span class="font-light italic ml-2">2030</span>
+                </span>
+            </div>
+            
+            <!-- Desktop Navigation Links -->
+            <nav class="hidden lg:flex items-center space-x-8 text-xs1  uppercase tracking-widest font-semibold text-brand-gray-500">
+                <a href="#inicio" onclick="navigateTo('inicio')" class="hover:text-brand-black transition duration-200 py-2 border-b border-transparent" id="nav-inicio">Inicio</a>
+                
+                <!-- Dropdown Ejes -->
+                <div class="relative group">
+                    <button class="hover:text-brand-black transition duration-200 flex items-center space-x-1 py-2">
+                        <span>Los 7 Ejes</span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="absolute right-0 mt-1 w-72 bg-white border border-brand-gray-200 shadow-lg rounded-sm py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <a href="#eje1" onclick="navigateTo('eje1')" class="block px-4 py-2.5 text-xs1  hover:bg-brand-gray-100 text-brand-gray-700 hover:text-brand-black transition">Eje 1: Rediseño Editorial</a>
+                        <a href="#eje2" onclick="navigateTo('eje2')" class="block px-4 py-2.5 text-xs1  hover:bg-brand-gray-100 text-brand-gray-700 hover:text-brand-black transition">Eje 2: Periodismo de Datos</a>
+                        <a href="#eje3" onclick="navigateTo('eje3')" class="block px-4 py-2.5 text-xs1  hover:bg-brand-gray-100 text-brand-gray-700 hover:text-brand-black transition">Eje 3: Ecosistema Audiovisual</a>
+                        <a href="#eje4" onclick="navigateTo('eje4')" class="block px-4 py-2.5 text-xs1  hover:bg-brand-gray-100 text-brand-gray-700 hover:text-brand-black transition">Eje 4: Audiencias & Comunidad</a>
+                        <a href="#eje5" onclick="navigateTo('eje5')" class="block px-4 py-2.5 text-xs1  hover:bg-brand-gray-100 text-brand-gray-700 hover:text-brand-black transition">Eje 5: Inteligencia Artificial</a>
+                        <a href="#eje6" onclick="navigateTo('eje6')" class="block px-4 py-2.5 text-xs1  hover:bg-brand-gray-100 text-brand-gray-700 hover:text-brand-black transition">Eje 6: Plataforma & UX</a>
+                        <a href="#eje7" onclick="navigateTo('eje7')" class="block px-4 py-2.5 text-xs1  hover:bg-brand-gray-100 text-brand-gray-700 hover:text-brand-black transition">Eje 7: Sostenibilidad Financiera</a>
+                    </div>
+                </div>
+                
+                <a href="#roadmap" onclick="navigateTo('roadmap')" class="hover:text-brand-black transition duration-200 py-2 border-b border-transparent" id="nav-roadmap">Hoja de Ruta</a>
+                <a href="#consola" onclick="navigateTo('consola')" class="hover:text-brand-black transition duration-200 py-2 border-b border-transparent" id="nav-consola">Consola Central</a>
+            </nav>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-brand-gray-700 hover:text-brand-black focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+
+        <!-- Mobile Drawer Navigation -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-brand-gray-200 bg-white">
+            <nav class="px-6 py-6 flex flex-col space-y-4 text-xs1  uppercase tracking-widest font-semibold text-brand-gray-500">
+                <a href="#inicio" onclick="navigateTo('inicio'); toggleMobileMenu()" class="block py-1 hover:text-brand-black">Inicio</a>
+                <hr class="border-brand-gray-100">
+                <span class="text-[10px] text-brand-gray-400 font-bold tracking-widest">EJES ESTRATÉGICOS</span>
+                <a href="#eje1" onclick="navigateTo('eje1'); toggleMobileMenu()" class="block pl-2 py-1 hover:text-brand-black text-[11px]">Eje 1: Rediseño Editorial</a>
+                <a href="#eje2" onclick="navigateTo('eje2'); toggleMobileMenu()" class="block pl-2 py-1 hover:text-brand-black text-[11px]">Eje 2: Periodismo de Datos</a>
+                <a href="#eje3" onclick="navigateTo('eje3'); toggleMobileMenu()" class="block pl-2 py-1 hover:text-brand-black text-[11px]">Eje 3: Ecosistema Audiovisual</a>
+                <a href="#eje4" onclick="navigateTo('eje4'); toggleMobileMenu()" class="block pl-2 py-1 hover:text-brand-black text-[11px]">Eje 4: Audiencias & Comunidad</a>
+                <a href="#eje5" onclick="navigateTo('eje5'); toggleMobileMenu()" class="block pl-2 py-1 hover:text-brand-black text-[11px]">Eje 5: Inteligencia Artificial</a>
+                <a href="#eje6" onclick="navigateTo('eje6'); toggleMobileMenu()" class="block pl-2 py-1 hover:text-brand-black text-[11px]">Eje 6: Plataforma & UX</a>
+                <a href="#eje7" onclick="navigateTo('eje7'); toggleMobileMenu()" class="block pl-2 py-1 hover:text-brand-black text-[11px]">Eje 7: Sostenibilidad Financiera</a>
+                <hr class="border-brand-gray-100">
+                <a href="#roadmap" onclick="navigateTo('roadmap'); toggleMobileMenu()" class="block py-1 hover:text-brand-black">Hoja de Ruta</a>
+                <a href="#consola" onclick="navigateTo('consola'); toggleMobileMenu()" class="block py-1 hover:text-brand-black">Consola Central</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <main class="flex-grow max-w-7xl mx-auto px-6 py-12 w-full">
+        
+        <!-- ==================== PAGE: INICIO ==================== -->
+        <section id="page-inicio" class="page-content block fade-transition opacity-100 transform translate-y-0">
+            <!-- Hero Layout: Split 12 cols -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-brand-gray-200 pb-16">
+                <!-- Left Vision Block -->
+                <div class="lg:col-span-7 flex flex-col justify-between hero-anim" data-delay="1">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 border border-brand-black text-brand-black text-[10px] tracking-widest font-bold px-3 py-1.5 mb-8 uppercase rounded-none">
+                            <span>DOCUMENTO DE TRABAJO</span>
+                            <span class="w-1.5 h-1.5 bg-brand-black rounded-full animate-ping"></span>
+                            <span>FASE II (2026-2030)</span>
+                        </div>
+                        <h1 class="serif-header text-4xl sm:text-7xl font-bold tracking-tight text-brand-black leading-none mb-6">
+                            De Diario de Papel a Plataforma de <span class="font-light italic">Conocimiento Público</span>.
+                        </h1>
+                        <p class="text-brand-gray-600 text-lg leading-relaxed font-light mb-8 max-w-2xl">
+                            La verdadera transformación de <strong class="text-brand-black font-semibold">El Independiente</strong> exige dejar atrás el ciclo efímero de la noticia diaria y sentar las bases de una infraestructura patrimonial acumulativa de datos, archivo inteligente, multimedia y debate comunitario riojano.
+                        </p>
+                    </div>
+                    
+                    <!-- Quote Box -->
+                    <div class="border-l-[3px] border-brand-black pl-8 py-2 italic text-brand-gray-700 font-serif text-xl leading-relaxed my-6">
+                        "La pregunta estratégica ya no es cómo producir más noticias rápidas, sino cómo construir valor social verificable y comunidad propia a partir del flujo de información de nuestra provincia."
+                    </div>
+                </div>
+
+                <!-- Right Diagnostic Block -->
+                <div class="lg:col-span-5 bg-brand-gray-50 border border-brand-gray-200 p-8 flex flex-col justify-between rounded-sm hero-anim" data-delay="2">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-brand-gray-200 pb-4 mb-6">
+                            <h3 class="text-[10px] uppercase tracking-widest font-bold text-brand-gray-400">DIAGNÓSTICO CRÍTICO</h3>
+                            <span class="text-[9px] font-mono bg-brand-black text-white px-2 py-0.5 uppercase tracking-wider font-semibold">ALERTA OPERATIVA</span>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="group border-b border-brand-gray-200 pb-4 transition-all duration-300 hover:border-brand-black">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-bold text-sm text-brand-black uppercase tracking-wider">Tráfico Efímero</h4>
+                                    <span class="font-mono text-xs1  text-brand-gray-500">Bajo Retorno</span>
+                                </div>
+                                <p class="text-xs1  text-brand-gray-500 font-light leading-relaxed">El esfuerzo editorial del periodista dura apenas unas horas en portada antes de ser enterrado por el algoritmo.</p>
+                            </div>
+                            
+                            <div class="group border-b border-brand-gray-200 pb-4 transition-all duration-300 hover:border-brand-black">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-bold text-sm text-brand-black uppercase tracking-wider">Audiencias Prestadas</h4>
+                                    <span class="font-mono text-xs1  text-brand-gray-500">Dependencia Algorítmica</span>
+                                </div>
+                                <p class="text-xs1  text-brand-gray-500 font-light leading-relaxed">Peligro ante los cambios de políticas de Meta, Google Discover y X. El tráfico sin registro previo no es capitalizable.</p>
+                            </div>
+
+                            <div class="group pb-4 transition-all duration-300 hover:border-brand-black">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-bold text-sm text-brand-black uppercase tracking-wider">Monocultivo de Pauta</h4>
+                                    <span class="font-mono text-xs1  text-brand-gray-500">Riesgo Financiero</span>
+                                </div>
+                                <p class="text-xs1  text-brand-gray-500 font-light leading-relaxed">La dependencia única de la publicidad oficial tradicional limita la sustentabilidad y el crecimiento tecnológico estructural.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-brand-gray-200 flex justify-between items-center">
+                        <button onclick="navigateTo('eje1')" class="group flex items-center justify-between w-full text-xs1  uppercase tracking-widest font-bold text-brand-black hover:opacity-70 transition duration-150">
+                            <span>EXPLORAR LOS EJES DE TRABAJO</span>
+                            <span class="p-2 border border-brand-black rounded-full group-hover:bg-brand-black group-hover:text-white transition duration-200">
+                                <svg class="w-4 h-4 transform group-hover:translate-x-0.5 transition duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PARADIGM SHIFT TABLE -->
+            <div class="py-16 border-b border-brand-gray-200 reveal">
+                <h2 class="serif-header text-3xl font-bold mb-10 tracking-tight text-brand-black text-center sm:text-left">Cambio de Paradigma Estratégico</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 reveal-grid">
+                    <div class="border border-brand-gray-200 p-8 rounded-sm">
+                        <span class="font-mono text-[10px] text-brand-gray-400 font-bold uppercase tracking-widest block mb-4">LOGICA DE ANTAÑO</span>
+                        <h3 class="serif-header text-2xl font-bold text-brand-black mb-4">El Medio de Acumulación Uniforme</h3>
+                        <ul class="space-y-4 text-xs1  text-brand-gray-600 font-light">
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&#8212;</span> Noticias de consumo rápido, desechables tras 6 horas.</li>
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&#8212;</span> Lectores anónimos y visitantes casuales que llegan vía redes.</li>
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&#8212;</span> Textos estáticos planos con una sola foto sin contexto dinámico.</li>
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&#8212;</span> Estructura comercial expuesta al arbitrio de la pauta pública clásica.</li>
+                        </ul>
+                    </div>
+
+                    <div class="border-2 border-brand-black p-8 rounded-sm bg-brand-gray-50 shadow-sm">
+                        <span class="font-mono text-[10px] text-brand-black font-bold uppercase tracking-widest block mb-4">VISIÓN EL INDEPENDIENTE 2030</span>
+                        <h3 class="serif-header text-2xl font-bold text-brand-black mb-4">La Plataforma de Conocimiento Activo</h3>
+                        <ul class="space-y-4 text-xs1  text-brand-gray-800 font-medium">
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&bull;</span> Activos de conocimiento acumulativo (La Rioja Explicada / Clusters).</li>
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&bull;</span> Comunidad propia registrada y fidelizada mediante bases de datos.</li>
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&bull;</span> Ecosistema multimedia rico: Video de impacto, datos y canales de voz.</li>
+                            <li class="flex items-start"><span class="text-brand-black font-bold mr-2">&bull;</span> Diversificación en 5 niveles de ingresos (Membresías, Cursos, Eventos, Datos).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THE INTERACTIVE 7 AXES GRAPHIC INDEX -->
+            <div class="py-16">
+                <div class="flex flex-col sm:flex-row justify-between items-baseline mb-12 reveal">
+                    <h2 class="serif-header text-3xl font-bold tracking-tight text-brand-black">El Mapa del Plan: 7 Ejes Clave</h2>
+                    <p class="text-xs1  text-brand-gray-500 uppercase tracking-widest font-mono">Selecciona un eje para profundizar en su documentación</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal-grid">
+                    <!-- Card 1 -->
+                    <div onclick="navigateTo('eje1')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
+                        <div>
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 01</span>
+                                <span class="text-[10px] font-mono bg-brand-gray-100 text-brand-gray-600 px-2 py-0.5 font-bold group-hover:bg-brand-black group-hover:text-white transition">EDITORIAL</span>
+                            </div>
+                            <h3 class="serif-header text-2xl font-bold mb-4 text-brand-black">Rediseño Editorial & Matriz de Contenidos</h3>
+                            <p class="text-brand-gray-500 text-xs1  font-light leading-relaxed mb-8">El modelo 70-20-10, la Biblioteca Riojana y "La Rioja Explicada" para mitigar el ciclo efímero de la noticia.</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs1  font-bold uppercase tracking-wider text-brand-black border-t border-brand-gray-100 pt-4 group-hover:translate-x-1 transition duration-200">
+                            <span>Ver especificaciones</span>
+                            <span>&rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div onclick="navigateTo('eje2')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
+                        <div>
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 02</span>
+                                <span class="text-[10px] font-mono bg-brand-gray-100 text-brand-gray-600 px-2 py-0.5 font-bold group-hover:bg-brand-black group-hover:text-white transition">OBSERVATORIOS</span>
+                            </div>
+                            <h3 class="serif-header text-2xl font-bold mb-4 text-brand-black">Periodismo de Datos & Estadísticas</h3>
+                            <p class="text-brand-gray-500 text-xs1  font-light leading-relaxed mb-8">Creación del Centro de Datos de La Rioja y 6 observatorios temáticos integrados con visualización dinámica en vivo.</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs1  font-bold uppercase tracking-wider text-brand-black border-t border-brand-gray-100 pt-4 group-hover:translate-x-1 transition duration-200">
+                            <span>Explorar Observatorio</span>
+                            <span>&rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div onclick="navigateTo('eje3')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
+                        <div>
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 03</span>
+                                <span class="text-[10px] font-mono bg-brand-gray-100 text-brand-gray-600 px-2 py-0.5 font-bold group-hover:bg-brand-black group-hover:text-white transition">MULTIMEDIA</span>
+                            </div>
+                            <h3 class="serif-header text-2xl font-bold mb-4 text-brand-black">Ecosistema Audiovisual Transmedia</h3>
+                            <p class="text-brand-gray-500 text-xs1  font-light leading-relaxed mb-8">Concepto operativo del "Contenido Madre" para atomizar la noticia en Reels, Podcasts, YouTube y Newsletters.</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs1  font-bold uppercase tracking-wider text-brand-black border-t border-brand-gray-100 pt-4 group-hover:translate-x-1 transition duration-200">
+                            <span>Ver Atomización</span>
+                            <span>&rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div onclick="navigateTo('eje4')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
+                        <div>
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 04</span>
+                                <span class="text-[10px] font-mono bg-brand-gray-100 text-brand-gray-600 px-2 py-0.5 font-bold group-hover:bg-brand-black group-hover:text-white transition">AUDIENCIAS</span>
+                            </div>
+                            <h3 class="serif-header text-2xl font-bold mb-4 text-brand-black">Audiencias Propias & Comunidad</h3>
+                            <p class="text-brand-gray-500 text-xs1  font-light leading-relaxed mb-8">El embudo de fidelización de la audiencia, boletines prémium, canales de WhatsApp y "Reporteros Ciudadanos".</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs1  font-bold uppercase tracking-wider text-brand-black border-t border-brand-gray-100 pt-4 group-hover:translate-x-1 transition duration-200">
+                            <span>Ver Modelo de Embudo</span>
+                            <span>&rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 5 -->
+                    <div onclick="navigateTo('eje5')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
+                        <div>
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 05</span>
+                                <span class="text-[10px] font-mono bg-brand-gray-100 text-brand-gray-600 px-2 py-0.5 font-bold group-hover:bg-brand-black group-hover:text-white transition">I.A.</span>
+                            </div>
+                            <h3 class="serif-header text-2xl font-bold mb-4 text-brand-black">Inteligencia Artificial Editorial</h3>
+                            <p class="text-brand-gray-500 text-xs1  font-light leading-relaxed mb-8">La redacción aumentada como multiplicadora de capacidades sin sustitución humana, y Archivo Histórico Inteligente vectorizado.</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs1  font-bold uppercase tracking-wider text-brand-black border-t border-brand-gray-100 pt-4 group-hover:translate-x-1 transition duration-200">
+                            <span>Probar Simulador IA</span>
+                            <span>&rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 6 -->
+                    <div onclick="navigateTo('eje6')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
+                        <div>
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 06</span>
+                                <span class="text-[10px] font-mono bg-brand-gray-100 text-brand-gray-600 px-2 py-0.5 font-bold group-hover:bg-brand-black group-hover:text-white transition">UX / PLATAFORMA</span>
+                            </div>
+                            <h3 class="serif-header text-2xl font-bold mb-4 text-brand-black">Plataforma Tecnológica & Portada UX</h3>
+                            <p class="text-brand-gray-500 text-xs1  font-light leading-relaxed mb-8">WordPress optimizado, buscador Algolia avanzado, tiempo de carga sub-2 segundos y diseño orientado a la jerarquía móvil.</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs1  font-bold uppercase tracking-wider text-brand-black border-t border-brand-gray-100 pt-4 group-hover:translate-x-1 transition duration-200">
+                            <span>Ver Estructura Web</span>
+                            <span>&rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 7 - Highlighted (Sostenibilidad) -->
+                    <div onclick="navigateTo('eje7')" class="border-2 border-brand-black p-8 flex flex-col justify-between hover:bg-brand-gray-50 cursor-pointer transition duration-300 group col-span-1 md:col-span-2 lg:col-span-3 rounded-none bg-white hover:-translate-y-1.5">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                            <div class="lg:col-span-8">
+                                <div class="flex items-center space-x-3 mb-6">
+                                    <span class="font-mono text-xs1  text-brand-black font-bold tracking-widest">EJE ESTRATÉGICO 07 & SUSTENTABILIDAD</span>
+                                    <span class="text-[10px] font-mono bg-brand-black text-white px-2 py-0.5 font-bold">SOSTENIBILIDAD</span>
+                                </div>
+                                <h3 class="serif-header text-3xl font-bold mb-4 text-brand-black">Modelo de Negocios, Monetización Diversificada & Finanzas</h3>
+                                <p class="text-brand-gray-600 text-sm font-light leading-relaxed mb-6">Sustitución del monocultivo publicitario por una pirámide de monetización de cinco niveles: membresías del Club, formación educativa de la Academia, eventos patrocinados y comercialización de informes de datos.</p>
+                            </div>
+                            <div class="lg:col-span-4 flex flex-col justify-center items-center border-t lg:border-t-0 lg:border-l border-brand-gray-200 pt-6 lg:pt-0 lg:pl-8">
+                                <span class="text-xs1  uppercase text-brand-gray-400 font-bold tracking-widest mb-2">REGLA DE ORO DE RESILIENCIA</span>
+                                <div class="serif-header text-4xl font-extrabold text-brand-black mb-1">&lt; 50%</div>
+                                <p class="text-[10px] text-brand-gray-500 text-center font-light leading-relaxed">"Ninguna fuente de ingresos del medio debe superar la mitad de la facturación global."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SWOT / FODA SECTION -->
+            <div class="py-16 bg-brand-gray-50 border border-brand-gray-200 p-8 rounded-sm my-12 reveal">
+                <h3 class="serif-header text-3xl font-bold text-brand-black mb-8 text-center">Matriz FODA Estratégica — El Independiente 2030</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 reveal-grid">
+                    <!-- F -->
+                    <div class="bg-white border border-brand-gray-200 p-6 rounded-none">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="font-mono text-sm font-bold bg-brand-black text-white px-2 py-0.5">F</span>
+                            <h4 class="font-bold text-sm tracking-widest text-brand-black uppercase">FORTALEZAS</h4>
+                        </div>
+                        <ul class="space-y-2 text-xs1  text-brand-gray-600 font-light list-disc pl-4">
+                            <li><strong>Legitimidad Histórica:</strong> Décadas de credibilidad y arraigo en los hogares de La Rioja.</li>
+                            <li><strong>Memoria Colectiva:</strong> Amplios archivos informativos no explotados comercialmente.</li>
+                            <li><strong>Conocimiento del Territorio:</strong> Redactores con relaciones sólidas con la comunidad.</li>
+                        </ul>
+                    </div>
+                    <!-- O -->
+                    <div class="bg-white border border-brand-gray-200 p-6 rounded-none">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="font-mono text-sm font-bold bg-brand-black text-white px-2 py-0.5">O</span>
+                            <h4 class="font-bold text-sm tracking-widest text-brand-black uppercase">OPORTUNIDADES</h4>
+                        </div>
+                        <ul class="space-y-2 text-xs1  text-brand-gray-600 font-light list-disc pl-4">
+                            <li><strong>Mercado Huérfano de Datos:</strong> No existen observadores dinámicos que centralicen estadísticas en La Rioja.</li>
+                            <li><strong>Monetización del Interior:</strong> Integrar a los 18 departamentos mediante canales digitales (Reporteros).</li>
+                            <li><strong>Tecnologías de IA:</strong> Reducir a un tercio los costos operativos y tiempos de producción tradicionales.</li>
+                        </ul>
+                    </div>
+                    <!-- D -->
+                    <div class="bg-white border border-brand-gray-200 p-6 rounded-none">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="font-mono text-sm font-bold bg-brand-black text-white px-2 py-0.5">D</span>
+                            <h4 class="font-bold text-sm tracking-widest text-brand-black uppercase">DEBILIDADES</h4>
+                        </div>
+                        <ul class="space-y-2 text-xs1  text-brand-gray-600 font-light list-disc pl-4">
+                            <li><strong>Lógica de Papel:</strong> Procesos lentos y formateados al diseño físico de fin de semana.</li>
+                            <li><strong>Bajo registro:</strong> Desconocimiento cuantitativo de quiénes son los lectores habituales.</li>
+                            <li><strong>Portada saturada:</strong> Estructura web sin jerarquía UX clara para móviles.</li>
+                        </ul>
+                    </div>
+                    <!-- A -->
+                    <div class="bg-white border border-brand-gray-200 p-6 rounded-none">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="font-mono text-sm font-bold bg-brand-black text-white px-2 py-0.5">A</span>
+                            <h4 class="font-bold text-sm tracking-widest text-brand-black uppercase">AMENAZAS</h4>
+                        </div>
+                        <ul class="space-y-2 text-xs1  text-brand-gray-600 font-light list-disc pl-4">
+                            <li><strong>Inestabilidad del Algoritmo:</strong> Caídas brutales de tráfico por directivas arbitrarias de Google o Meta.</li>
+                            <li><strong>Agotamiento de Fondos Públicos:</strong> Dependencia insostenible ante la crisis económica provincial.</li>
+                            <li><strong>Competencia Efímera:</strong> Páginas de redes que roban la atención rápida diaria sin rigor.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: EJE 1 (REDISENO EDITORIAL) ==================== -->
+        <section id="page-eje1" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">EJE ESTRATÉGICO 01</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-8 text-brand-black border-b border-brand-gray-200 pb-4">Rediseño Editorial & Arquitectura de Contenidos</h1>
+                
+                <div class="space-y-8 text-sm leading-relaxed text-brand-gray-800">
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">1. Diagnóstico de Fondo</h3>
+                        <p class="font-light">La rutina tradicional del periodista de La Rioja está formateada para redactar la noticia del día, publicarla en el portal web y abandonarla en pocas horas. El esfuerzo de redacción diaria es inmenso pero su retorno acumulativo digital tiende a cero, forzando un ciclo de producción infinito y agotador de noticias clonadas.</p>
+                    </div>
+
+                    <!-- Interactive Matrix 70-20-10 Diagram -->
+                    <div class="border border-brand-gray-200 p-6 rounded-sm bg-brand-gray-50 my-6 reveal">
+                        <h4 class="serif-header text-lg font-bold text-brand-black mb-4">La Matriz de Esfuerzos Editorial 70-20-10 (Interactiva)</h4>
+                        <p class="text-xs1  text-brand-gray-500 mb-6 font-light">Haz clic en cada sección de la pirámide de producción para comprender qué cobertura de nuestra provincia representa y ver ejemplos prácticos de desarrollo.</p>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                            <div class="lg:col-span-6 space-y-3">
+                                <!-- Bar 70 -->
+                                <div onclick="selectMatrixTab('70')" id="matrix-bar-70" class="border border-brand-black bg-brand-black text-white p-4 cursor-pointer transition duration-200 hover:opacity-90 flex justify-between items-center">
+                                    <span class="font-mono font-bold tracking-widest">70% ACTUALIDAD</span>
+                                    <span class="text-xs1 ">&raquo;</span>
+                                </div>
+                                <!-- Bar 20 -->
+                                <div onclick="selectMatrixTab('20')" id="matrix-bar-20" class="border border-brand-gray-200 bg-white text-brand-gray-700 p-4 cursor-pointer transition duration-200 hover:border-brand-black flex justify-between items-center">
+                                    <span class="font-mono font-bold tracking-widest">20% PROFUNDIZACIÓN</span>
+                                    <span class="text-xs1 ">&raquo;</span>
+                                </div>
+                                <!-- Bar 10 -->
+                                <div onclick="selectMatrixTab('10')" id="matrix-bar-10" class="border border-brand-gray-200 bg-white text-brand-gray-700 p-4 cursor-pointer transition duration-200 hover:border-brand-black flex justify-between items-center">
+                                    <span class="font-mono font-bold tracking-widest">10% EVERGREEN (PERENNE)</span>
+                                    <span class="text-xs1 ">&raquo;</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Explanation Box -->
+                            <div class="lg:col-span-6 border border-brand-gray-200 bg-white p-6 min-h-[220px] flex flex-col justify-between">
+                                <div id="matrix-explanation-content">
+                                    <!-- Populated dynamically -->
+                                    <h5 class="font-bold text-sm text-brand-black uppercase tracking-wider mb-2" id="matrix-exp-title">Actualidad Clásica (70%)</h5>
+                                    <p class="text-xs1  text-brand-gray-600 font-light leading-relaxed" id="matrix-exp-desc">Representa la base del diario. Cobertura inalterable del gobierno, los comunicados de los municipios, sucesos deportivos, crónicas policiales y agenda diaria de La Rioja. Es de alta velocidad y ciclo efímero.</p>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-brand-gray-100 flex items-center justify-between text-[11px] font-mono">
+                                    <span class="text-brand-gray-400">EJEMPLO LOCAL:</span>
+                                    <span class="font-bold text-brand-black text-right" id="matrix-exp-example">"El Ministerio de Salud de La Rioja anunció el calendario de vacunación para los departamentos de la provincia."</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">2. Repositorio Estratégico: La Biblioteca Riojana</h3>
+                        <p class="font-light mb-4">El Independiente actuará como el guardián de la memoria riojana. Se estructuran categorías de conocimiento perenne sobre los siguientes pilares de valor:</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs1  font-light">
+                            <div class="p-4 border border-brand-gray-200 bg-brand-gray-50">
+                                <strong class="block text-brand-black font-semibold mb-1">Historia Federal</strong>
+                                Próceres provinciales (Facundo Quiroga, Chacho Peñaloza, Felipe Varela, Joaquín V. González) y batallas históricas riojanas.
+                            </div>
+                            <div class="p-4 border border-brand-gray-200 bg-brand-gray-50">
+                                <strong class="block text-brand-black font-semibold mb-1">Cultura Viva</strong>
+                                Tradiciones ricas del interior, orígenes de la Chaya riojana, gastronomía ancestral y artesanías autóctonas.
+                            </div>
+                            <div class="p-4 border border-brand-gray-200 bg-brand-gray-50">
+                                <strong class="block text-brand-black font-semibold mb-1">Geografía & Turismo</strong>
+                                Atlas de departamentos del interior, reservas hídricas críticas, mapas explicados de atractivos como el Talampaya o Cuesta de Miranda.
+                            </div>
+                            <div class="p-4 border border-brand-gray-200 bg-brand-gray-50">
+                                <strong class="block text-brand-black font-semibold mb-1">Desarrollo local</strong>
+                                Matrices explicadas sobre minería, agricultura olivícola, vitivinícola (Chilecito) y energías limpias provinciales.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">3. Sección "La Rioja Explicada"</h3>
+                        <p class="font-light mb-4">Se creará un compendio dinámico orientado a resolver de forma didáctica preguntas comunes que la población local o nacional busca constantemente en internet:</p>
+                        <div class="space-y-2 text-xs1  font-mono text-brand-gray-800 bg-brand-gray-100 p-4 rounded-sm">
+                            <div class="flex items-center space-x-2"><span class="font-bold text-brand-black">&bull;</span> <span>¿Qué es el Parque Eólico Arauco y cuánta energía inyecta al sistema riojano?</span></div>
+                            <div class="flex items-center space-x-2"><span class="font-bold text-brand-black">&bull;</span> <span>¿Cómo se compone y cuántas bancas componen la Legislatura de La Rioja?</span></div>
+                            <div class="flex items-center space-x-2"><span class="font-bold text-brand-black">&bull;</span> <span>¿Quién fue realmente el Chacho Peñaloza y cuál es su legado federal?</span></div>
+                            <div class="flex items-center space-x-2"><span class="font-bold text-brand-black">&bull;</span> <span>¿Cómo afecta la falta de coparticipación federal a las finanzas municipales?</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">4. SEO Avanzado & Clusters de Contenidos</h3>
+                        <p class="font-light">Se agruparán artículos satélites vinculados bidireccionalmente a una página madre pilar para dominar los buscadores de Google. Al tejer una red inteligente de interconexión interna (interlinking) de palabras clave, Google identificará de manera natural la autoridad temática histórica del diario.</p>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500">
+                    <a href="#inicio" onclick="navigateTo('inicio')" class="hover:text-brand-black transition duration-150">&larr; Inicio</a>
+                    <a href="#eje2" onclick="navigateTo('eje2')" class="hover:text-brand-black transition duration-150">Eje 2: Datos &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: EJE 2 (DATOS) ==================== -->
+        <section id="page-eje2" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">EJE ESTRATÉGICO 02</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-8 text-brand-black border-b border-brand-gray-200 pb-4">Periodismo de Datos & Observatorios Permanentes</h1>
+                
+                <div class="space-y-8 text-sm leading-relaxed text-brand-gray-800">
+                    <p class="font-light">La Rioja carece de un concentrador de información pública de libre acceso. Las universidades provinciales (como UNLaR), los ministerios, los municipios y los centros de estudios económicos producen informes de manera aislada que nadie integra. El Independiente se convertirá en el **Observatorio Riojano de Datos Públicos**.</p>
+                    
+                    <!-- Interactive Dashboard Simulation -->
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-brand-gray-200 pb-4 mb-6">
+                            <div>
+                                <h3 class="serif-header text-xl font-bold text-brand-black">Consola del Observatorio de Datos</h3>
+                                <p class="text-xs1  text-brand-gray-500 font-light mt-0.5">Indicadores interactivos locales en tiempo real</p>
+                            </div>
+                            <div class="flex space-x-2 mt-4 sm:mt-0 font-mono text-[10px] uppercase font-bold">
+                                <button onclick="selectDataTab('economico')" id="dt-economico" class="data-tab-btn border border-brand-black bg-brand-black text-white px-3 py-1.5 transition">Económico</button>
+                                <button onclick="selectDataTab('territorial')" id="dt-territorial" class="data-tab-btn border border-brand-gray-200 bg-white text-brand-gray-500 px-3 py-1.5 hover:text-brand-black transition">Territorial</button>
+                                <button onclick="selectDataTab('social')" id="dt-social" class="data-tab-btn border border-brand-gray-200 bg-white text-brand-gray-500 px-3 py-1.5 hover:text-brand-black transition">Social</button>
+                            </div>
+                        </div>
+
+                        <!-- Data Container Content -->
+                        <div id="data-dashboard-canvas" class="bg-white border border-brand-gray-200 p-6 min-h-[300px] flex flex-col justify-between">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">Las herramientas recomendadas para la Redacción</h3>
+                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs1  font-light">
+                            <li class="p-4 border border-brand-gray-200">
+                                <strong class="block text-brand-black font-semibold mb-1">Looker Studio</strong>
+                                Para estructurar paneles informativos interactivos integrados directamente en los informes explicativos, con actualización mensual de bases de datos de inflación y canastas.
+                            </li>
+                            <li class="p-4 border border-brand-gray-200">
+                                <strong class="block text-brand-black font-semibold mb-1">Datawrapper / Flourish</strong>
+                                Para la rápida generación por parte de los redactores de mapas por departamento, gráficos de líneas y barras animadas que no sobrecarguen el peso de carga móvil del sitio.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500">
+                    <a href="#eje1" onclick="navigateTo('eje1')" class="hover:text-brand-black transition duration-150">&larr; Eje 1</a>
+                    <a href="#eje3" onclick="navigateTo('eje3')" class="hover:text-brand-black transition duration-150">Eje 3: Multimedia &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: EJE 3 (MULTIMEDIA) ==================== -->
+        <section id="page-eje3" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">EJE ESTRATÉGICO 03</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-8 text-brand-black border-b border-brand-gray-200 pb-4">Transformación Audiovisual y Ecosistema Multimedia</h1>
+                
+                <div class="space-y-8 text-sm leading-relaxed text-brand-gray-800">
+                    <p class="font-light">Actualmente, los medios locales pierden el 90% de su producción al usarla una sola vez en un formato textual plano. El nuevo ecosistema propone el modelo del **"Contenido Madre"**, donde cada investigación se atomiza de manera sistemática en múltiples canales sin triplicar el esfuerzo del periodista.</p>
+
+                    <!-- Interactive Mother Content Simulator -->
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
+                        <div class="mb-6">
+                            <h3 class="serif-header text-xl font-bold text-brand-black">Simulador "Contenido Madre" (Interactivo)</h3>
+                            <p class="text-xs1  text-brand-gray-500 font-light mt-0.5">Selecciona un tema para simular cómo se fragmentaría en múltiples canales de atención:</p>
+                        </div>
+
+                        <!-- Theme Selectors -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
+                            <button onclick="selectMotherTheme('energia')" id="mt-energia" class="mother-tab-btn border border-brand-black bg-brand-black text-white py-2 text-xs1  uppercase font-mono tracking-wider font-bold transition">Energías en Arauco</button>
+                            <button onclick="selectMotherTheme('federalismo')" id="mt-federalismo" class="mother-tab-btn border border-brand-gray-200 bg-white text-brand-gray-500 py-2 text-xs1  uppercase font-mono tracking-wider font-bold hover:text-brand-black transition">Facundo Quiroga</button>
+                            <button onclick="selectMotherTheme('economia')" id="mt-economia" class="mother-tab-btn border border-brand-gray-200 bg-white text-brand-gray-500 py-2 text-xs1  uppercase font-mono tracking-wider font-bold hover:text-brand-black transition">Vinos en Chilecito</button>
+                        </div>
+
+                        <!-- Visual Grid of Multi-Channel Outputs -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <!-- Article Output -->
+                            <div class="bg-white border border-brand-gray-200 p-4 rounded-sm flex flex-col justify-between">
+                                <div>
+                                    <span class="font-mono text-[9px] text-brand-gray-400 font-bold uppercase tracking-wider block mb-2">WEB / SEO</span>
+                                    <h4 class="font-bold text-xs1  text-brand-black uppercase mb-2">Artículo de Fondo</h4>
+                                </div>
+                                <p id="mother-out-article" class="text-[11px] text-brand-gray-600 font-light leading-normal mt-2">Cargando...</p>
+                            </div>
+                            
+                            <!-- Reel/TikTok Script Output -->
+                            <div class="bg-white border border-brand-gray-200 p-4 rounded-sm flex flex-col justify-between">
+                                <div>
+                                    <span class="font-mono text-[9px] text-brand-gray-400 font-bold uppercase tracking-wider block mb-2">REDES / VIDEO</span>
+                                    <h4 class="font-bold text-xs1  text-brand-black uppercase mb-2">Guion Reel 60s</h4>
+                                </div>
+                                <p id="mother-out-reel" class="text-[11px] text-brand-gray-600 font-light leading-normal mt-2">Cargando...</p>
+                            </div>
+
+                            <!-- Podcast Intro Output -->
+                            <div class="bg-white border border-brand-gray-200 p-4 rounded-sm flex flex-col justify-between">
+                                <div>
+                                    <span class="font-mono text-[9px] text-brand-gray-400 font-bold uppercase tracking-wider block mb-2">SPOTIFY / VOZ</span>
+                                    <h4 class="font-bold text-xs1  text-brand-black uppercase mb-2">Podcast Intro</h4>
+                                </div>
+                                <p id="mother-out-podcast" class="text-[11px] text-brand-gray-600 font-light leading-normal mt-2">Cargando...</p>
+                            </div>
+
+                            <!-- Newsletter Output -->
+                            <div class="bg-white border border-brand-gray-200 p-4 rounded-sm flex flex-col justify-between">
+                                <div>
+                                    <span class="font-mono text-[9px] text-brand-gray-400 font-bold uppercase tracking-wider block mb-2">EMAIL / NEWSLETTER</span>
+                                    <h4 class="font-bold text-xs1  text-brand-black uppercase mb-2">Boletín Breve</h4>
+                                </div>
+                                <p id="mother-out-news" class="text-[11px] text-brand-gray-600 font-light leading-normal mt-2">Cargando...</p>
+                            </div>
+
+                            <!-- Infographic slide structure -->
+                            <div class="bg-white border-2 border-brand-black p-4 rounded-sm flex flex-col justify-between">
+                                <div>
+                                    <span class="font-mono text-[9px] text-brand-black font-bold uppercase tracking-wider block mb-2">INSTAGRAM / SLIDES</span>
+                                    <h4 class="font-bold text-xs1  text-brand-black uppercase mb-2">Placa de Datos</h4>
+                                </div>
+                                <p id="mother-out-slides" class="text-[11px] text-brand-gray-600 font-light leading-normal mt-2">Cargando...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">Canales de distribución claves en La Rioja</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs1  font-light">
+                            <div class="p-4 border border-brand-gray-200">
+                                <h4 class="font-bold uppercase mb-2 text-brand-black">YouTube</h4>
+                                <p class="leading-relaxed text-brand-gray-500">Producción nativa diaria "La Rioja en 3 Minutos": un resumen veloz animado explicando la economía, política y sociedad provincial de forma clara.</p>
+                            </div>
+                            <div class="p-4 border border-brand-gray-200">
+                                <h4 class="font-bold uppercase mb-2 text-brand-black">Podcasts (Audio)</h4>
+                                <p class="leading-relaxed text-brand-gray-500">Lanzamiento de "Primera Hora" para ser consumido durante los traslados y horarios laborales locales de manera sencilla.</p>
+                            </div>
+                            <div class="p-4 border border-brand-gray-200">
+                                <h4 class="font-bold uppercase mb-2 text-brand-black">Canales de WhatsApp</h4>
+                                <p class="leading-relaxed text-brand-gray-500">Segmentación de la mensajería instantánea local en alertas rápidas de gobierno, interior riojano y actualidad deportiva.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500">
+                    <a href="#eje2" onclick="navigateTo('eje2')" class="hover:text-brand-black transition duration-150">&larr; Eje 2</a>
+                    <a href="#eje4" onclick="navigateTo('eje4')" class="hover:text-brand-black transition duration-150">Eje 4: Comunidad &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: EJE 4 (COMUNIDAD) ==================== -->
+        <section id="page-eje4" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">EJE ESTRATÉGICO 04</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-8 text-brand-black border-b border-brand-gray-200 pb-4">Audiencias Propias & Comunidad de Lectores</h1>
+                
+                <div class="space-y-8 text-sm leading-relaxed text-brand-gray-800">
+                    <p class="font-light">Un medio regional que depende de algoritmos externos está en riesgo constante. La solución estratégica consiste en construir una **audiencia propia** registrada y predecible. Esto significa trasladar a los visitantes anónimos a una comunidad de valor mediante un embudo sistemático de fidelización.</p>
+
+                    <!-- Beautiful Funnel Diagram -->
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
+                        <h3 class="serif-header text-xl font-bold text-brand-black text-center mb-2">El Embudo de la Comunidad (Fidelización)</h3>
+                        <p class="text-xs1  text-brand-gray-500 text-center font-light mb-8">Estrategia para convertir el tráfico volátil en patrimonio registrado y sostenible</p>
+
+                        <!-- Graphic Representation -->
+                        <div class="max-w-md mx-auto space-y-3">
+                            <!-- Step 1 -->
+                            <div class="bg-brand-gray-200 border border-brand-gray-300 p-4 text-center transition-transform hover:scale-[1.02] duration-200">
+                                <span class="font-mono text-[10px] font-bold text-brand-gray-500">ETAPA 01 — TRÁFICO ANÓNIMO (DESCUBRIMIENTO)</span>
+                                <h4 class="font-bold text-xs1  text-brand-black mt-1">Visitantes casuales de Google Discover y Redes</h4>
+                                <p class="text-[10px] text-brand-gray-600 font-light mt-0.5">Relación inestable de dependencia absoluta de los algoritmos de Meta o X.</p>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="text-center text-xs1  text-brand-gray-400 font-bold">&darr;</div>
+                            <!-- Step 2 -->
+                            <div class="bg-brand-gray-300 border border-brand-gray-400 p-4 text-center transition-transform hover:scale-[1.02] duration-200">
+                                <span class="font-mono text-[10px] font-bold text-brand-gray-600">ETAPA 02 — RETENCIÓN ACTIVA</span>
+                                <h4 class="font-bold text-xs1  text-brand-black mt-1">Canales institucionales de difusión de WhatsApp</h4>
+                                <p class="text-[10px] text-brand-gray-700 font-light mt-0.5">Se genera hábito diario y un canal seguro de llegada rápida directo al celular del riojano.</p>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="text-center text-xs1  text-brand-gray-400 font-bold">&darr;</div>
+                            <!-- Step 3 -->
+                            <div class="bg-brand-gray-800 text-white p-4 text-center transition-transform hover:scale-[1.02] duration-200">
+                                <span class="font-mono text-[10px] text-brand-gray-400 font-bold">ETAPA 03 — FIDELIZACIÓN (REGISTRO)</span>
+                                <h4 class="font-bold text-xs1  uppercase tracking-wider mt-1">Suscripción a Newsletters Temáticos</h4>
+                                <p class="text-[10px] text-brand-gray-300 font-light mt-0.5">Captura voluntaria del correo del lector. Primera base de datos registrada propia del medio.</p>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="text-center text-xs1  text-brand-gray-400 font-bold">&darr;</div>
+                            <!-- Step 4 -->
+                            <div class="bg-brand-black text-white p-5 text-center transition-transform hover:scale-[1.02] duration-200">
+                                <span class="font-mono text-[10px] font-bold text-brand-gray-300">ETAPA 04 — COMUNIDAD MONETIZADA (CLUB DE MIEMBROS)</span>
+                                <h4 class="font-bold text-xs1  uppercase tracking-wider mt-1">Embajadores, Membresías & Reporteros Ciudadanos</h4>
+                                <p class="text-[10px] text-brand-gray-400 font-light mt-0.5">El lector abona mensualmente por pertenencia, participa en foros exclusivos y aporta contenido comunitario verificado.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="serif-header text-2xl font-bold text-brand-black mb-4">Proyecto "Reporteros Ciudadanos"</h3>
+                        <p class="font-light">Este sistema permitirá a los riojanos en los departamentos del interior registrarse y actuar como colaboradores barriales directos. Mediante una plataforma integrada, enviarán de forma sencilla alertas, denuncias de infraestructura, fotos o historias comunitarias de su localidad, multiplicando el alcance geográfico real del diario.</p>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500">
+                    <a href="#eje3" onclick="navigateTo('eje3')" class="hover:text-brand-black transition duration-150">&larr; Eje 3</a>
+                    <a href="#eje5" onclick="navigateTo('eje5')" class="hover:text-brand-black transition duration-150">Eje 5: IA &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: EJE 5 (INTELIGENCIA ARTIFICIAL) ==================== -->
+        <section id="page-eje5" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">EJE ESTRATÉGICO 05</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-8 text-brand-black border-b border-brand-gray-200 pb-4">Inteligencia Artificial & Gestión del Conocimiento</h1>
+                
+                <div class="space-y-8 text-sm leading-relaxed text-brand-gray-800">
+                    <div class="border-l-[3px] border-brand-black pl-6 py-1 italic font-serif text-brand-gray-600 mb-6 bg-brand-gray-50 p-4">
+                        "La Inteligencia Artificial no viene a sustituir el periodismo de investigación de campo riojano. Funciona como un asistente de redacción aumentada que automatiza lo rutinario para que el profesional se concentre en el análisis."
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">Línea Roja Institucional</h3>
+                        <p class="font-light">Queda estrictamente prohibida la publicación automatizada por IA sin la debida curaduría y revisión por parte de un editor humano riojano, preservando siempre la veracidad de los datos, la ética periodística y la sensibilidad política.</p>
+                    </div>
+
+                    <!-- Interactive Vector Archive Simulation -->
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
+                        <div class="mb-6">
+                            <h3 class="serif-header text-xl font-bold text-brand-black">Simulador de Consulta — El Independiente IA</h3>
+                            <p class="text-xs1  text-brand-gray-500 font-light mt-0.5">Explora interactivamente décadas de archivo periodístico digitalizado e indexado de La Rioja usando lenguaje natural.</p>
+                        </div>
+
+                        <!-- Simulated Search Input -->
+                        <div class="flex space-x-2 mb-6">
+                            <input type="text" id="ia-query-input" class="flex-grow border border-brand-gray-300 p-3 text-xs1  focus:ring-1 focus:ring-brand-black focus:outline-none rounded-none font-mono" placeholder="Escribe un tema de consulta (Ej: Facundo Quiroga, Parque Eólico, Chaya)...">
+                            <button onclick="querySimulatedAI()" class="bg-brand-black text-white hover:opacity-90 px-6 py-3 text-xs1  uppercase tracking-wider font-mono font-bold transition">Consultar</button>
+                        </div>
+
+                        <!-- Output result -->
+                        <div id="ia-query-result-box" class="bg-white border border-brand-gray-200 p-6 min-h-[140px] flex flex-col justify-between rounded-sm">
+                            <div id="ia-status-notice" class="hidden text-xs1 font-bold mb-3 px-3 py-2 border-l-4"></div>
+                            <div id="ia-result-content" class="text-xs1  text-brand-gray-600 font-light leading-relaxed">
+                                Introduce una búsqueda en el cuadro superior para simular las consultas de nuestra red neuronal vectorial entrenada. Intenta buscar "Facundo Quiroga", "Arauco", "Chaya" o "Coparticipación".
+                            </div>
+                            <div id="ia-result-source" class="mt-4 pt-3 border-t border-brand-gray-100 text-[10px] font-mono text-brand-gray-400 flex justify-between">
+                                <span>ESTADO DEL MOTOR: ACTIVO</span>
+                                <span id="ia-doc-matches">&mdash;</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">Los 5 Niveles de Adopción de IA en el Medio</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 text-xs1  font-light">
+                            <div class="p-4 border border-brand-gray-200">
+                                <strong class="block text-brand-black font-semibold mb-1">Nivel 1: Redacción</strong>
+                                Transcripción y minería de discursos de la Legislatura provincial y conferencias del Ejecutivo.
+                            </div>
+                            <div class="p-4 border border-brand-gray-200">
+                                <strong class="block text-brand-black font-semibold mb-1">Nivel 2: Investigación</strong>
+                                Cargar extensos documentos de presupuestos provinciales para detectar variaciones de partidas.
+                            </div>
+                            <div class="p-4 border border-brand-gray-200">
+                                <strong class="block text-brand-black font-semibold mb-1">Nivel 3: SEO</strong>
+                                Estructurar esquemas temáticos ricos, schemas dinámicos y etiquetados óptimos de artículos.
+                            </div>
+                            <div class="p-4 border border-brand-gray-200">
+                                <strong class="block text-brand-black font-semibold mb-1">Nivel 4: Multimedia</strong>
+                                Edición de video de un minuto, subtitulado automatizado y generación de clips destacados.
+                            </div>
+                            <div class="p-4 border border-brand-gray-200">
+                                <strong class="block text-brand-black font-semibold mb-1">Nivel 5: Memoria</strong>
+                                Preservar el archivo histórico provincial permitiendo búsquedas inteligentes atemporales de los últimos 50 años.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500">
+                    <a href="#eje4" onclick="navigateTo('eje4')" class="hover:text-brand-black transition duration-150">&larr; Eje 4</a>
+                    <a href="#eje6" onclick="navigateTo('eje6')" class="hover:text-brand-black transition duration-150">Eje 6: UX &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: EJE 6 (PLATAFORMA & UX) ==================== -->
+        <section id="page-eje6" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">EJE ESTRATÉGICO 06</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-8 text-brand-black border-b border-brand-gray-200 pb-4">Plataforma Tecnológica, SEO & Portada UX</h1>
+                
+                <div class="space-y-8 text-sm leading-relaxed text-brand-gray-800">
+                    <div>
+                        <h3 class="text-xs1  uppercase tracking-wider font-bold text-brand-black mb-2">1. Diagnóstico Tecnológico Actual</h3>
+                        <p class="font-light">La sobrecarga visual inunda la portada de la web de los diarios del interior, con decenas de noticias uniformes que diluyen la importancia de las investigaciones de valor. La baja velocidad de carga móvil daña las métricas orgánicas ante motores de búsqueda.</p>
+                    </div>
+
+                    <!-- Interactive Homepage Wireframe Simulator -->
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
+                        <h3 class="serif-header text-xl font-bold text-brand-black mb-2">Simulador de Lógica de Jerarquía UX (El Portal 2030)</h3>
+                        <p class="text-xs1  text-brand-gray-500 font-light mb-6">Pasa el cursor por cada bloque de la portada simulada para entender su objetivo de retención.</p>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            <!-- Simulated Mobile view -->
+                            <div class="lg:col-span-6 border-4 border-brand-black p-4 bg-white rounded-md shadow-lg max-w-[320px] mx-auto space-y-4 font-sans">
+                                <div class="border-b border-brand-gray-200 pb-2 text-center">
+                                    <span class="font-serif text-sm font-bold tracking-tight">EL INDEPENDIENTE</span>
+                                </div>
+                                <!-- Block 1 Hero -->
+                                <div onmouseover="hoverUXBlock('hero')" class="border border-brand-black bg-brand-black text-white p-4 text-center cursor-pointer">
+                                    <h5 class="font-bold text-xs1 ">Bloque 1: El Impacto Hero</h5>
+                                    <p class="text-[9px] text-brand-gray-300 font-light">Noticia única de gran importancia provincial</p>
+                                </div>
+                                <!-- Block 2 Trends -->
+                                <div onmouseover="hoverUXBlock('trends')" class="border border-brand-gray-300 p-3 text-center cursor-pointer">
+                                    <h5 class="font-bold text-xs1  text-brand-black">Bloque 2: Lo más leido</h5>
+                                    <p class="text-[9px] text-brand-gray-400 font-light">Módulo de auto-actualización</p>
+                                </div>
+                                <!-- Block 3 Explaining -->
+                                <div onmouseover="hoverUXBlock('evergreen')" class="border border-brand-gray-300 p-3 text-center bg-brand-gray-50 cursor-pointer">
+                                    <h5 class="font-bold text-xs1  text-brand-black">Bloque 3: La Rioja Explicada</h5>
+                                    <p class="text-[9px] text-brand-gray-400 font-light">Vidriera del material Evergreen</p>
+                                </div>
+                                <!-- Block 4 Observatorio -->
+                                <div onmouseover="hoverUXBlock('data')" class="border-2 border-dashed border-brand-gray-400 p-3 text-center cursor-pointer">
+                                    <h5 class="font-bold text-xs1  text-brand-black">Bloque 4: Datos del Observatorio</h5>
+                                    <p class="text-[9px] text-brand-gray-400 font-light">Paneles interactivos integrados</p>
+                                </div>
+                            </div>
+
+                            <!-- Explaining column right -->
+                            <div class="lg:col-span-6 flex flex-col justify-between">
+                                <div class="bg-white border border-brand-gray-200 p-6 min-h-[220px]">
+                                    <span class="font-mono text-[9px] text-brand-gray-400 font-bold uppercase tracking-wider block mb-2">ANÁLISIS DE BLOQUE UX</span>
+                                    <h4 class="font-bold text-sm text-brand-black uppercase mb-2" id="ux-block-title">Selecciona un bloque de la izquierda</h4>
+                                    <p class="text-xs1  text-brand-gray-600 font-light leading-relaxed" id="ux-block-desc">Deslice el mouse sobre el esquema visual del móvil para comprender por qué la arquitectura "Conocimiento-First" de la portada es clave para maximizar los tiempos de retención y el SEO.</p>
+                                </div>
+                                <div class="bg-brand-gray-100 p-4 font-mono text-[10px] space-y-1">
+                                    <div><strong>ESPECIFICACIONES CORE:</strong></div>
+                                    <div>&bull; Móvil primero: tráfico > 70% provincial.</div>
+                                    <div>&bull; Velocidad de carga móvil menor a 2 segundos.</div>
+                                    <div>&bull; WordPress con Bricks / Kadence WP Builder.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500">
+                    <a href="#eje5" onclick="navigateTo('eje5')" class="hover:text-brand-black transition duration-150">&larr; Eje 5</a>
+                    <a href="#eje7" onclick="navigateTo('eje7')" class="hover:text-brand-black transition duration-150">Eje 7: Monetización &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: EJE 7 (MONETIZACION) ==================== -->
+        <section id="page-eje7" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">EJE ESTRATÉGICO 07</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-8 text-brand-black border-b border-brand-gray-200 pb-4">Modelo de Negocios y Sostenibilidad Financiera</h1>
+                
+                <div class="space-y-8 text-sm leading-relaxed text-brand-gray-800">
+                    <p class="font-light">La crisis económica de los medios no es únicamente editorial; es el agotamiento de sostenerse exclusivamente de la pauta pública clásica o de banners publicitarios planos de baja rentabilidad. La sostenibilidad futura exige **diversificar las fuentes de ingresos** para dotar de independencia y resiliencia al medio.</p>
+
+                    <!-- Interactive Income & Budget Simulator -->
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
+                        <div class="mb-6">
+                            <h3 class="serif-header text-xl font-bold text-brand-black">Simulador Financiero & Membresías (Club El Independiente)</h3>
+                            <p class="text-xs1  text-brand-gray-500 font-light mt-0.5">Estima los ingresos mensuales proyectados regulando la cantidad de miembros registrados de la provincia:</p>
+                        </div>
+
+                        <!-- Scenarios selection -->
+                        <div class="grid grid-cols-3 gap-2 mb-6">
+                            <button onclick="setScenario('basico')" id="sc-basico" class="scen-tab-btn border border-brand-black bg-brand-black text-white py-2 text-xs1  uppercase font-mono tracking-wider font-bold transition">Hosting Básico</button>
+                            <button onclick="setScenario('intermedio')" id="sc-intermedio" class="scen-tab-btn border border-brand-gray-200 bg-white text-brand-gray-500 py-2 text-xs1  uppercase font-mono tracking-wider font-bold hover:text-brand-black transition">Hosting Premium</button>
+                            <button onclick="setScenario('avanzado')" id="sc-avanzado" class="scen-tab-btn border border-brand-gray-200 bg-white text-brand-gray-500 py-2 text-xs1  uppercase font-mono tracking-wider font-bold hover:text-brand-black transition">Infraestructura IA</button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8 border-b border-brand-gray-200 pb-8">
+                            <!-- Platform Costs -->
+                            <div>
+                                <h4 class="text-xs1  uppercase tracking-widest text-brand-gray-400 font-bold mb-2">Costos Estimados de Plataforma</h4>
+                                <div class="serif-header text-3xl font-bold text-brand-black" id="cost-proy-value">$45.000 ARS/mes</div>
+                                <p class="text-[10px] text-brand-gray-500 font-light mt-1" id="cost-proy-desc">Hosting compartido básico, WordPress gratuito, y base de datos local sencilla.</p>
+                            </div>
+                            <!-- Tech Stack details -->
+                            <div>
+                                <h4 class="text-xs1  uppercase tracking-widest text-brand-gray-400 font-bold mb-2">Herramientas Recomendadas a Contratar</h4>
+                                <div class="text-[11px] font-mono text-brand-gray-700 space-y-1" id="cost-proy-tools">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slider calculation of membership -->
+                        <div>
+                            <div class="flex flex-col sm:flex-row justify-between items-baseline mb-4">
+                                <h4 class="text-xs1  uppercase tracking-widest text-brand-gray-400 font-bold">Simulación de Abonados Activos del Club</h4>
+                                <span class="font-mono text-xs1  text-brand-black font-bold">Base de Abono Mensual promedio: $3.000 ARS</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+                                <div class="sm:col-span-2">
+                                    <input type="range" min="100" max="3000" value="800" id="membres-slider" oninput="updateFinanceModel()" class="w-full accent-brand-black cursor-pointer">
+                                    <div class="flex justify-between text-[10px] text-brand-gray-400 mt-1 font-mono">
+                                        <span>100 Miembros</span>
+                                        <span class="font-bold text-brand-black" id="current-slider-lbl">800 Miembros</span>
+                                        <span>3000 Miembros</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white border border-brand-gray-200 p-5 rounded-sm text-center">
+                                    <span class="text-[9px] uppercase tracking-wider font-bold text-brand-gray-400 block mb-1">Ingresos de Membresías Estimados</span>
+                                    <div class="serif-header text-2xl font-bold text-brand-black" id="finance-rev-projected">$0.00 ARS</div>
+                                    <span class="text-[9px] text-brand-gray-400 block mt-1 font-light">* Sujeto a la tasa de conversión estratégica del portal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pie chart of diversified income -->
+                    <div>
+                        <h3 class="serif-header text-2xl font-bold text-brand-black mb-4">La Distribución de Ingresos Equilibrada (Meta 2030)</h3>
+                        <p class="font-light mb-6">Un ecosistema financiero de 5 niveles que asegura la solvencia y la independencia:</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 text-center">
+                            <div class="border border-brand-gray-200 p-4">
+                                <span class="text-xs1  font-mono text-brand-gray-400 block font-bold">40% INGRESOS</span>
+                                <h4 class="font-bold text-xs1  text-brand-black uppercase mt-1 mb-2">Publicidad</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light leading-normal">Publicidad tradicional institucional y micro-segmentada por departamentos.</p>
+                            </div>
+                            <div class="border border-brand-gray-200 p-4 bg-brand-gray-50">
+                                <span class="text-xs1  font-mono text-brand-black block font-bold">20% INGRESOS</span>
+                                <h4 class="font-bold text-xs1  text-brand-black uppercase mt-1 mb-2">Membresías</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light leading-normal">Cuota mensual recurrente de los miembros fidelizados del Club El Independiente.</p>
+                            </div>
+                            <div class="border border-brand-gray-200 p-4">
+                                <span class="text-xs1  font-mono text-brand-gray-400 block font-bold">15% INGRESOS</span>
+                                <h4 class="font-bold text-xs1  text-brand-black uppercase mt-1 mb-2">Estudios & Datos</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light leading-normal">Suscripciones corporativas y venta de informes del Observatorio de Datos.</p>
+                            </div>
+                            <div class="border border-brand-gray-200 p-4">
+                                <span class="text-xs1  font-mono text-brand-gray-400 block font-bold">15% INGRESOS</span>
+                                <h4 class="font-bold text-xs1  text-brand-black uppercase mt-1 mb-2">Eventos</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light leading-normal">Patrocinios por la producción de conversatorios, foros y debates presenciales.</p>
+                            </div>
+                            <div class="border border-brand-gray-200 p-4">
+                                <span class="text-xs1  font-mono text-brand-gray-400 block font-bold">10% INGRESOS</span>
+                                <h4 class="font-bold text-xs1  text-brand-black uppercase mt-1 mb-2">Academia</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light leading-normal">Venta de cursos educativos de comunicación, redes y formación cultural local.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500">
+                    <a href="#eje6" onclick="navigateTo('eje6')" class="hover:text-brand-black transition duration-150">&larr; Eje 6</a>
+                    <a href="#roadmap" onclick="navigateTo('roadmap')" class="hover:text-brand-black transition duration-150">Hoja de Ruta &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: ROADMAP ==================== -->
+        <section id="page-roadmap" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">CRONOGRAMA TRIMESTRAL</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-4 text-brand-black border-b border-brand-gray-200 pb-4">Hoja de Ruta Operativa (2026—2030)</h1>
+                <p class="text-brand-gray-500 text-sm mb-12 font-light">Estrategia de ejecución escalonada y progresiva para garantizar la sustentabilidad técnica y financiera del medio.</p>
+
+                <!-- Interactive Timeline Navigation -->
+                <div class="flex space-x-2 border-b border-brand-gray-200 pb-4 mb-8 overflow-x-auto reveal">
+                    <button onclick="switchPhase(1)" id="btn-ph1" class="phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-brand-black text-brand-black focus:outline-none transition-all">Fase I: Modernización Core (2026)</button>
+                    <button onclick="switchPhase(2)" id="btn-ph2" class="phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-transparent text-brand-gray-400 hover:text-brand-black focus:outline-none transition-all">Fase II: Expansión Multimedia (2027)</button>
+                    <button onclick="switchPhase(3)" id="btn-ph3" class="phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-transparent text-brand-gray-400 hover:text-brand-black focus:outline-none transition-all">Fase III: Ecosistema (2028-2030)</button>
+                </div>
+
+                <!-- Phase Contents Box -->
+                <div id="phase-desc-wrapper" class="bg-brand-gray-50 border border-brand-gray-200 p-8 rounded-sm space-y-6">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+            
+            <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500 max-w-4xl mx-auto">
+                <a href="#eje7" onclick="navigateTo('eje7')" class="hover:text-brand-black transition duration-150">&larr; Eje 7</a>
+                <a href="#consola" onclick="navigateTo('consola')" class="hover:text-brand-black transition duration-150">Consola Central &rarr;</a>
+            </div>
+        </section>
+
+
+        <!-- ==================== PAGE: CONSOLA CENTRAL ==================== -->
+        <section id="page-consola" class="page-content hidden fade-transition opacity-0 transform translate-y-4">
+            <div class="max-w-4xl mx-auto">
+                <span class="font-mono text-xs1  text-brand-gray-400 font-bold uppercase tracking-widest">CONSOLA CENTRAL</span>
+                <h1 class="serif-header text-4xl sm:text-5xl font-bold mt-2 mb-4 text-brand-black border-b border-brand-gray-200 pb-4">Mesa de Trabajo del Director de Transformación</h1>
+                <p class="text-brand-gray-500 text-sm mb-12 font-light">Centralizador interactivo para simular, estimar retornos de inversión y auditar el plan maestro en tiempo real.</p>
+
+                <!-- 1. Audit Tool -->
+                <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 mb-12 reveal">
+                    <h3 class="serif-header text-2xl font-bold text-brand-black mb-2">Auditoría del Ecosistema de Sostenibilidad</h3>
+                    <p class="text-xs1  text-brand-gray-500 mb-6 font-light">Configura los presupuestos previstos de desarrollo para verificar el cumplimiento de la regla de resiliencia del modelo.</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs1  font-semibold text-brand-gray-600 mb-1">Porcentaje de Ingresos por Publicidad (%):</label>
+                                <input type="range" min="10" max="80" value="40" id="aud-pub-slider" oninput="auditRegla()" class="w-full accent-brand-black cursor-pointer">
+                                <div class="flex justify-between text-[10px] font-mono text-brand-gray-400">
+                                    <span>10%</span>
+                                    <span class="font-bold text-brand-black" id="aud-pub-lbl">40%</span>
+                                    <span>80%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs1  font-semibold text-brand-gray-600 mb-1">Porcentaje de Ingresos por Membresías (%):</label>
+                                <input type="range" min="5" max="50" value="20" id="aud-memb-slider" oninput="auditRegla()" class="w-full accent-brand-black cursor-pointer">
+                                <div class="flex justify-between text-[10px] font-mono text-brand-gray-400">
+                                    <span>5%</span>
+                                    <span class="font-bold text-brand-black" id="aud-memb-lbl">20%</span>
+                                    <span>50%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results of audit -->
+                        <div class="bg-white border-2 p-6 rounded-sm text-center flex flex-col justify-between min-h-[160px]" id="aud-status-box">
+                            <div>
+                                <span class="font-mono text-[9px] text-brand-gray-400 font-bold uppercase block mb-1">ESTADO DE RESILIENCIA</span>
+                                <div class="serif-header text-xl font-bold text-brand-black" id="aud-status-text">Cargando...</div>
+                            </div>
+                            <p class="text-[10px] text-brand-gray-500 font-light mt-2" id="aud-status-desc">El equilibrio financiero asegura que el medio sobreviva de manera independiente ante la caída arbitraria de cualquiera de los pilares de la pauta.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Interactive KPI Checklist -->
+                <div class="border border-brand-gray-200 p-8 rounded-sm bg-white reveal">
+                    <h3 class="serif-header text-2xl font-bold text-brand-black mb-2">Checklist de Indicadores de Éxito Trimestrales</h3>
+                    <p class="text-xs1  text-brand-gray-500 mb-6 font-light">Monitorea el progreso de los objetivos clave del plan de transformación a los 6 y 12 meses:</p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3 border-b border-brand-gray-100 pb-3">
+                            <input type="checkbox" checked class="w-4 h-4 accent-brand-black mt-0.5">
+                            <div>
+                                <h4 class="font-bold text-xs1  text-brand-black">Velocidad Core Web Vitals (Eje 6)</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light mt-0.5">Asegurar que el portal web de El Independiente cargue en menos de 2 segundos en redes móviles provinciales.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 border-b border-brand-gray-100 pb-3">
+                            <input type="checkbox" class="w-4 h-4 accent-brand-black mt-0.5">
+                            <div>
+                                <h4 class="font-bold text-xs1  text-brand-black">Captura de Tráfico Evergreen (Eje 1)</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light mt-0.5">Lograr que el 20% del volumen total de visitas del sitio provenga de búsquedas orgánicas atemporales.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 border-b border-brand-gray-100 pb-3">
+                            <input type="checkbox" class="w-4 h-4 accent-brand-black mt-0.5">
+                            <div>
+                                <h4 class="font-bold text-xs1  text-brand-black">Suscripción de Lectores Registrados (Eje 4)</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light mt-0.5">Alcanzar una base de datos de correos electrónicos propia de más de 5.000 riojanos para el envío de newsletters.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" class="w-4 h-4 accent-brand-black mt-0.5">
+                            <div>
+                                <h4 class="font-bold text-xs1  text-brand-black">Adopción Operativa de IA (Eje 5)</h4>
+                                <p class="text-[10px] text-brand-gray-500 font-light mt-0.5">Reducir a un 50% el tiempo invertido en transcribir entrevistas del interior, ruedas de prensa legislativas y resumir expedientes de gobierno.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-brand-gray-200 flex justify-between text-xs1  tracking-widest font-bold uppercase text-brand-gray-500 max-w-4xl mx-auto">
+                <a href="#roadmap" onclick="navigateTo('roadmap')" class="hover:text-brand-black transition duration-150">&larr; Hoja de Ruta</a>
+                <span class="font-mono text-[10px] text-brand-gray-400">El Independiente 2030</span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-brand-gray-200 bg-brand-gray-50 py-12 text-xs1 ">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 reveal">
+            <div class="md:col-span-2">
+                <span class="serif-header text-lg font-bold text-brand-black">EL INDEPENDIENTE <span class="font-light italic">2030</span></span>
+                <p class="text-brand-gray-500 mt-2 max-w-sm leading-relaxed font-light">Este sistema representa el Plan Maestro de Transformación Digital del Diario El Independiente de La Rioja para el período de ejecución 2026—2030.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-brand-black uppercase tracking-wider mb-3">Secciones del Plan</h4>
+                <ul class="space-y-2 text-brand-gray-600 font-light">
+                    <li><a href="#eje1" onclick="navigateTo('eje1')" class="hover:text-brand-black transition">Eje 1: Rediseño Editorial</a></li>
+                    <li><a href="#eje2" onclick="navigateTo('eje2')" class="hover:text-brand-black transition">Eje 2: Periodismo de Datos</a></li>
+                    <li><a href="#eje3" onclick="navigateTo('eje3')" class="hover:text-brand-black transition">Eje 3: Ecosistema Audiovisual</a></li>
+                    <li><a href="#eje4" onclick="navigateTo('eje4')" class="hover:text-brand-black transition">Eje 4: Audiencias & Comunidad</a></li>
+                    <li><a href="#eje5" onclick="navigateTo('eje5')" class="hover:text-brand-black transition">Eje 5: Inteligencia Artificial</a></li>
+                    <li><a href="#eje6" onclick="navigateTo('eje6')" class="hover:text-brand-black transition">Eje 6: Plataforma & UX</a></li>
+                    <li><a href="#eje7" onclick="navigateTo('eje7')" class="hover:text-brand-black transition">Eje 7: Sostenibilidad Financiera</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-brand-black uppercase tracking-wider mb-3">Planificación</h4>
+                <ul class="space-y-2 text-brand-gray-600 font-light">
+                    <li><a href="#roadmap" onclick="navigateTo('roadmap')" class="hover:text-brand-black transition">Cronograma Maestro</a></li>
+                    <li><a href="#consola" onclick="navigateTo('consola')" class="hover:text-brand-black transition">Consola de Control</a></li>
+                </ul>
+                <div class="mt-6">
+                    <span class="text-[10px] text-brand-gray-400 font-mono block">La Rioja, Argentina</span>
+                    <span class="text-[10px] text-brand-gray-400 font-mono block">Año de Ejecución: 2026</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE SCRIPT LOGIC -->
+    <script>
+        // ==================== NAVIGATION ROUTER ====================
+        function navigateTo(pageId) {
+            // Hide all sections with smooth animation state
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(p => {
+                p.classList.add('hidden');
+                p.classList.remove('opacity-100', 'translate-y-0');
+                p.classList.add('opacity-0', 'translate-y-4');
+            });
+            
+            // Show requested section
+            const targetPage = document.getElementById('page-' + pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                // Trigger smooth fade in after browser paints
+                setTimeout(() => {
+                    targetPage.classList.remove('opacity-0', 'translate-y-4');
+                    targetPage.classList.add('opacity-100', 'translate-y-0');
+                }, 50);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Update Desktop navigation link classes
+            const navLinks = document.querySelectorAll('.nav-link');
+            const activeLink = document.getElementById('nav-' + pageId);
+            
+            // Handle active styling
+            document.querySelectorAll('[id^="nav-"]').forEach(el => {
+                el.classList.remove('text-brand-black', 'border-brand-black');
+                el.classList.add('text-brand-gray-500', 'border-transparent');
+            });
+            if (activeLink) {
+                activeLink.classList.remove('text-brand-gray-500', 'border-transparent');
+                activeLink.classList.add('text-brand-black', 'border-brand-black');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.remove('menu-slide');
+                void menu.offsetWidth;
+                menu.classList.add('menu-slide');
+            } else {
+                menu.classList.add('hidden');
+            }
+        }
+
+        // ==================== EJE 1: MATRIZ DE ESFUERZOS INTERACTIVA ====================
+        const matrixData = {
+            '70': {
+                title: "Actualidad Clásica (70%)",
+                desc: "Representa la base informativa tradicional del diario. Cobertura diaria clásica de la gobernación, ministerios, la actividad parlamentaria en la Legislatura provincial, policiales locales, deportes y novedades municipales de cada departamento.",
+                example: "El Ministerio de Salud riojano anunció el cronograma de vacunación para el interior."
+            },
+            '20': {
+                title: "Profundización & Contexto (20%)",
+                desc: "Informes de contexto para que el lector comprenda los procesos socioeconómicos locales. Si la actualidad rápida del día (70%) informa que 'Se inauguró una obra de riego en Chamical', la profundización (20%) debe explicar de manera didáctica cómo funciona el sistema hídrico de esa región.",
+                example: "Informe especial: El estado de los acuíferos subterráneos de los llanos riojanos ante la sequía."
+            },
+            '10': {
+                title: "Contenido Evergreen / Perenne (10%)",
+                desc: "El verdadero tesoro acumulativo del medio. Artículos atemporales de altísimo valor de retención e interés histórico que generan de forma ininterrumpida tráfico orgánico masivo desde motores de búsqueda a lo largo de los años.",
+                example: "La historia completa de las batallas de Facundo Quiroga y el surgimiento del federalismo en el norte."
+            }
+        };
+
+        function selectMatrixTab(key) {
+            // Reset background colors of all buttons
+            ['70', '20', '10'].forEach(k => {
+                const btn = document.getElementById('matrix-bar-' + k);
+                if (btn) {
+                    btn.className = "border border-brand-gray-200 bg-white text-brand-gray-700 p-4 cursor-pointer transition duration-200 hover:border-brand-black flex justify-between items-center";
+                }
+            });
+
+            // Set active color to clicked bar
+            const activeBtn = document.getElementById('matrix-bar-' + key);
+            if (activeBtn) {
+                activeBtn.className = "border border-brand-black bg-brand-black text-white p-4 cursor-pointer transition duration-200 hover:opacity-90 flex justify-between items-center";
+            }
+
+            // Update description block text dynamically with smooth opacity transition
+            const info = matrixData[key];
+            const contentBox = document.getElementById('matrix-explanation-content');
+            
+            contentBox.style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('matrix-exp-title').innerText = info.title;
+                document.getElementById('matrix-exp-desc').innerText = info.desc;
+                document.getElementById('matrix-exp-example').innerText = `"${info.example}"`;
+                contentBox.style.opacity = 1;
+            }, 150);
+        }
+
+        // ==================== EJE 2: OBSERVATORIOS DE DATOS INTERACTIVOS ====================
+        const observatoriosData = {
+            economico: {
+                title: "Observatorio de Indicadores Económicos de La Rioja",
+                desc: "Monitoreo constante y depuración de bases de datos de inflación y canastas de consumo riojanas, contrastándolas con el salario de la administración pública local.",
+                metricName: "Evolución de Inflación Provincial Estimada (Acumulada Trimestre)",
+                metricValue: "52.4%",
+                chartHTML: `
+                    <div class="space-y-3 font-mono text-xs1  mt-4">
+                        <div class="flex items-center justify-between"><span>Enero:</span> <div class="w-2/3 bg-brand-gray-100 h-4 border border-brand-gray-200"><div class="bg-brand-gray-400 h-full" style="width: 12.5%"></div></div> <span class="font-bold">12.5%</span></div>
+                        <div class="flex items-center justify-between"><span>Febrero:</span> <div class="w-2/3 bg-brand-gray-100 h-4 border border-brand-gray-200"><div class="bg-brand-gray-600 h-full" style="width: 28.1%"></div></div> <span class="font-bold">28.1%</span></div>
+                        <div class="flex items-center justify-between"><span>Marzo:</span> <div class="w-2/3 bg-brand-gray-100 h-4 border border-brand-gray-200"><div class="bg-brand-black h-full" style="width: 52.4%"></div></div> <span class="font-bold">52.4%</span></div>
+                    </div>
+                `
+            },
+            territorial: {
+                title: "Observatorio Territorial & Obras de Infraestructura",
+                desc: "Mapa interactivo por departamento de las obras públicas vigentes con plazos de finalización y asignación de partidas presupuestarias.",
+                metricName: "Presupuesto Ejecutado Total Interior Provincial",
+                metricValue: "$1.450 Millones",
+                chartHTML: `
+                    <div class="space-y-2 text-xs1  font-mono mt-4">
+                        <div class="flex justify-between items-center border-b border-brand-gray-100 pb-1.5"><span>Dpto. Capital (Red Hídrica):</span> <span class="font-bold text-brand-black">Ejecutado al 85%</span></div>
+                        <div class="flex justify-between items-center border-b border-brand-gray-100 pb-1.5"><span>Dpto. Chilecito (Camino Productivo):</span> <span class="font-bold text-brand-black">Ejecutado al 40%</span></div>
+                        <div class="flex justify-between items-center border-b border-brand-gray-100 pb-1.5"><span>Dpto. Chamical (Acueducto):</span> <span class="font-bold text-brand-black">Demorado por partidas</span></div>
+                        <div class="flex justify-between items-center"><span>Dpto. Arauco (Ampliación Eólica):</span> <span class="font-bold text-brand-black">Ejecutado al 100%</span></div>
+                    </div>
+                `
+            },
+            social: {
+                title: "Observatorio Social & de Necesidades Colectivas",
+                desc: "Indicadores demográficos del interior provincial, evolución de la tasa de empleo joven y acceso a servicios básicos.",
+                metricName: "Tasa de Empleo de la Juventud (Dptos Interior)",
+                metricValue: "41.2%",
+                chartHTML: `
+                    <div class="grid grid-cols-3 gap-4 text-center mt-6">
+                        <div class="border border-brand-gray-200 p-4">
+                            <span class="text-[9px] text-brand-gray-400 block font-bold uppercase">Coparticipación</span>
+                            <span class="serif-header text-xl font-bold text-brand-black mt-1 block">Regular</span>
+                        </div>
+                        <div class="border border-brand-gray-200 p-4 bg-brand-gray-50">
+                            <span class="text-[9px] text-brand-black block font-bold uppercase">Acceso a Internet</span>
+                            <span class="serif-header text-xl font-bold text-brand-black mt-1 block">58% llanos</span>
+                        </div>
+                        <div class="border border-brand-gray-200 p-4">
+                            <span class="text-[9px] text-brand-gray-400 block font-bold uppercase">Educación Digital</span>
+                            <span class="serif-header text-xl font-bold text-brand-black mt-1 block">+12% anual</span>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        function selectDataTab(key) {
+            // Manage button styles
+            const buttons = document.querySelectorAll('.data-tab-btn');
+            buttons.forEach(btn => {
+                btn.className = "border border-brand-gray-200 bg-white text-brand-gray-500 px-3 py-1.5 hover:text-brand-black transition";
+            });
+
+            const activeBtn = document.getElementById('dt-' + key);
+            if (activeBtn) {
+                activeBtn.className = "border border-brand-black bg-brand-black text-white px-3 py-1.5 transition";
+            }
+
+            // Populate container content
+            const data = observatoriosData[key];
+            const canvas = document.getElementById('data-dashboard-canvas');
+            
+            canvas.style.opacity = 0;
+            setTimeout(() => {
+                canvas.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <div class="md:col-span-8 flex flex-col justify-between">
+                            <div>
+                                <h4 class="serif-header text-lg font-bold text-brand-black mb-2">${data.title}</h4>
+                                <p class="text-xs1  text-brand-gray-600 font-light leading-relaxed mb-4">${data.desc}</p>
+                            </div>
+                            <div class="mt-4">
+                                ${data.chartHTML}
+                            </div>
+                        </div>
+                        <div class="md:col-span-4 bg-brand-gray-50 p-6 flex flex-col justify-center items-center text-center border border-brand-gray-200">
+                            <span class="text-[9px] font-mono text-brand-gray-400 font-bold uppercase block">${data.metricName}</span>
+                            <span class="serif-header text-3xl font-extrabold text-brand-black mt-2 mb-1 block">${data.metricValue}</span>
+                            <span class="text-[9px] font-mono text-brand-black bg-brand-gray-200 px-2 py-0.5 mt-2 uppercase font-semibold">DATOS DE LA RIOJA VERIFICADOS</span>
+                        </div>
+                    </div>
+                `;
+                canvas.style.opacity = 1;
+            }, 150);
+        }
+
+
+        // ==================== EJE 3: SIMULADOR DE TRANSICION DE CONTENIDOS ====================
+        const motherThemes = {
+            energia: {
+                article: "Investigación profunda de 1200 palabras analizando el impacto de las celdas del Parque Arauco III en la matriz energética de los llanos.",
+                reel: "GANCHO: '¿Sabías que La Rioja produce energía limpia capaz de abastecer a tres provincias vecinas juntas?' Muestra tomas aéreas veloces y explica que Arauco aporta un porcentaje récord al sistema eléctrico.",
+                podcast: "'Bienvenidos a Primera Hora de El Independiente. Hoy analizamos el auge hídrico y eólico de nuestra provincia y el estado de los molinos de Arauco...'",
+                news: "Asunto: El viento que produce millones. Por qué Arauco es una de las mayores fortalezas estructurales de la región y qué impacto tiene en tu tarifa.",
+                slides: "Placa 1: El viento riojano en números. Placa 2: Cuánta energía limpia inyecta el Parque Arauco al mercado mayorista interconectado."
+            },
+            federalismo: {
+                article: "Compendio explicativo evergreen de nuestra Biblioteca Riojana sobre las cartas secretas e inéditas intercambiadas por Facundo Quiroga antes de Barranca Yaco.",
+                reel: "GANCHO: 'El secreto que Quiroga se llevó a la tumba...' Relata el fragmento del asesinato y su correspondencia perdida en menos de 60 segundos.",
+                podcast: "'Hola oyentes. En el episodio de memoria e historia de hoy nos sumergimos en las pasiones federales riojanas y la traición que cambió todo...'",
+                news: "Asunto: Las cartas perdidas del Tigre de los Llanos. Un recorrido exclusivo por los tesoros de la Biblioteca Histórica que abren debate.",
+                slides: "Placa 1: Las cartas olvidadas de Facundo Quiroga. Placa 2: La ruta del federalismo en las provincias argentinas."
+            },
+            economia: {
+                article: "Análisis pormenorizado del récord histórico de exportaciones de varietales de Torrontés Riojano de las cooperativas agrícolas de Chilecito.",
+                reel: "GANCHO: '¿Por qué el vino más premiado nace a la sombra de los cerros de Chilecito?' Breve recorrido por los viñedos y estadísticas en un minuto.",
+                podcast: "'En el resumen de La Rioja Productiva de esta semana hablamos del récord exportador vitivinícola de Chilecito a los mercados europeos...'",
+                news: "Asunto: El Torrontés Riojano conquista el mundo. Cómo las cooperativas locales logran records de exportación en un escenario complejo.",
+                slides: "Placa 1: El mapa exportador de Chilecito. Placa 2: Los mercados mundiales que prefieren la producción riojana."
+            }
+        };
+
+        function selectMotherTheme(themeKey) {
+            // Manage button styles
+            const buttons = document.querySelectorAll('.mother-tab-btn');
+            buttons.forEach(btn => {
+                btn.className = "border border-brand-gray-200 bg-white text-brand-gray-500 py-2 text-xs1  uppercase font-mono tracking-wider font-bold hover:text-brand-black transition";
+            });
+
+            const activeBtn = document.getElementById('mt-' + themeKey);
+            if (activeBtn) {
+                activeBtn.className = "border border-brand-black bg-brand-black text-white py-2 text-xs1  uppercase font-mono tracking-wider font-bold transition";
+            }
+
+            // Fill text blocks
+            const data = motherThemes[themeKey];
+            document.getElementById('mother-out-article').innerText = data.article;
+            document.getElementById('mother-out-reel').innerText = data.reel;
+            document.getElementById('mother-out-podcast').innerText = data.podcast;
+            document.getElementById('mother-out-news').innerText = data.news;
+            document.getElementById('mother-out-slides').innerText = data.slides;
+        }
+
+
+        // ==================== EJE 5: SIMULADOR DE HISTORIAL VECTORIAL IA ====================
+        const archiveDatabase = [
+            { query: "facundo quiroga", text: "Encontradas 142 referencias en archivo. Nota de portada (14 de Mayo, 1989): 'El revisionismo del federalismo norteño y el entierro simbólico de Facundo Quiroga'. Documentación detallada en la Biblioteca Riojana.", source: "ARCHIVO HISTÓRICO - TOMO XV - Pág. 41" },
+            { query: "arauco", text: "Encontradas 89 referencias en archivo. Nota de investigación (Septiembre, 2011): 'Inauguración oficial de las primeras turbinas del Parque Eólico Arauco, impulsando la autosuficiencia energética riojana'.", source: "SECCIÓN ECONOMÍA - ARCHIVO DIGITAL 2011" },
+            { query: "chaya", text: "Encontradas 312 referencias. Crónica de carnaval (Febrero, 1984): 'La Chaya riojana: la mayor manifestación de coplas populares y harina del norte argentino tras el retorno de la democracia'.", source: "SUPLEMENTO CULTURAL 'CULTURA VIVA'" },
+            { query: "coparticipación", text: "Encontradas 65 referencias en archivo. Nota de coyuntura (Julio, 1993): 'La Rioja reclama judicialmente la restitución del punto coparticipable cedido voluntariamente en la década pasada'.", source: "DOCUMENTO DE ECONOMÍA REGIONAL" },
+            { query: "agua", text: "Encontradas 112 referencias. Informe de los llanos (Noviembre, 2004): 'La sequía azota a las majadas de Chamical y los departamentos del interior reclaman acueductos permanentes'.", source: "OBSERVATORIO TERRITORIAL RIOJANO" }
+        ];
+
+        const GEMINI_API_KEY = "AQ.Ab8RN6L2hgycbx994c3alvPBP26RHyfXQM5rDGhgVo76N1RzXg";
+        const GEMINI_MODEL = "gemini-2.0-flash";
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function setIAStatusNotice(type, text) {
+            const noticeEl = document.getElementById('ia-status-notice');
+            if (!noticeEl) return;
+            if (!type) { noticeEl.classList.add('hidden'); return; }
+            noticeEl.classList.remove('hidden');
+            noticeEl.className = 'text-xs1 font-bold mb-3 px-3 py-2 border-l-4' + {
+                ok: ' bg-emerald-50 text-emerald-800 border-emerald-500',
+                fail: ' bg-red-50 text-red-700 border-red-500',
+                pending: ' bg-amber-50 text-amber-800 border-amber-500'
+            }[type];
+            noticeEl.textContent = text;
+        }
+
+        async function querySimulatedAI() {
+            const rawInputValue = document.getElementById('ia-query-input').value.trim();
+            const resultBox = document.getElementById('ia-result-content');
+            const sourceLbl = document.getElementById('ia-result-source');
+            const docMatchesLbl = document.getElementById('ia-doc-matches');
+
+            if (!rawInputValue) {
+                resultBox.innerHTML = "Por favor, escribe un término de búsqueda en el cuadro superior para procesar la consulta.";
+                setIAStatusNotice(null);
+                return;
+            }
+
+            resultBox.style.opacity = 0;
+            sourceLbl.innerHTML = `<span>ESTADO DEL MOTOR: CONSULTANDO GEMINI...</span>`;
+            docMatchesLbl.innerText = "PROCESANDO CONSULTA DE LENGUAJE NATURAL";
+            setIAStatusNotice('pending', 'AVISO: Consultando a Gemini IA... Espera la respuesta.');
+
+            const prompt = `Actúa como el motor de "El Independiente IA", un simulador de consulta sobre el archivo periodístico digitalizado e indexado de décadas de El Independiente de La Rioja (Argentina).
+Consulta del usuario: "${rawInputValue}"
+Responde en español, en tono periodístico y didáctico, como si recuperaras referencias del archivo histórico riojano (historia federal, cultura, geografía, economía o actualidad de La Rioja). Si no estás seguro de un dato, indícalo con honestidad sin inventar fuentes concretas. Responde en máximo 4 frases.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ role: "user", parts: [{ text: prompt }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error("HTTP " + response.status);
+                const data = await response.json();
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!text) throw new Error("Respuesta vacía");
+
+                resultBox.innerHTML = `
+                    <p class="font-semibold text-brand-black mb-1">RESPUESTA DE EL INDEPENDIENTE IA:</p>
+                    <p class="font-mono text-xs1  text-brand-gray-800 bg-brand-gray-50 p-3 border-l-2 border-brand-black mb-2 whitespace-pre-wrap">${escapeHtml(text.trim())}</p>
+                `;
+                sourceLbl.innerHTML = `<span>ESTADO DEL MOTOR: ACTIVO (GEMINI API)</span>`;
+                docMatchesLbl.innerText = "CONSULTA PROCESADA POR IA";
+                setIAStatusNotice('ok', 'AVISO: Gemini respondió correctamente. Esta respuesta fue generada por la IA.');
+            } catch (err) {
+                // Modo offline: recurre a la base local de archivos del simulador
+                const rawInput = rawInputValue.toLowerCase();
+                let matchedDoc = archiveDatabase.find(doc => rawInput.includes(doc.query) || doc.query.includes(rawInput));
+                if (matchedDoc) {
+                    resultBox.innerHTML = `
+                        <p class="font-semibold text-brand-black mb-1">COINCIDENCIA ENCONTRADA EN BASE VECTORIAL (MODO OFFLINE):</p>
+                        <p class="font-mono text-xs1  text-brand-gray-800 bg-brand-gray-50 p-3 border-l-2 border-brand-black mb-2">"${matchedDoc.text}"</p>
+                    `;
+                    sourceLbl.innerHTML = `<span>ESTADO DEL MOTOR: SIN CONEXIÓN A GEMINI (${err.message})</span> <strong>${matchedDoc.source}</strong>`;
+                    setIAStatusNotice('fail', `AVISO: Gemini no respondió (${err.message}). Se mostró un resultado local (offline).`);
+                } else {
+                    resultBox.innerHTML = `
+                        <p class="font-semibold text-brand-black mb-1">PROCESAMIENTO IA COMPLETADO (MODO OFFLINE):</p>
+                        <p class="font-mono text-xs1  text-brand-gray-500">"Gemini no está disponible en este momento. El motor vectorial local no encontró coincidencias exactas en la muestra de este simulador. Intente buscando 'Facundo Quiroga', 'Arauco', 'Chaya' o 'Coparticipación'."</p>
+                    `;
+                    sourceLbl.innerHTML = `<span>ESTADO: CONSULTA VACÍA EN MUESTRA LOCAL</span>`;
+                }
+                docMatchesLbl.innerText = "RESULTADOS: 0 COINCIDENCIAS";
+                setIAStatusNotice('fail', 'AVISO: Gemini no respondió. El motor local tampoco encontró coincidencias en la muestra.');
+            }
+            resultBox.style.opacity = 1;
+        }
+
+
+        // ==================== EJE 6: SIMULADOR DE BLOQUES UX PORTADA ====================
+        const uxBlocksInfo = {
+            hero: {
+                title: "Bloque Hero: Noticia de Impacto Principal",
+                desc: "Ubica un único artículo relevante de investigación del día con gran impacto fotográfico y tipografía grande. Elimina la saturación del portal actual donde todas las noticias competían con la misma jerarquía visual."
+            },
+            trends: {
+                title: "Bloque 2: Lo más leído del día",
+                desc: "Módulo dinámico de actualización automatizada que retiene al lector mostrando qué contenidos están generando debate en tiempo real en La Rioja."
+            },
+            evergreen: {
+                title: "Bloque 3: Vidriera de La Rioja Explicada",
+                desc: "Un espacio reservado para los contenidos Evergreen de la Biblioteca Riojana. Capta el interés de los lectores que buscan historia, geografía o cultura atemporal, disminuyendo la tasa de rebote del sitio."
+            },
+            data: {
+                title: "Bloque 4: Datos del Observatorio Local",
+                desc: "Gráficos de Looker Studio e indicadores dinámicos sobre inflación riojana, canasta alimentaria o el mapa de avance de obras por departamento directo en la home, convirtiendo al portal en un centro de conocimiento."
+            }
+        };
+
+        function hoverUXBlock(key) {
+            const block = uxBlocksInfo[key];
+            const titleEl = document.getElementById('ux-block-title');
+            const descEl = document.getElementById('ux-block-desc');
+
+            titleEl.style.opacity = 0;
+            descEl.style.opacity = 0;
+            setTimeout(() => {
+                titleEl.innerText = block.title;
+                descEl.innerText = block.desc;
+                titleEl.style.opacity = 1;
+                descEl.style.opacity = 1;
+            }, 100);
+        }
+
+
+        // ==================== EJE 7: CALCULADORES & MODELO DE SOSTENIBILIDAD ====================
+        const scenarios = {
+            basico: {
+                cost: "$45.000 ARS/mes",
+                desc: "Hosting compartido local básico, WordPress tradicional sin plugins premium y base de datos local estándar.",
+                tools: ["- Servidor Compartido Local", "- WordPress Core", "- Plugin Yoast SEO Free", "- Formularios básicos libres"],
+                multiplier: 1.0
+            },
+            intermedio: {
+                cost: "$120.000 ARS/mes",
+                desc: "Hosting en la nube optimizado en AWS, WordPress estructurado con plantilla premium Kadence y base de correos Brevo.",
+                tools: ["- Hosting AWS Optimizado (Cloud)", "- Kadence WP Pro Theme", "- Rank Math SEO Pro", "- Mailchimp/Brevo Starter"],
+                multiplier: 1.4
+            },
+            avanzado: {
+                cost: "$380.000 ARS/mes",
+                desc: "Infraestructura híbrida de alto rendimiento. Servidor redundante en Cloudflare, plugins corporativos de membresías de MemberPress e indexación vectorial API de OpenAI integrada.",
+                tools: ["- Cloudflare Pro CDN", "- WordPress + Bricks Builder", "- Licencia Pro de MemberPress", "- API de OpenAI (Base Pinecone)", "- Mailchimp Enterprise", "- Rank Math SEO Premium"],
+                multiplier: 2.1
+            }
+        };
+
+        let currentScenario = 'basico';
+
+        function setScenario(scenKey) {
+            // Manage button active states
+            const buttons = document.querySelectorAll('.scen-tab-btn');
+            buttons.forEach(btn => {
+                btn.className = "border border-brand-gray-200 bg-white text-brand-gray-500 py-2 text-xs1  uppercase font-mono tracking-wider font-bold hover:text-brand-black transition";
+            });
+
+            const activeBtn = document.getElementById('sc-' + scenKey);
+            if (activeBtn) {
+                activeBtn.className = "border border-brand-black bg-brand-black text-white py-2 text-xs1  uppercase font-mono tracking-wider font-bold transition";
+            }
+
+            // Update details
+            currentScenario = scenKey;
+            const scen = scenarios[scenKey];
+            document.getElementById('cost-proy-value').innerText = scen.cost;
+            document.getElementById('cost-proy-desc').innerText = scen.desc;
+
+            // Update tools list
+            const toolsContainer = document.getElementById('cost-proy-tools');
+            toolsContainer.innerHTML = '';
+            scen.tools.forEach(t => {
+                const item = document.createElement('div');
+                item.innerText = t;
+                toolsContainer.appendChild(item);
+            });
+
+            // Recalculate
+            updateFinanceModel();
+        }
+
+        let lastFinanceValue = 0;
+
+        function animateFinanceNumber(targetValue, formatter) {
+            const el = document.getElementById('finance-rev-projected');
+            const start = performance.now();
+            const duration = 600;
+            const from = lastFinanceValue;
+            function step(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = Math.round(from + (targetValue - from) * eased);
+                el.innerText = value >= 0 ? formatter(value) : '—';
+                if (progress < 1) requestAnimationFrame(step);
+                else lastFinanceValue = targetValue;
+            }
+            requestAnimationFrame(step);
+        }
+
+        function updateFinanceModel() {
+            const slider = document.getElementById('membres-slider');
+            const count = slider.value;
+            document.getElementById('current-slider-lbl').innerText = count + " Miembros";
+
+            // Calculation formula
+            const baseAbono = 3000;
+            const mult = scenarios[currentScenario].multiplier;
+            const revenue = Math.round(count * baseAbono * mult);
+
+            const formatter = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(v);
+            animateFinanceNumber(revenue, formatter);
+        }
+
+
+        // ==================== ROADMAP: TIMELINE INTERACTIVA ====================
+        const roadmapPhases = {
+            1: {
+                phase: "FASE I — TRIMESTRES 1 & 2 (2026)",
+                title: "Modernización de la Infraestructura Core",
+                pDesc: "Los primeros 6 meses se centran de forma absoluta en sanear las debilidades tecnológicas iniciales y desplegar los primeros canales de atracción de audiencias propias indispensables.",
+                milestones: [
+                    "<strong>Rediseño de portada UX:</strong> Implementar la lógica de jerarquías modular orientada a móviles en WordPress.",
+                    "<strong>Optimización Core Web Vitals:</strong> Garantizar tiempos de carga de artículos sub-2 segundos usando WP Rocket y CDN.",
+                    "<strong>Lanzamiento de Newsletters:</strong> Creación del boletín matutino 'Primera Hora' para capturar la primera base de datos propia de correos.",
+                    "<strong>IA Básica en Redacción:</strong> Uso regulado de herramientas para desgrabación de conferencias y titulación SEO técnica."
+                ]
+            },
+            2: {
+                phase: "FASE II — TRIMESTRES 3 a 6 (2027)",
+                title: "Expansión Multimedia & Datos Riojanos",
+                pDesc: "El segundo año del plan maestro despliega la potencia transmedia de la redacción, el periodismo de datos de los observatorios y el portal de corresponsales barriales.",
+                milestones: [
+                    "<strong>Lanzamiento formal de Podcasts:</strong> Programas regulares semanales en Spotify y Riverside.",
+                    "<strong>Estreno de 'La Rioja en 3 Minutos':</strong> Formato nativo rápido audiovisual en YouTube e Instagram.",
+                    "<strong>Puesta en marcha del Observatorio:</strong> Primer tablero público e interactivo con indicadores de inflación, salarios e inversión pública.",
+                    "<strong>Activación de 'Reporteros Ciudadanos':</strong> Apertura de la plataforma de registro de colaboradores locales en los departamentos."
+                ]
+            },
+            3: {
+                phase: "FASE III — TRIMESTRES 7 a 12 (2028-2030)",
+                title: "Ecosistema de Conocimiento & Sustentabilidad",
+                pDesc: "Fase de madurez total. El Independiente se consolida institucionalmente y diversifica su estructura financiera de manera autosuficiente.",
+                milestones: [
+                    "<strong>Club El Independiente:</strong> Despliegue masivo del club de membresías con beneficios integrados comerciales locales.",
+                    "<strong>Inauguración de la Academia El Independiente:</strong> Venta sistemática de cursos de formación regional digitales y presenciales.",
+                    "<strong>El Independiente IA (Archivo Vectorial):</strong> Apertura del buscador histórico inteligente interactivo entrenado con las décadas de archivo del diario.",
+                    "<strong>Consorcio Riojano de Conocimiento:</strong> Alianza para centralizar indicadores estadísticos provinciales de valor académico junto a universidades."
+                ]
+            }
+        };
+
+        function switchPhase(phaseNum) {
+            // Reset tab styles
+            const buttons = document.querySelectorAll('.phase-btn-tab');
+            buttons.forEach(btn => {
+                btn.className = "phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-transparent text-brand-gray-400 hover:text-brand-black focus:outline-none transition-all";
+            });
+
+            const activeBtn = document.getElementById('btn-ph-' + phaseNum);
+            const activeTab = document.getElementById('btn-ph' + phaseNum);
+            if (activeTab) {
+                activeTab.className = "phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-brand-black text-brand-black focus:outline-none transition-all";
+            }
+
+            // Fill phase contents
+            const data = roadmapPhases[phaseNum];
+            const wrapper = document.getElementById('phase-desc-wrapper');
+
+            wrapper.style.opacity = 0;
+            setTimeout(() => {
+                wrapper.innerHTML = `
+                    <div>
+                        <span class="font-mono text-[10px] text-brand-gray-400 font-bold block">${data.phase}</span>
+                        <h3 class="serif-header text-2xl font-bold text-brand-black mt-1 mb-4">${data.title}</h3>
+                        <p class="text-xs1  text-brand-gray-600 font-light leading-relaxed max-w-3xl mb-6">${data.pDesc}</p>
+                        
+                        <div class="border-t border-brand-gray-200 pt-6">
+                            <h4 class="font-mono text-[10px] font-bold text-brand-black uppercase mb-4 tracking-widest">Hitos Críticos a Ejecutar:</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                ${data.milestones.map(m => `
+                                    <div class="flex items-start space-x-3 bg-white p-4 border border-brand-gray-200">
+                                        <span class="w-2 h-2 bg-brand-black mt-1.5 flex-shrink-0"></span>
+                                        <span class="text-xs1  text-brand-gray-700 font-light">${m}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                wrapper.style.opacity = 1;
+            }, 150);
+        }
+
+
+        // ==================== CONSOLA CENTRAL: AUDIT TOOL ====================
+        function auditRegla() {
+            const pubPercent = parseInt(document.getElementById('aud-pub-slider').value);
+            const membPercent = parseInt(document.getElementById('aud-memb-slider').value);
+
+            document.getElementById('aud-pub-lbl').innerText = pubPercent + "%";
+            document.getElementById('aud-memb-lbl').innerText = membPercent + "%";
+
+            const statusBox = document.getElementById('aud-status-box');
+            const statusText = document.getElementById('aud-status-text');
+            const statusDesc = document.getElementById('aud-status-desc');
+
+            // Regla de Oro: Ninguna fuente debe superar el 50%
+            if (pubPercent > 50) {
+                statusBox.className = "bg-white border-2 border-brand-black p-6 rounded-sm text-center flex flex-col justify-between min-h-[160px] border-dashed";
+                statusText.innerHTML = `<span class="text-brand-black font-extrabold uppercase">ALERTA</span>`;
+                statusDesc.innerText = `Riesgo de Dependencia: La publicidad representa el ${pubPercent}% (Supera el límite estratégico de seguridad del 50%). Corrige las proporciones.`;
+            } else if (pubPercent + membPercent > 90) {
+                statusBox.className = "bg-white border-2 border-brand-black p-6 rounded-sm text-center flex flex-col justify-between min-h-[160px] border-dashed";
+                statusText.innerHTML = `<span class="text-brand-black font-extrabold uppercase">DESEQUILIBRIO</span>`;
+                statusDesc.innerText = `Saturación de Fuentes: Los ingresos estimados suman ${pubPercent + membPercent}%. Recuerda dejar espacio para los Eventos, la Academia y los informes de Datos.`;
+            } else {
+                statusBox.className = "bg-brand-black text-white p-6 rounded-sm text-center flex flex-col justify-between min-h-[160px]";
+                statusText.innerHTML = `<span class="text-white font-extrabold uppercase tracking-widest">&bull; RESILIENTE &bull;</span>`;
+                statusDesc.innerText = `Distribución Saludable: Ninguno de los canales de monetización supera el 50% del total previsto de la empresa, asegurando sostenibilidad en el tiempo.`;
+            }
+
+            statusBox.classList.remove('state-pop');
+            void statusBox.offsetWidth;
+            statusBox.classList.add('state-pop');
+        }
+
+
+        // ==================== ANIMACIONES DE EXPERIENCIA (REVEAL ON SCROLL) ====================
+        function initRevealAnimations() {
+            // Convierte los contenedores de contenido principal en rejillas con aparición escalonada
+            document.querySelectorAll('.page-content .space-y-8').forEach(container => {
+                container.classList.add('reveal-grid');
+            });
+
+            // Aplica la clase reveal a cada hijo directo de una grilla marcada con escalonamiento
+            document.querySelectorAll('.reveal-grid').forEach(grid => {
+                Array.from(grid.children).forEach((child, i) => {
+                    child.classList.add('reveal');
+                    child.style.setProperty('--reveal-delay', ((i % 4) * 0.09).toFixed(2) + 's');
+                });
+            });
+
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -48px 0px' });
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (!el.classList.contains('reveal-visible')) revealObserver.observe(el);
+            });
+        }
+
+
+        // ==================== INITIALIZATION ====================
+        window.onload = function() {
+            // Load default states
+            selectMatrixTab('70');
+            selectDataTab('economico');
+            selectMotherTheme('energia');
+            hoverUXBlock('hero');
+            setScenario('basico');
+            switchPhase(1);
+            auditRegla();
+            initRevealAnimations();
+
+            // Hash router listener
+            const hash = window.location.hash;
+            if (hash) {
+                const cleanId = hash.replace('#', '');
+                if (document.getElementById('page-' + cleanId)) {
+                    navigateTo(cleanId);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
