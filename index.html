@@ -46,6 +46,8 @@
             background-color: #FFFFFF;
             color: #111827;
             -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
         .serif-header {
             font-family: 'Playfair Display', serif;
@@ -79,12 +81,70 @@
     font-size: 0.95rem;
     line-height: 1rem;
 }
+        /* ===== ANIMACIONES DE EXPERIENCIA ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(26px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes statePop {
+            from { transform: scale(0.97); opacity: 0.5; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        /* Entrada del header al cargar */
+        .header-anim {
+            opacity: 0;
+            animation: fadeInDown 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+        }
+        /* Entrada escalonada del bloque hero */
+        .hero-anim {
+            opacity: 0;
+            animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .hero-anim[data-delay="1"] { animation-delay: 0.10s; }
+        .hero-anim[data-delay="2"] { animation-delay: 0.20s; }
+        .hero-anim[data-delay="3"] { animation-delay: 0.32s; }
+        .hero-anim[data-delay="4"] { animation-delay: 0.44s; }
+        /* Aparición al hacer scroll (IntersectionObserver) */
+        .reveal {
+            opacity: 0;
+        }
+        .reveal.reveal-visible {
+            animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+            animation-delay: var(--reveal-delay, 0s);
+        }
+        /* Micro-interacción de menú móvil */
+        .menu-slide {
+            animation: fadeInDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* Pulsación de estado de la consola */
+        .state-pop {
+            animation: statePop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* ===== OPTIMIZACIÓN TIPOGRÁFICA PARA MÓVILES ===== */
+        @media (max-width: 640px) {
+            body .text-xs1 { font-size: 1rem; line-height: 1.5rem; }
+            body .text-\[9px\] { font-size: 10px; line-height: 1.35; }
+            body .text-\[10px\] { font-size: 11px; line-height: 1.35; }
+            body .text-\[11px\] { font-size: 12px; line-height: 1.4; }
+            body .text-lg { font-size: 1.1rem; line-height: 1.6; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .header-anim, .hero-anim, .reveal, .reveal.reveal-visible, .state-pop {
+                animation: none !important;
+                opacity: 1 !important;
+            }
+            * { scroll-behavior: auto !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-black selection:text-white">
 
     <!-- TOP HEADER / BRANDING -->
-    <header class="border-b border-brand-gray-200 sticky top-0 bg-white/95 backdrop-blur z-50 transition-all duration-300">
+    <header class="border-b border-brand-gray-200 sticky top-0 bg-white/95 backdrop-blur z-50 transition-all duration-300 header-anim">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex flex-col cursor-pointer" onclick="navigateTo('inicio')">
                 <span class="text-[10px] uppercase tracking-[0.4em] text-brand-gray-500 font-bold">DIARIO EL INDEPENDIENTE</span>
@@ -152,14 +212,14 @@
             <!-- Hero Layout: Split 12 cols -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-brand-gray-200 pb-16">
                 <!-- Left Vision Block -->
-                <div class="lg:col-span-7 flex flex-col justify-between">
+                <div class="lg:col-span-7 flex flex-col justify-between hero-anim" data-delay="1">
                     <div>
                         <div class="inline-flex items-center space-x-2 border border-brand-black text-brand-black text-[10px] tracking-widest font-bold px-3 py-1.5 mb-8 uppercase rounded-none">
                             <span>DOCUMENTO DE TRABAJO</span>
                             <span class="w-1.5 h-1.5 bg-brand-black rounded-full animate-ping"></span>
                             <span>FASE II (2026-2030)</span>
                         </div>
-                        <h1 class="serif-header text-5xl sm:text-7xl font-bold tracking-tight text-brand-black leading-none mb-6">
+                        <h1 class="serif-header text-4xl sm:text-7xl font-bold tracking-tight text-brand-black leading-none mb-6">
                             De Diario de Papel a Plataforma de <span class="font-light italic">Conocimiento Público</span>.
                         </h1>
                         <p class="text-brand-gray-600 text-lg leading-relaxed font-light mb-8 max-w-2xl">
@@ -174,7 +234,7 @@
                 </div>
 
                 <!-- Right Diagnostic Block -->
-                <div class="lg:col-span-5 bg-brand-gray-50 border border-brand-gray-200 p-8 flex flex-col justify-between rounded-sm">
+                <div class="lg:col-span-5 bg-brand-gray-50 border border-brand-gray-200 p-8 flex flex-col justify-between rounded-sm hero-anim" data-delay="2">
                     <div>
                         <div class="flex items-center justify-between border-b border-brand-gray-200 pb-4 mb-6">
                             <h3 class="text-[10px] uppercase tracking-widest font-bold text-brand-gray-400">DIAGNÓSTICO CRÍTICO</h3>
@@ -220,9 +280,9 @@
             </div>
 
             <!-- PARADIGM SHIFT TABLE -->
-            <div class="py-16 border-b border-brand-gray-200">
+            <div class="py-16 border-b border-brand-gray-200 reveal">
                 <h2 class="serif-header text-3xl font-bold mb-10 tracking-tight text-brand-black text-center sm:text-left">Cambio de Paradigma Estratégico</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 reveal-grid">
                     <div class="border border-brand-gray-200 p-8 rounded-sm">
                         <span class="font-mono text-[10px] text-brand-gray-400 font-bold uppercase tracking-widest block mb-4">LOGICA DE ANTAÑO</span>
                         <h3 class="serif-header text-2xl font-bold text-brand-black mb-4">El Medio de Acumulación Uniforme</h3>
@@ -249,14 +309,14 @@
 
             <!-- THE INTERACTIVE 7 AXES GRAPHIC INDEX -->
             <div class="py-16">
-                <div class="flex flex-col sm:flex-row justify-between items-baseline mb-12">
+                <div class="flex flex-col sm:flex-row justify-between items-baseline mb-12 reveal">
                     <h2 class="serif-header text-3xl font-bold tracking-tight text-brand-black">El Mapa del Plan: 7 Ejes Clave</h2>
                     <p class="text-xs1  text-brand-gray-500 uppercase tracking-widest font-mono">Selecciona un eje para profundizar en su documentación</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal-grid">
                     <!-- Card 1 -->
-                    <div onclick="navigateTo('eje1')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none">
+                    <div onclick="navigateTo('eje1')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
                         <div>
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 01</span>
@@ -272,7 +332,7 @@
                     </div>
 
                     <!-- Card 2 -->
-                    <div onclick="navigateTo('eje2')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none">
+                    <div onclick="navigateTo('eje2')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
                         <div>
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 02</span>
@@ -288,7 +348,7 @@
                     </div>
 
                     <!-- Card 3 -->
-                    <div onclick="navigateTo('eje3')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none">
+                    <div onclick="navigateTo('eje3')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
                         <div>
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 03</span>
@@ -304,7 +364,7 @@
                     </div>
 
                     <!-- Card 4 -->
-                    <div onclick="navigateTo('eje4')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none">
+                    <div onclick="navigateTo('eje4')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
                         <div>
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 04</span>
@@ -320,7 +380,7 @@
                     </div>
 
                     <!-- Card 5 -->
-                    <div onclick="navigateTo('eje5')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none">
+                    <div onclick="navigateTo('eje5')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
                         <div>
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 05</span>
@@ -336,7 +396,7 @@
                     </div>
 
                     <!-- Card 6 -->
-                    <div onclick="navigateTo('eje6')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none">
+                    <div onclick="navigateTo('eje6')" class="border border-brand-gray-200 p-8 flex flex-col justify-between hover:border-brand-black cursor-pointer transition duration-300 group bg-white rounded-none hover:-translate-y-1.5">
                         <div>
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-mono text-xs1  text-brand-gray-400 font-bold tracking-widest group-hover:text-brand-black transition">EJE ESTRATÉGICO 06</span>
@@ -352,7 +412,7 @@
                     </div>
 
                     <!-- Card 7 - Highlighted (Sostenibilidad) -->
-                    <div onclick="navigateTo('eje7')" class="border-2 border-brand-black p-8 flex flex-col justify-between hover:bg-brand-gray-50 cursor-pointer transition duration-300 group col-span-1 md:col-span-2 lg:col-span-3 rounded-none bg-white">
+                    <div onclick="navigateTo('eje7')" class="border-2 border-brand-black p-8 flex flex-col justify-between hover:bg-brand-gray-50 cursor-pointer transition duration-300 group col-span-1 md:col-span-2 lg:col-span-3 rounded-none bg-white hover:-translate-y-1.5">
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                             <div class="lg:col-span-8">
                                 <div class="flex items-center space-x-3 mb-6">
@@ -373,9 +433,9 @@
             </div>
 
             <!-- SWOT / FODA SECTION -->
-            <div class="py-16 bg-brand-gray-50 border border-brand-gray-200 p-8 rounded-sm my-12">
+            <div class="py-16 bg-brand-gray-50 border border-brand-gray-200 p-8 rounded-sm my-12 reveal">
                 <h3 class="serif-header text-3xl font-bold text-brand-black mb-8 text-center">Matriz FODA Estratégica — El Independiente 2030</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 reveal-grid">
                     <!-- F -->
                     <div class="bg-white border border-brand-gray-200 p-6 rounded-none">
                         <div class="flex items-center space-x-2 mb-3">
@@ -442,7 +502,7 @@
                     </div>
 
                     <!-- Interactive Matrix 70-20-10 Diagram -->
-                    <div class="border border-brand-gray-200 p-6 rounded-sm bg-brand-gray-50 my-6">
+                    <div class="border border-brand-gray-200 p-6 rounded-sm bg-brand-gray-50 my-6 reveal">
                         <h4 class="serif-header text-lg font-bold text-brand-black mb-4">La Matriz de Esfuerzos Editorial 70-20-10 (Interactiva)</h4>
                         <p class="text-xs1  text-brand-gray-500 mb-6 font-light">Haz clic en cada sección de la pirámide de producción para comprender qué cobertura de nuestra provincia representa y ver ejemplos prácticos de desarrollo.</p>
                         
@@ -539,7 +599,7 @@
                     <p class="font-light">La Rioja carece de un concentrador de información pública de libre acceso. Las universidades provinciales (como UNLaR), los ministerios, los municipios y los centros de estudios económicos producen informes de manera aislada que nadie integra. El Independiente se convertirá en el **Observatorio Riojano de Datos Públicos**.</p>
                     
                     <!-- Interactive Dashboard Simulation -->
-                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6">
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-brand-gray-200 pb-4 mb-6">
                             <div>
                                 <h3 class="serif-header text-xl font-bold text-brand-black">Consola del Observatorio de Datos</h3>
@@ -592,7 +652,7 @@
                     <p class="font-light">Actualmente, los medios locales pierden el 90% de su producción al usarla una sola vez en un formato textual plano. El nuevo ecosistema propone el modelo del **"Contenido Madre"**, donde cada investigación se atomiza de manera sistemática en múltiples canales sin triplicar el esfuerzo del periodista.</p>
 
                     <!-- Interactive Mother Content Simulator -->
-                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6">
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
                         <div class="mb-6">
                             <h3 class="serif-header text-xl font-bold text-brand-black">Simulador "Contenido Madre" (Interactivo)</h3>
                             <p class="text-xs1  text-brand-gray-500 font-light mt-0.5">Selecciona un tema para simular cómo se fragmentaría en múltiples canales de atención:</p>
@@ -692,7 +752,7 @@
                     <p class="font-light">Un medio regional que depende de algoritmos externos está en riesgo constante. La solución estratégica consiste en construir una **audiencia propia** registrada y predecible. Esto significa trasladar a los visitantes anónimos a una comunidad de valor mediante un embudo sistemático de fidelización.</p>
 
                     <!-- Beautiful Funnel Diagram -->
-                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6">
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
                         <h3 class="serif-header text-xl font-bold text-brand-black text-center mb-2">El Embudo de la Comunidad (Fidelización)</h3>
                         <p class="text-xs1  text-brand-gray-500 text-center font-light mb-8">Estrategia para convertir el tráfico volátil en patrimonio registrado y sostenible</p>
 
@@ -763,7 +823,7 @@
                     </div>
 
                     <!-- Interactive Vector Archive Simulation -->
-                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6">
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
                         <div class="mb-6">
                             <h3 class="serif-header text-xl font-bold text-brand-black">Simulador de Consulta — El Independiente IA</h3>
                             <p class="text-xs1  text-brand-gray-500 font-light mt-0.5">Explora interactivamente décadas de archivo periodístico digitalizado e indexado de La Rioja usando lenguaje natural.</p>
@@ -836,7 +896,7 @@
                     </div>
 
                     <!-- Interactive Homepage Wireframe Simulator -->
-                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6">
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
                         <h3 class="serif-header text-xl font-bold text-brand-black mb-2">Simulador de Lógica de Jerarquía UX (El Portal 2030)</h3>
                         <p class="text-xs1  text-brand-gray-500 font-light mb-6">Pasa el cursor por cada bloque de la portada simulada para entender su objetivo de retención.</p>
                         
@@ -905,7 +965,7 @@
                     <p class="font-light">La crisis económica de los medios no es únicamente editorial; es el agotamiento de sostenerse exclusivamente de la pauta pública clásica o de banners publicitarios planos de baja rentabilidad. La sostenibilidad futura exige **diversificar las fuentes de ingresos** para dotar de independencia y resiliencia al medio.</p>
 
                     <!-- Interactive Income & Budget Simulator -->
-                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6">
+                    <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 my-6 reveal">
                         <div class="mb-6">
                             <h3 class="serif-header text-xl font-bold text-brand-black">Simulador Financiero & Membresías (Club El Independiente)</h3>
                             <p class="text-xs1  text-brand-gray-500 font-light mt-0.5">Estima los ingresos mensuales proyectados regulando la cantidad de miembros registrados de la provincia:</p>
@@ -1011,7 +1071,7 @@
                 <p class="text-brand-gray-500 text-sm mb-12 font-light">Estrategia de ejecución escalonada y progresiva para garantizar la sustentabilidad técnica y financiera del medio.</p>
 
                 <!-- Interactive Timeline Navigation -->
-                <div class="flex space-x-2 border-b border-brand-gray-200 pb-4 mb-8 overflow-x-auto">
+                <div class="flex space-x-2 border-b border-brand-gray-200 pb-4 mb-8 overflow-x-auto reveal">
                     <button onclick="switchPhase(1)" id="btn-ph1" class="phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-brand-black text-brand-black focus:outline-none transition-all">Fase I: Modernización Core (2026)</button>
                     <button onclick="switchPhase(2)" id="btn-ph2" class="phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-transparent text-brand-gray-400 hover:text-brand-black focus:outline-none transition-all">Fase II: Expansión Multimedia (2027)</button>
                     <button onclick="switchPhase(3)" id="btn-ph3" class="phase-btn-tab px-4 py-2 text-xs1  uppercase font-bold border-b-2 border-transparent text-brand-gray-400 hover:text-brand-black focus:outline-none transition-all">Fase III: Ecosistema (2028-2030)</button>
@@ -1038,7 +1098,7 @@
                 <p class="text-brand-gray-500 text-sm mb-12 font-light">Centralizador interactivo para simular, estimar retornos de inversión y auditar el plan maestro en tiempo real.</p>
 
                 <!-- 1. Audit Tool -->
-                <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 mb-12">
+                <div class="border border-brand-gray-200 p-8 rounded-sm bg-brand-gray-50 mb-12 reveal">
                     <h3 class="serif-header text-2xl font-bold text-brand-black mb-2">Auditoría del Ecosistema de Sostenibilidad</h3>
                     <p class="text-xs1  text-brand-gray-500 mb-6 font-light">Configura los presupuestos previstos de desarrollo para verificar el cumplimiento de la regla de resiliencia del modelo.</p>
                     
@@ -1076,7 +1136,7 @@
                 </div>
 
                 <!-- 2. Interactive KPI Checklist -->
-                <div class="border border-brand-gray-200 p-8 rounded-sm bg-white">
+                <div class="border border-brand-gray-200 p-8 rounded-sm bg-white reveal">
                     <h3 class="serif-header text-2xl font-bold text-brand-black mb-2">Checklist de Indicadores de Éxito Trimestrales</h3>
                     <p class="text-xs1  text-brand-gray-500 mb-6 font-light">Monitorea el progreso de los objetivos clave del plan de transformación a los 6 y 12 meses:</p>
 
@@ -1126,7 +1186,7 @@
 
     <!-- FOOTER -->
     <footer class="border-t border-brand-gray-200 bg-brand-gray-50 py-12 text-xs1 ">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 reveal">
             <div class="md:col-span-2">
                 <span class="serif-header text-lg font-bold text-brand-black">EL INDEPENDIENTE <span class="font-light italic">2030</span></span>
                 <p class="text-brand-gray-500 mt-2 max-w-sm leading-relaxed font-light">Este sistema representa el Plan Maestro de Transformación Digital del Diario El Independiente de La Rioja para el período de ejecución 2026—2030.</p>
@@ -1198,7 +1258,14 @@
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.remove('menu-slide');
+                void menu.offsetWidth;
+                menu.classList.add('menu-slide');
+            } else {
+                menu.classList.add('hidden');
+            }
         }
 
         // ==================== EJE 1: MATRIZ DE ESFUERZOS INTERACTIVA ====================
@@ -1525,6 +1592,24 @@
             updateFinanceModel();
         }
 
+        let lastFinanceValue = 0;
+
+        function animateFinanceNumber(targetValue, formatter) {
+            const el = document.getElementById('finance-rev-projected');
+            const start = performance.now();
+            const duration = 600;
+            const from = lastFinanceValue;
+            function step(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = Math.round(from + (targetValue - from) * eased);
+                el.innerText = value >= 0 ? formatter(value) : '—';
+                if (progress < 1) requestAnimationFrame(step);
+                else lastFinanceValue = targetValue;
+            }
+            requestAnimationFrame(step);
+        }
+
         function updateFinanceModel() {
             const slider = document.getElementById('membres-slider');
             const count = slider.value;
@@ -1535,8 +1620,8 @@
             const mult = scenarios[currentScenario].multiplier;
             const revenue = Math.round(count * baseAbono * mult);
 
-            const formatted = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(revenue);
-            document.getElementById('finance-rev-projected').innerText = formatted;
+            const formatter = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(v);
+            animateFinanceNumber(revenue, formatter);
         }
 
 
@@ -1646,6 +1731,40 @@
                 statusText.innerHTML = `<span class="text-white font-extrabold uppercase tracking-widest">&bull; RESILIENTE &bull;</span>`;
                 statusDesc.innerText = `Distribución Saludable: Ninguno de los canales de monetización supera el 50% del total previsto de la empresa, asegurando sostenibilidad en el tiempo.`;
             }
+
+            statusBox.classList.remove('state-pop');
+            void statusBox.offsetWidth;
+            statusBox.classList.add('state-pop');
+        }
+
+
+        // ==================== ANIMACIONES DE EXPERIENCIA (REVEAL ON SCROLL) ====================
+        function initRevealAnimations() {
+            // Convierte los contenedores de contenido principal en rejillas con aparición escalonada
+            document.querySelectorAll('.page-content .space-y-8').forEach(container => {
+                container.classList.add('reveal-grid');
+            });
+
+            // Aplica la clase reveal a cada hijo directo de una grilla marcada con escalonamiento
+            document.querySelectorAll('.reveal-grid').forEach(grid => {
+                Array.from(grid.children).forEach((child, i) => {
+                    child.classList.add('reveal');
+                    child.style.setProperty('--reveal-delay', ((i % 4) * 0.09).toFixed(2) + 's');
+                });
+            });
+
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -48px 0px' });
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (!el.classList.contains('reveal-visible')) revealObserver.observe(el);
+            });
         }
 
 
@@ -1659,6 +1778,7 @@
             setScenario('basico');
             switchPhase(1);
             auditRegla();
+            initRevealAnimations();
 
             // Hash router listener
             const hash = window.location.hash;
