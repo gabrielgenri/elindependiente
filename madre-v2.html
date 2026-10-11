@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madre v2 — Contenido Madre · El Independiente</title>
+    <meta name="description" content="Módulo 3 del Plan El Independiente 2030: de un hecho a 8 formatos, con investigación verificable y revisión humana.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] },
+                colors: { swiss: {
+                    50:'#fafafa',100:'#f4f4f5',200:'#e4e4e7',300:'#d4d4d8',400:'#a1a1aa',
+                    500:'#71717a',600:'#52525b',700:'#3f3f46',800:'#27272a',900:'#18181b',950:'#09090b'
+                } }
+            } }
+        }
+    </script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background:#fafafa; color:#18181b; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        :focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+        .tab-scroll { scrollbar-width: none; }
+        .tab-scroll::-webkit-scrollbar { display: none; }
+        textarea.editor { min-height: 22rem; }
+    </style>
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-black selection:text-white">
+
+<!-- ENCABEZADO -->
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-swiss-200">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+            <span class="w-2.5 h-2.5 bg-black rounded-full inline-block shrink-0"></span>
+            <h1 class="text-lg font-serif font-bold tracking-tight">MADRE <span class="font-sans text-xs font-medium text-swiss-500">v2</span></h1>
+            <span class="hidden sm:inline text-[10px] uppercase font-mono tracking-widest bg-swiss-100 text-swiss-700 px-1.5 py-0.5 rounded">Eje 3 · Transmedia</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="user-badge" class="hidden text-[11px] font-mono text-swiss-500 truncate max-w-[9rem]"></span>
+            <button id="btn-logout" class="hidden text-xs font-medium text-swiss-700 hover:text-black px-2 py-2 min-h-[44px]">Salir</button>
+        </div>
+    </div>
+    <nav class="max-w-4xl mx-auto px-4 pb-2 flex gap-1" aria-label="Secciones">
+        <button data-view="motor" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Motor</button>
+        <button data-view="historial" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Historial <span id="hist-count" class="font-mono opacity-60"></span></button>
+        <button data-view="ajustes" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Ajustes</button>
+    </nav>
+</header>
+
+<main class="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- VISTA: ACCESO -->
+    <section id="view-auth" class="hidden">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm max-w-md mx-auto space-y-4">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Acceso de redacción</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Ingresá a Madre</h2>
+                <p class="text-xs text-swiss-600 mt-1">La IA solo está disponible para usuarios autenticados del equipo editorial.</p>
+            </div>
+            <div>
+                <label for="auth-email" class="block text-xs font-medium text-swiss-700 mb-1">Correo</label>
+                <input id="auth-email" type="email" autocomplete="email" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div>
+                <label for="auth-pass" class="block text-xs font-medium text-swiss-700 mb-1">Contraseña</label>
+                <input id="auth-pass" type="password" autocomplete="current-password" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button id="btn-login" class="flex-1 bg-black text-white text-sm font-medium rounded-xl px-4 py-3 min-h-[44px] hover:bg-swiss-800">Ingresar</button>
+                <button id="btn-magic" class="flex-1 bg-swiss-100 text-swiss-900 text-sm font-medium rounded-xl px-4 py-3 min-h-[44px] hover:bg-swiss-200">Enviarme un enlace</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA: MOTOR -->
+    <section id="view-motor" class="space-y-6">
+
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Hecho → 8 formatos</span>
+                <button id="btn-new" class="text-xs font-medium text-swiss-700 hover:text-black underline underline-offset-4 min-h-[44px] px-1">Nueva pieza</button>
+            </div>
+
+            <div>
+                <label for="in-hecho" class="block text-xs font-medium text-swiss-700 mb-1">Titular, hecho, comunicado o tema de interés regional</label>
+                <textarea id="in-hecho" rows="4" maxlength="8000" placeholder="Ej: Anuncian la ampliación del Parque Eólico Arauco con una nueva etapa de generación…" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label for="in-tono" class="block text-xs font-medium text-swiss-700 mb-1">Tono</label>
+                    <select id="in-tono" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]">
+                        <option value="informativo">Periodístico / informativo</option>
+                        <option value="analítico">Analítico / profundo</option>
+                        <option value="cercano">Cercano / comunitario</option>
+                        <option value="urgente">Urgente / último momento</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="in-eje" class="block text-xs font-medium text-swiss-700 mb-1">Eje del Plan 2030</label>
+                    <select id="in-eje" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                </div>
+                <div>
+                    <label for="in-dep" class="block text-xs font-medium text-swiss-700 mb-1">Departamento</label>
+                    <select id="in-dep" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <label class="flex items-center gap-2 text-xs font-medium text-swiss-700 cursor-pointer min-h-[44px]">
+                    <input type="checkbox" id="in-search" checked class="rounded border-swiss-300 text-black focus:ring-black w-4 h-4">
+                    <span>Investigar con Google Search antes de redactar</span>
+                </label>
+                <button id="btn-generate" class="bg-black hover:bg-swiss-800 disabled:opacity-50 text-white font-medium text-sm px-6 py-3 rounded-xl min-h-[44px] flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>Crear los 8 formatos</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Cargando -->
+        <div id="loading" class="hidden py-10 flex flex-col items-center gap-3" role="status">
+            <div class="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            <p id="loading-text" class="text-xs font-mono text-swiss-600"></p>
+        </div>
+
+        <!-- Resultados -->
+        <div id="results" class="hidden space-y-6">
+
+            <div class="flex items-start sm:items-center justify-between gap-3 flex-wrap border-b border-swiss-200 pb-3">
+                <div class="min-w-0">
+                    <h2 id="res-title" class="font-serif font-bold text-lg truncate"></h2>
+                    <p id="save-state" class="text-[11px] font-mono text-swiss-500 mt-0.5"></p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button data-act="export-all-txt" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">TXT completo</button>
+                    <button data-act="export-doc" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">Word (.doc)</button>
+                    <button data-act="export-json" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">JSON</button>
+                </div>
+            </div>
+
+            <!-- Estado editorial -->
+            <div class="bg-white border border-swiss-200 rounded-2xl p-4 space-y-3">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-500">Estado editorial</p>
+                    <div id="estado-group" class="flex gap-1" role="group" aria-label="Estado de la pieza"></div>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-swiss-800">Verificación humana antes de publicar</p>
+                    <ul id="checklist" class="mt-2 space-y-1"></ul>
+                    <p id="checklist-empty" class="hidden text-xs text-swiss-500">La IA no marcó datos puntuales a verificar. Revisá igualmente cada cifra y nombre.</p>
+                </div>
+            </div>
+
+            <!-- Fuentes -->
+            <div id="sources-box" class="hidden bg-swiss-100 border border-swiss-300 rounded-xl p-4 space-y-2">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-600 font-semibold">Fuentes consultadas (Google Search)</p>
+                <div id="sources-list" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Pestañas -->
+            <div id="tabs" class="tab-scroll flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Formatos"></div>
+
+            <!-- Editor -->
+            <div class="bg-white border border-swiss-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <h3 id="ed-title" class="font-serif font-bold text-base"></h3>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="ed-count" class="text-[11px] font-mono text-swiss-500"></span>
+                        <button data-act="copy" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">Copiar</button>
+                        <button data-act="export-txt" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">.TXT</button>
+                        <button id="btn-jsonld" data-act="jsonld" class="act hidden text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">JSON-LD</button>
+                        <button data-act="regen" class="act text-xs bg-black text-white hover:bg-swiss-800 px-3 py-2 rounded-lg font-medium min-h-[44px]">Regenerar este</button>
+                    </div>
+                </div>
+                <label for="editor" class="sr-only">Contenido editable del formato</label>
+                <textarea id="editor" class="editor w-full p-3 text-sm leading-relaxed rounded-xl border border-swiss-200 bg-swiss-50 focus:outline-none focus:ring-2 focus:ring-black" spellcheck="true"></textarea>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA: HISTORIAL -->
+    <section id="view-historial" class="hidden space-y-4">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm flex items-center justify-between gap-3 flex-wrap">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Biblioteca</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Historial de piezas</h2>
+                <p id="hist-mode" class="text-xs text-swiss-600 mt-1"></p>
+            </div>
+            <div>
+                <label for="hist-filter" class="sr-only">Filtrar por estado</label>
+                <select id="hist-filter" class="text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]">
+                    <option value="">Todos los estados</option>
+                    <option value="borrador">Borrador</option>
+                    <option value="revisado">Revisado</option>
+                    <option value="publicado">Publicado</option>
+                </select>
+            </div>
+        </div>
+        <div id="hist-list" class="space-y-3"></div>
+    </section>
+
+    <!-- VISTA: AJUSTES -->
+    <section id="view-ajustes" class="hidden space-y-4">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Conexión</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Ajustes</h2>
+                <p class="text-xs text-swiss-600 mt-1">La <em>anon key</em> de Supabase es pública por diseño. La key de Gemini nunca se carga acá: vive en el proxy.</p>
+            </div>
+            <div>
+                <label for="cfg-url" class="block text-xs font-medium text-swiss-700 mb-1">URL del proyecto Supabase</label>
+                <input id="cfg-url" type="url" placeholder="https://xxxx.supabase.co" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black font-mono">
+            </div>
+            <div>
+                <label for="cfg-anon" class="block text-xs font-medium text-swiss-700 mb-1">Anon / publishable key</label>
+                <input id="cfg-anon" type="text" autocomplete="off" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black font-mono">
+            </div>
+            <div>
+                <label for="cfg-model" class="block text-xs font-medium text-swiss-700 mb-1">Modelo (debe estar en la whitelist del proxy)</label>
+                <input id="cfg-model" type="text" placeholder="gemini-3-flash-preview" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black font-mono">
+            </div>
+            <div>
+                <label for="cfg-style" class="block text-xs font-medium text-swiss-700 mb-1">Guía de estilo del diario (se agrega al prompt)</label>
+                <textarea id="cfg-style" rows="5" placeholder="Ej: Usar 'la Provincia' con mayúscula inicial. Evitar adjetivos valorativos. Citar siempre la fuente oficial. Nombres de departamentos sin abreviar." class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            </div>
+            <details class="rounded-xl border border-amber-300 bg-amber-50 p-3">
+                <summary class="text-xs font-semibold text-amber-900 cursor-pointer min-h-[44px] flex items-center">Modo desarrollo (solo pruebas locales)</summary>
+                <p class="text-xs text-amber-900 mt-2">Permite llamar a Gemini directo con tu key. Se guarda solo en esta pestaña (<code>sessionStorage</code>) y se borra al cerrarla. <strong>No lo uses en producción ni en equipos compartidos.</strong></p>
+                <input id="cfg-devkey" type="password" autocomplete="off" placeholder="AIzaSy…" class="mt-2 w-full p-3 text-sm rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-black font-mono bg-white">
+            </details>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button id="btn-save-cfg" class="bg-black text-white text-sm font-medium rounded-xl px-5 py-3 min-h-[44px] hover:bg-swiss-800">Guardar ajustes</button>
+                <button id="btn-test" class="bg-swiss-100 text-swiss-900 text-sm font-medium rounded-xl px-5 py-3 min-h-[44px] hover:bg-swiss-200">Probar conexión</button>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="text-center text-[10px] font-mono text-swiss-500 py-6">El Independiente 2030 · Módulo 3 · Madre v2</footer>
+
+<div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2.5 rounded-full shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 max-w-[90vw] text-center"></div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   MADRE v2 · El Independiente 2030
+   ============================================================ */
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
+const isHttp = (u) => /^https?:\/\//i.test(String(u || ''));
+
+const KEY = {
+    cfg: 'madre2_cfg', hist: 'madre2_hist', style: 'madre2_style',
+    draft: 'madre2_draft', current: 'madre2_current', dev: 'madre2_devkey'
+};
+
+const DEFAULT_MODEL = 'gemini-3-flash-preview';
+
+const EJES = [
+    [1, 'Eje 1 · Rediseño Editorial'], [2, 'Eje 2 · Periodismo de Datos'],
+    [3, 'Eje 3 · Ecosistema Audiovisual'], [4, 'Eje 4 · Audiencias & Comunidad'],
+    [5, 'Eje 5 · Inteligencia Artificial'], [6, 'Eje 6 · Plataforma & UX'],
+    [7, 'Eje 7 · Sostenibilidad Financiera']
+];
+
+const DEPARTAMENTOS = [
+    'Capital', 'Arauco', 'Castro Barros', 'Chamical', 'Chilecito', 'Coronel Felipe Varela',
+    'Famatina', 'General Ángel V. Peñaloza', 'General Belgrano', 'General Juan Facundo Quiroga',
+    'General Lamadrid', 'General Ocampo', 'General San Martín', 'Independencia',
+    'Rosario Vera Peñaloza', 'San Blas de los Sauces', 'Sanagasta', 'Vinchina'
+];
+
+/* ---------- Schemas JSON y renderizadores por formato ---------- */
+const STR = { type: 'STRING' };
+const ARR = (items) => ({ type: 'ARRAY', items });
+const OBJ = (props) => ({ type: 'OBJECT', properties: props, required: Object.keys(props) });
+
+const FORMATS = {
+    articulo: {
+        label: 'Artículo Web & SEO',
+        schema: OBJ({ titulo: STR, bajada: STR, slug: STR, meta_descripcion: STR, palabras_clave: ARR(STR), cuerpo: STR }),
+        guia: 'Nota web de 450 a 700 palabras, pirámide invertida, subtítulos H2/H3 conversacionales (formato ## y ###). Slug en minúsculas con guiones, incluyendo la geolocalización si corresponde. meta_descripcion de hasta 155 caracteres.',
+        render: (o) => `${o.titulo || ''}\n${o.bajada || ''}\n\nSlug: ${o.slug || ''}\nMeta descripción: ${o.meta_descripcion || ''}\nPalabras clave: ${(o.palabras_clave || []).join(', ')}\n\n${o.cuerpo || ''}`
+    },
+    reel: {
+        label: 'Guión de Reel (60 s)',
+        schema: OBJ({ gancho: STR, escenas: ARR(OBJ({ tiempo: STR, visual: STR, locucion: STR })), cta: STR }),
+        guia: 'Reel vertical de 60 segundos: gancho de 3 segundos, 5 a 7 escenas con marca de tiempo (ej. 00:03-00:12), indicación visual y locución, y un cierre con llamada a la acción.',
+        render: (o) => `GANCHO: ${o.gancho || ''}\n\n` + (o.escenas || []).map((e) => `[${e.tiempo}]\nVISUAL: ${e.visual}\nLOCUCIÓN: ${e.locucion}`).join('\n\n') + `\n\nCTA: ${o.cta || ''}`
+    },
+    podcast: {
+        label: 'Episodio de Podcast',
+        schema: OBJ({ titulo: STR, intro: STR, desarrollo: STR, outro: STR }),
+        guia: 'Episodio hablado de 3 a 5 minutos, con lenguaje oral. intro de 20 segundos, desarrollo analítico con contexto y voces involucradas, outro con cierre y llamada a suscribirse.',
+        render: (o) => `${o.titulo || ''}\n\nINTRO\n${o.intro || ''}\n\nDESARROLLO\n${o.desarrollo || ''}\n\nOUTRO\n${o.outro || ''}`
+    },
+    carrusel: {
+        label: 'Carrusel Instagram',
+        schema: OBJ({ placas: ARR(OBJ({ n: { type: 'INTEGER' }, titulo: STR, texto: STR })) }),
+        guia: 'Exactamente 8 placas: 1 portada con gancho, 2 a 3 contexto, 4 a 6 datos clave, 7 cierre, 8 llamada a la acción. Texto de cada placa de máximo 35 palabras.',
+        render: (o) => (o.placas || []).map((p) => `PLACA ${p.n}: ${p.titulo}\n${p.texto}`).join('\n\n')
+    },
+    newsletter: {
+        label: 'Newsletter',
+        schema: OBJ({ asunto: STR, preheader: STR, cuerpo: STR }),
+        guia: 'Newsletter ejecutivo: asunto de hasta 60 caracteres, preheader de hasta 90, cuerpo con resumen de 3 ideas clave, por qué importa, y un enlace sugerido a la nota completa como [ENLACE].',
+        render: (o) => `ASUNTO: ${o.asunto || ''}\nPREHEADER: ${o.preheader || ''}\n\n${o.cuerpo || ''}`
+    },
+    whatsapp: {
+        label: 'WhatsApp Masivo',
+        schema: OBJ({ mensaje: STR }),
+        guia: 'Mensaje de difusión de hasta 700 caracteres, con formato de WhatsApp (*negrita*), 1 o 2 emojis sobrios, y un cierre con [ENLACE].',
+        render: (o) => o.mensaje || ''
+    },
+    youtube: {
+        label: 'YouTube (5 min)',
+        schema: OBJ({ titulo: STR, descripcion: STR, guion: STR }),
+        guia: 'Video explicativo de 5 minutos: título de hasta 70 caracteres, descripción con capítulos y palabras clave, guion con indicaciones de imagen y locución.',
+        render: (o) => `${o.titulo || ''}\n\nDESCRIPCIÓN\n${o.descripcion || ''}\n\nGUION\n${o.guion || ''}`
+    },
+    hilo_x: {
+        label: 'Hilo para X',
+        schema: OBJ({ posts: ARR(STR) }),
+        guia: 'Hilo de 6 a 8 publicaciones de máximo 280 caracteres cada una, numeradas (1/n).',
+        render: (o) => (o.posts || []).map((p, i) => `${i + 1}. ${p}`).join('\n\n')
+    }
+};
+
+const FULL_SCHEMA = (() => {
+    const props = {};
+    for (const k of Object.keys(FORMATS)) props[k] = FORMATS[k].schema;
+    props.verificacion = ARR(STR);
+    return OBJ(props);
+})();
+
+/* ---------- Estado ---------- */
+const state = {
+    cfg: {}, sb: null, session: null,
+    pieza: null, tab: 'articulo', busy: false, saveTimer: null
+};
+
+const loadJSON = (k, fb) => { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } };
+const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sin espacio */ } };
+const devKey = () => { try { return sessionStorage.getItem(KEY.dev) || ''; } catch { return ''; } };
+
+/* ---------- Avisos ---------- */
+let toastTimer;
+function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.remove('opacity-0');
+    t.classList.add('opacity-100');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.classList.add('opacity-0'); t.classList.remove('opacity-100'); }, 3200);
+}
+
+/* ============================================================
+   Conexión y autenticación
+   ============================================================ */
+function initSupabase() {
+    const { url, anon } = state.cfg;
+    state.sb = null;
+    if (url && anon && window.supabase) {
+        state.sb = window.supabase.createClient(url.replace(/\/+$/, ''), anon);
+        state.sb.auth.onAuthStateChange((_ev, session) => {
+            state.session = session;
+            refreshChrome();
+        });
+    }
+}
+
+async function refreshSession() {
+    if (!state.sb) { state.session = null; return; }
+    const { data } = await state.sb.auth.getSession();
+    state.session = data?.session || null;
+}
+
+const canUseIA = () => !!devKey() || (!!state.sb && !!state.session);
+const needsLogin = () => !!state.sb && !state.session && !devKey();
+
+function refreshChrome() {
+    const email = state.session?.user?.email || '';
+    $('user-badge').textContent = email;
+    $('user-badge').classList.toggle('hidden', !email);
+    $('btn-logout').classList.toggle('hidden', !email);
+    $('hist-mode').textContent = (state.sb && state.session)
+        ? 'Piezas compartidas del equipo (Supabase).'
+        : 'Piezas guardadas solo en este dispositivo (localStorage).';
+}
+
+async function login() {
+    if (!state.sb) return toast('Configurá la conexión en Ajustes.');
+    const email = $('auth-email').value.trim();
+    const password = $('auth-pass').value;
+    if (!email || !password) return toast('Completá correo y contraseña.');
+    const { error } = await state.sb.auth.signInWithPassword({ email, password });
+    if (error) return toast('No se pudo ingresar: ' + error.message);
+    await refreshSession();
+    $('auth-pass').value = '';
+    refreshChrome();
+    showView('motor');
+    await restoreCurrent();
+}
+
+async function magicLink() {
+    if (!state.sb) return toast('Configurá la conexión en Ajustes.');
+    const email = $('auth-email').value.trim();
+    if (!email) return toast('Ingresá tu correo.');
+    const { error } = await state.sb.auth.signInWithOtp({
+        email, options: { emailRedirectTo: location.origin + location.pathname }
+    });
+    toast(error ? 'No se pudo enviar el enlace: ' + error.message : 'Te enviamos un enlace de acceso. Revisá tu correo.');
+}
+
+async function logout() {
+    if (state.sb) await state.sb.auth.signOut();
+    state.session = null;
+    state.pieza = null;
+    $('results').classList.add('hidden');
+    refreshChrome();
+    showView('motor');
+}
+
+/* ============================================================
+   Llamadas a la IA
+   ============================================================ */
+function buildGeminiPayload({ prompt, system, schema, search, temperature }) {
+    const payload = {
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { temperature, maxOutputTokens: 8192 }
+    };
+    if (system) payload.systemInstruction = { parts: [{ text: system }] };
+    if (schema) {
+        payload.generationConfig.responseMimeType = 'application/json';
+        payload.generationConfig.responseSchema = schema;
+    }
+    if (search) payload.tools = [{ google_search: {} }];
+    return payload;
+}
+
+async function callDirect(opts) {
+    const model = state.cfg.model || DEFAULT_MODEL;
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': devKey() },
+        body: JSON.stringify(buildGeminiPayload(opts))
+    });
+    if (!res.ok) throw new Error(`La IA respondió con error ${res.status}. Verificá tu key y el modelo.`);
+    const data = await res.json();
+    const cand = data?.candidates?.[0];
+    const text = (cand?.content?.parts || []).map((p) => p.text || '').join('');
+    if (!text) throw new Error('La IA no devolvió contenido.');
+    const seen = new Set();
+    const sources = [];
+    for (const ch of cand?.groundingMetadata?.groundingChunks || []) {
+        const uri = ch?.web?.uri;
+        if (uri && !seen.has(uri)) { seen.add(uri); sources.push({ uri, title: ch.web.title || uri }); }
+    }
+    return { text, sources };
+}
+
+async function callIA({ prompt, system, schema = null, search = false, temperature = 0.7, modulo = 'madre' }) {
+    if (devKey()) return callDirect({ prompt, system, schema, search, temperature });
+
+    if (!state.sb) throw new Error('Configurá la conexión con Supabase en Ajustes.');
+    const { data } = await state.sb.auth.getSession();
+    const session = data?.session;
+    if (!session) throw new Error('Iniciá sesión para usar la IA.');
+
+    const res = await fetch(`${state.cfg.url.replace(/\/+$/, '')}/functions/v1/ia-proxy`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': state.cfg.anon
+        },
+        body: JSON.stringify({
+            model: state.cfg.model || DEFAULT_MODEL,
+            systemInstruction: system, prompt, schema, search, temperature, modulo
+        })
+    });
+    let body = {};
+    try { body = await res.json(); } catch { /* sin cuerpo */ }
+    if (!res.ok) throw new Error(body.error || `Error ${res.status} al llamar al proxy de IA`);
+    return body;
+}
+
+/* ---------- Prompts ---------- */
+function styleGuide() { return (localStorage.getItem(KEY.style) || '').trim(); }
+
+const SYS_INVESTIGACION = `Sos el investigador de la redacción de El Independiente, diario de La Rioja, Argentina.
+Buscá información actual y verificable sobre el hecho indicado. Devolvé un informe en español de hasta 500 palabras con estas secciones: CONTEXTO, DATOS DUROS (cada uno con su fuente), ANTECEDENTES, ACTORES INVOLUCRADOS y NO CONFIRMADO (lo que no pudiste verificar). No redactes la nota ni inventes datos: si no encontrás algo, decilo.`;
+
+function sysEditorial(tono) {
+    const guia = styleGuide();
+    return `Sos el motor editorial de El Independiente, diario de La Rioja, Argentina. Escribís en español rioplatense neutro, con rigor periodístico y sin sensacionalismo.
+REGLAS INNEGOCIABLES:
+1. Usá únicamente datos presentes en el HECHO o en la INVESTIGACIÓN. Nunca inventes citas textuales, cifras, nombres, cargos ni fechas.
+2. Si un dato es dudoso o no está respaldado, escribilo con la marca [VERIFICAR].
+3. Priorizá el contexto riojano y el departamento indicado.
+4. En "verificacion" listá entre 3 y 8 datos puntuales (cifras, nombres, fechas, declaraciones) que el periodista debe chequear antes de publicar.
+5. Tono pedido: ${tono}.
+${guia ? `6. GUÍA DE ESTILO DEL DIARIO (obligatoria):\n${guia}\n` : ''}`;
+}
+
+function contextoPrompt(hecho, meta) {
+    const eje = EJES.find((e) => e[0] === Number(meta.eje));
+    return `HECHO O TITULAR:\n${hecho}\n\nDEPARTAMENTO: ${meta.departamento || 'No especificado'}\nEJE DEL PLAN 2030: ${eje ? eje[1] : 'No especificado'}`;
+}
+
+function parseModelJSON(text) {
+    const clean = String(text).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    try { return JSON.parse(clean); } catch { throw new Error('La IA devolvió un formato inválido. Reintentá.'); }
+}
+
+/* ============================================================
+   Persistencia (Supabase o localStorage)
+   ============================================================ */
+const useRemote = () => !!state.sb && !!state.session;
+
+function toRow(p) {
+    return {
+        id: p.id, titulo: p.titulo, hecho: p.hecho, tono: p.tono, eje: p.eje,
+        departamento: p.departamento, estado: p.estado, formatos: p.formatos,
+        estructura: p.estructura, fuentes: p.fuentes, verificacion: p.verificacion
+    };
+}
+
+async function persist(p) {
+    p.updated_at = new Date().toISOString();
+    if (useRemote()) {
+        const { error } = await state.sb.from('piezas').upsert(toRow(p));
+        if (error) throw new Error(error.message);
+    } else {
+        const list = loadJSON(KEY.hist, []);
+        const i = list.findIndex((x) => x.id === p.id);
+        if (i >= 0) list[i] = p; else list.unshift(p);
+        saveJSON(KEY.hist, list.slice(0, 50));
+    }
+    localStorage.setItem(KEY.current, p.id);
+}
+
+async function listPiezas() {
+    if (useRemote()) {
+        const { data, error } = await state.sb.from('piezas').select('*').order('updated_at', { ascending: false }).limit(100);
+        if (error) throw new Error(error.message);
+        return data || [];
+    }
+    return loadJSON(KEY.hist, []);
+}
+
+async function getPieza(id) {
+    if (useRemote()) {
+        const { data } = await state.sb.from('piezas').select('*').eq('id', id).maybeSingle();
+        return data || null;
+    }
+    return loadJSON(KEY.hist, []).find((x) => x.id === id) || null;
+}
+
+async function removePieza(id) {
+    if (useRemote()) {
+        const { error } = await state.sb.from('piezas').delete().eq('id', id);
+        if (error) throw new Error(error.message);
+    } else {
+        saveJSON(KEY.hist, loadJSON(KEY.hist, []).filter((x) => x.id !== id));
+    }
+    if (state.pieza?.id === id) { state.pieza = null; $('results').classList.add('hidden'); }
+}
+
+function setSaveState(msg) { $('save-state').textContent = msg; }
+
+function queueSave() {
+    if (!state.pieza) return;
+    setSaveState('Guardando…');
+    clearTimeout(state.saveTimer);
+    state.saveTimer = setTimeout(async () => {
+        try {
+            await persist(state.pieza);
+            setSaveState('Guardado ✓ ' + new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }));
+        } catch (e) {
+            setSaveState('Error al guardar');
+            toast('No se pudo guardar: ' + e.message);
+        }
+    }, 800);
+}
+
+async function restoreCurrent() {
+    const id = localStorage.getItem(KEY.current);
+    if (!id || state.pieza) return;
+    try {
+        const p = await getPieza(id);
+        if (p) openPieza(p);
+    } catch { /* se ignora: se parte de cero */ }
+}
+
+/* ============================================================
+   Generación
+   ============================================================ */
+function setBusy(on, text = '') {
+    state.busy = on;
+    $('btn-generate').disabled = on;
+    $('loading').classList.toggle('hidden', !on);
+    $('loading-text').textContent = text;
+}
+
+function metaFromForm() {
+    return {
+        tono: $('in-tono').value,
+        eje: Number($('in-eje').value) || null,
+        departamento: $('in-dep').value
+    };
+}
+
+async function generar() {
+    if (state.busy) return;
+    const hecho = $('in-hecho').value.trim();
+    if (!hecho) return toast('Ingresá un hecho o titular.');
+    if (!canUseIA()) {
+        showView(needsLogin() ? 'auth' : 'ajustes');
+        return toast(needsLogin() ? 'Iniciá sesión para usar la IA.' : 'Configurá la conexión en Ajustes.');
+    }
+    const meta = metaFromForm();
+
+    setBusy(true, 'Investigando el hecho…');
+    try {
+        let informe = '';
+        let fuentes = [];
+        if ($('in-search').checked) {
+            const r = await callIA({
+                system: SYS_INVESTIGACION, prompt: contextoPrompt(hecho, meta),
+                search: true, temperature: 0.3, modulo: 'madre-investigacion'
+            });
+            informe = r.text;
+            fuentes = r.sources || [];
+        }
+
+        setBusy(true, 'Redactando los 8 formatos…');
+        const guias = Object.entries(FORMATS).map(([k, f]) => `- ${k}: ${f.guia}`).join('\n');
+        const prompt = `${contextoPrompt(hecho, meta)}\n\nINVESTIGACIÓN:\n${informe || '(sin investigación: usá solo el hecho)'}\n\nGENERÁ TODOS LOS FORMATOS según estas guías:\n${guias}`;
+        const r2 = await callIA({
+            system: sysEditorial(meta.tono), prompt, schema: FULL_SCHEMA,
+            temperature: 0.7, modulo: 'madre'
+        });
+        const est = parseModelJSON(r2.text);
+
+        const now = new Date().toISOString();
+        const p = {
+            id: crypto.randomUUID(),
+            titulo: (est.articulo?.titulo || hecho).slice(0, 140),
+            hecho, ...meta, estado: 'borrador',
+            formatos: {}, estructura: { ...est, _investigacion: informe },
+            fuentes,
+            verificacion: (est.verificacion || []).map((t) => ({ texto: String(t), ok: false })),
+            created_at: now, updated_at: now
+        };
+        for (const k of Object.keys(FORMATS)) p.formatos[k] = FORMATS[k].render(est[k] || {});
+
+        state.pieza = p;
+        state.tab = 'articulo';
+        openPieza(p);
+        queueSave();
+        toast('¡Formatos creados! Revisá y editá antes de publicar.');
+        $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+        toast(e.message || 'Error al generar.');
+    } finally {
+        setBusy(false);
+    }
+}
+
+async function regenerar() {
+    const p = state.pieza;
+    if (!p || state.busy) return;
+    const key = state.tab;
+    if (!confirm(`Se reemplazará el texto actual de "${FORMATS[key].label}". ¿Continuar?`)) return;
+    if (!canUseIA()) return toast('Iniciá sesión para usar la IA.');
+    setBusy(true, `Regenerando ${FORMATS[key].label}…`);
+    try {
+        const meta = { tono: p.tono, eje: p.eje, departamento: p.departamento };
+        const prompt = `${contextoPrompt(p.hecho, meta)}\n\nINVESTIGACIÓN:\n${p.estructura?._investigacion || '(sin investigación)'}\n\nGenerá SOLO el formato "${key}" con un enfoque distinto al anterior. Guía: ${FORMATS[key].guia}`;
+        const schema = OBJ({ [key]: FORMATS[key].schema });
+        const r = await callIA({
+            system: sysEditorial(p.tono || 'informativo'), prompt, schema,
+            temperature: 0.9, modulo: 'madre-regenerar'
+        });
+        const est = parseModelJSON(r.text);
+        p.estructura[key] = est[key];
+        p.formatos[key] = FORMATS[key].render(est[key] || {});
+        renderEditor();
+        queueSave();
+        toast('Formato regenerado.');
+    } catch (e) {
+        toast(e.message || 'No se pudo regenerar.');
+    } finally {
+        setBusy(false);
+    }
+}
+
+/* ============================================================
+   Render de resultados
+   ============================================================ */
+function openPieza(p) {
+    state.pieza = p;
+    localStorage.setItem(KEY.current, p.id);
+    $('res-title').textContent = p.titulo || 'Pieza sin título';
+    $('in-hecho').value = p.hecho || '';
+    if (p.tono) $('in-tono').value = p.tono;
+    if (p.eje) $('in-eje').value = String(p.eje);
+    if (p.departamento) $('in-dep').value = p.departamento;
+    $('results').classList.remove('hidden');
+    setSaveState('');
+    renderEstado();
+    renderChecklist();
+    renderSources();
+    renderTabs();
+    renderEditor();
+}
+
+function renderTabs() {
+    $('tabs').innerHTML = Object.entries(FORMATS).map(([k, f], i) => {
+        const on = k === state.tab;
+        return `<button role="tab" aria-selected="${on}" data-tab="${k}" class="tab shrink-0 min-h-[44px] px-4 py-2 rounded-xl border text-xs font-medium text-left ${on ? 'bg-black text-white border-black' : 'bg-white text-swiss-900 border-swiss-300 hover:border-black'}">
+            <span class="block text-[10px] font-mono ${on ? 'opacity-70' : 'text-swiss-500'}">Formato 0${i + 1}</span>${esc(f.label)}</button>`;
+    }).join('');
+}
+
+function renderEditor() {
+    const p = state.pieza;
+    if (!p) return;
+    const ed = $('editor');
+    ed.value = p.formatos[state.tab] || '';
+    $('ed-title').textContent = FORMATS[state.tab].label;
+    $('btn-jsonld').classList.toggle('hidden', state.tab !== 'articulo');
+    updateCount();
+}
+
+function updateCount() {
+    const len = $('editor').value.length;
+    const lim = state.tab === 'whatsapp' ? ' / 700' : '';
+    $('ed-count').textContent = `${len}${lim} caracteres`;
+    $('ed-count').classList.toggle('text-red-600', state.tab === 'whatsapp' && len > 700);
+}
+
+function renderSources() {
+    const src = (state.pieza?.fuentes || []).filter((s) => isHttp(s.uri));
+    $('sources-box').classList.toggle('hidden', src.length === 0);
+    $('sources-list').innerHTML = src.map((s) => `
+        <a href="${esc(s.uri)}" target="_blank" rel="noopener noreferrer"
+           class="text-[11px] bg-white border border-swiss-300 text-swiss-800 px-2.5 py-1.5 rounded-lg hover:border-black truncate max-w-xs min-h-[32px] inline-flex items-center">
+            🔗 <span class="truncate ml-1">${esc(s.title || s.uri)}</span></a>`).join('');
+}
+
+function renderChecklist() {
+    const list = state.pieza?.verificacion || [];
+    $('checklist-empty').classList.toggle('hidden', list.length > 0);
+    $('checklist').innerHTML = list.map((v, i) => `
+        <li><label class="flex items-start gap-3 text-xs text-swiss-800 cursor-pointer py-2 min-h-[44px]">
+            <input type="checkbox" data-check="${i}" ${v.ok ? 'checked' : ''} class="mt-0.5 w-4 h-4 rounded border-swiss-300 text-black focus:ring-black shrink-0">
+            <span class="${v.ok ? 'line-through text-swiss-400' : ''}">${esc(v.texto)}</span></label></li>`).join('');
+}
+
+function renderEstado() {
+    const cur = state.pieza?.estado || 'borrador';
+    const estados = [['borrador', 'Borrador'], ['revisado', 'Revisado'], ['publicado', 'Publicado']];
+    $('estado-group').innerHTML = estados.map(([k, l]) => `
+        <button data-estado="${k}" aria-pressed="${k === cur}" class="text-xs font-medium px-3 py-2 rounded-full min-h-[44px] border ${k === cur ? 'bg-black text-white border-black' : 'bg-white text-swiss-700 border-swiss-300 hover:border-black'}">${l}</button>`).join('');
+}
+
+function setEstado(nuevo) {
+    const p = state.pieza;
+    if (!p || p.estado === nuevo) return;
+    if (nuevo === 'revisado' && p.verificacion.some((v) => !v.ok)) {
+        return toast('Completá la checklist de verificación antes de marcar como revisado.');
+    }
+    if (nuevo === 'publicado' && p.estado !== 'revisado') {
+        return toast('Una pieza debe estar revisada antes de publicarse.');
+    }
+    p.estado = nuevo;
+    renderEstado();
+    queueSave();
+}
+
+/* ============================================================
+   Exportaciones
+   ============================================================ */
+function download(name, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const slugify = (s) => String(s || 'pieza').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'pieza';
+
+function allText(p) {
+    return Object.entries(FORMATS).map(([k, f]) => `=== ${f.label.toUpperCase()} ===\n\n${p.formatos[k] || ''}`).join('\n\n\n');
+}
+
+async function copyText(text, ok) {
+    try { await navigator.clipboard.writeText(text); toast(ok); }
+    catch {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); toast(ok); } catch { toast('No se pudo copiar.'); }
+        ta.remove();
+    }
+}
+
+function jsonLd(p) {
+    const a = p.estructura?.articulo || {};
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'NewsArticle',
+        headline: String(a.titulo || p.titulo || '').slice(0, 110),
+        description: a.meta_descripcion || '',
+        keywords: (a.palabras_clave || []).join(', '),
+        inLanguage: 'es-AR',
+        articleBody: a.cuerpo || '',
+        // Reemplazar datePublished por la fecha real de publicación al subir la nota a la web.
+        datePublished: p.created_at,
+        dateModified: p.updated_at,
+        author: { '@type': 'Organization', name: 'El Independiente' },
+        publisher: { '@type': 'Organization', name: 'El Independiente' }
+    };
+}
+
+function handleAction(act) {
+    const p = state.pieza;
+    if (!p) return;
+    const base = slugify(p.titulo);
+    switch (act) {
+        case 'copy': return copyText($('editor').value, 'Formato copiado.');
+        case 'export-txt':
+            download(`${base}_${state.tab}.txt`, $('editor').value, 'text/plain;charset=utf-8');
+            return toast('.txt descargado.');
+        case 'export-all-txt':
+            download(`${base}_completo.txt`, allText(p), 'text/plain;charset=utf-8');
+            return toast('.txt completo descargado.');
+        case 'export-doc': {
+            const body = Object.entries(FORMATS).map(([k, f]) =>
+                `<h2>${esc(f.label)}</h2><div style="white-space:pre-wrap;font-family:Calibri,Arial,sans-serif">${esc(p.formatos[k] || '')}</div>`).join('<hr>');
+            download(`${base}.doc`, `<html><head><meta charset="utf-8"><title>${esc(p.titulo)}</title></head><body><h1>${esc(p.titulo)}</h1>${body}</body></html>`, 'application/msword');
+            return toast('Documento Word descargado.');
+        }
+        case 'export-json':
+            download(`${base}.json`, JSON.stringify(p, null, 2), 'application/json');
+            return toast('JSON descargado.');
+        case 'jsonld':
+            return copyText(`<script type="application/ld+json">\n${JSON.stringify(jsonLd(p), null, 2)}\n<\/script>`, 'JSON-LD copiado.');
+        case 'regen': return regenerar();
+    }
+}
+
+/* ============================================================
+   Historial
+   ============================================================ */
+async function renderHistory() {
+    const box = $('hist-list');
+    box.innerHTML = '<p class="text-xs font-mono text-swiss-500 p-4">Cargando…</p>';
+    let list = [];
+    try { list = await listPiezas(); } catch (e) { box.innerHTML = `<p class="text-sm text-red-600 p-4">${esc(e.message)}</p>`; return; }
+    $('hist-count').textContent = list.length ? `(${list.length})` : '';
+    const f = $('hist-filter').value;
+    if (f) list = list.filter((x) => x.estado === f);
+
+    if (!list.length) {
+        box.innerHTML = `<div class="bg-white border border-swiss-200 rounded-2xl p-8 text-center space-y-1">
+            <p class="text-swiss-500 text-xs font-mono">No hay piezas${f ? ' con ese estado' : ''}.</p>
+            <p class="text-sm">Creá contenidos y se guardan automáticamente.</p></div>`;
+        return;
+    }
+    const badge = { borrador: 'bg-swiss-100 text-swiss-700', revisado: 'bg-amber-100 text-amber-800', publicado: 'bg-emerald-100 text-emerald-800' };
+    box.innerHTML = list.map((p) => `
+        <div class="bg-white border border-swiss-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[10px] font-mono text-swiss-400">${esc(new Date(p.updated_at || p.created_at).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }))}</span>
+                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${badge[p.estado] || badge.borrador}">${esc(p.estado)}</span>
+                    ${p.departamento ? `<span class="text-[10px] text-swiss-500">${esc(p.departamento)}</span>` : ''}
+                </div>
+                <h3 class="font-serif font-bold text-sm mt-1 truncate">${esc(p.titulo || 'Sin título')}</h3>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button data-h="open" data-id="${esc(p.id)}" class="text-xs bg-black text-white px-3 py-2 rounded-lg font-medium min-h-[44px] hover:bg-swiss-800">Abrir</button>
+                <button data-h="dup" data-id="${esc(p.id)}" class="text-xs bg-swiss-100 px-3 py-2 rounded-lg font-medium min-h-[44px] hover:bg-swiss-200">Duplicar</button>
+                <button data-h="del" data-id="${esc(p.id)}" class="text-xs bg-red-50 text-red-700 px-3 py-2 rounded-lg font-medium min-h-[44px] hover:bg-red-100">Eliminar</button>
+            </div>
+        </div>`).join('');
+}
+
+async function historyAction(kind, id) {
+    try {
+        if (kind === 'open') {
+            const p = await getPieza(id);
+            if (!p) return toast('No se encontró la pieza.');
+            state.tab = 'articulo';
+            openPieza(p);
+            showView('motor');
+        } else if (kind === 'dup') {
+            const p = await getPieza(id);
+            if (!p) return;
+            const copia = JSON.parse(JSON.stringify(p));
+            copia.id = crypto.randomUUID();
+            copia.titulo = `Copia de ${p.titulo}`.slice(0, 140);
+            copia.estado = 'borrador';
+            copia.verificacion = (copia.verificacion || []).map((v) => ({ ...v, ok: false }));
+            copia.created_at = copia.updated_at = new Date().toISOString();
+            await persist(copia);
+            toast('Pieza duplicada como borrador.');
+            renderHistory();
+        } else if (kind === 'del') {
+            if (!confirm('¿Eliminar esta pieza? No se puede deshacer.')) return;
+            await removePieza(id);
+            toast('Pieza eliminada.');
+            renderHistory();
+        }
+    } catch (e) { toast(e.message); }
+}
+
+/* ============================================================
+   Ajustes y navegación
+   ============================================================ */
+function fillSettings() {
+    $('cfg-url').value = state.cfg.url || '';
+    $('cfg-anon').value = state.cfg.anon || '';
+    $('cfg-model').value = state.cfg.model || '';
+    $('cfg-style').value = localStorage.getItem(KEY.style) || '';
+    $('cfg-devkey').value = devKey();
+}
+
+async function saveSettings() {
+    state.cfg = {
+        url: $('cfg-url').value.trim(),
+        anon: $('cfg-anon').value.trim(),
+        model: $('cfg-model').value.trim()
+    };
+    if (state.cfg.url && !isHttp(state.cfg.url)) return toast('La URL debe empezar con https://');
+    saveJSON(KEY.cfg, state.cfg);
+    localStorage.setItem(KEY.style, $('cfg-style').value);
+    try {
+        const k = $('cfg-devkey').value.trim();
+        if (k) sessionStorage.setItem(KEY.dev, k); else sessionStorage.removeItem(KEY.dev);
+    } catch { /* sessionStorage no disponible */ }
+    initSupabase();
+    await refreshSession();
+    refreshChrome();
+    toast('Ajustes guardados.');
+    showView(needsLogin() ? 'auth' : 'motor');
+}
+
+async function testConnection() {
+    if (devKey() && !state.sb) return toast('Modo desarrollo activo: la conexión se probará al generar.');
+    if (!state.sb) return toast('Completá URL y anon key y guardá los ajustes.');
+    try {
+        const { error } = await state.sb.from('piezas').select('id', { head: true, count: 'exact' }).limit(1);
+        if (error && !/permission|JWT|row-level/i.test(error.message)) throw new Error(error.message);
+        toast(state.session ? 'Conexión correcta con sesión activa.' : 'Supabase responde. Falta iniciar sesión.');
+    } catch (e) { toast('No se pudo conectar: ' + e.message); }
+}
+
+function showView(name) {
+    for (const v of ['auth', 'motor', 'historial', 'ajustes']) {
+        $('view-' + v).classList.toggle('hidden', v !== name);
+    }
+    document.querySelectorAll('.nav-btn').forEach((b) => {
+        const on = b.dataset.view === name || (name === 'auth' && b.dataset.view === 'motor');
+        b.className = 'nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px] ' +
+            (on ? 'bg-black text-white' : 'text-swiss-700 hover:bg-swiss-100');
+    });
+    if (name === 'historial') renderHistory();
+    if (name === 'ajustes') fillSettings();
+}
+
+/* ============================================================
+   Inicio
+   ============================================================ */
+function saveDraft() {
+    saveJSON(KEY.draft, {
+        hecho: $('in-hecho').value, tono: $('in-tono').value, eje: $('in-eje').value,
+        dep: $('in-dep').value, search: $('in-search').checked
+    });
+}
+
+function nuevaPieza() {
+    state.pieza = null;
+    localStorage.removeItem(KEY.current);
+    $('results').classList.add('hidden');
+    $('in-hecho').value = '';
+    saveDraft();
+    $('in-hecho').focus();
+}
+
+async function init() {
+    $('in-eje').innerHTML = EJES.map(([n, l]) => `<option value="${n}">${esc(l)}</option>`).join('');
+    $('in-dep').innerHTML = '<option value="">Toda la provincia</option>' +
+        DEPARTAMENTOS.map((d) => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+    $('in-eje').value = '3';
+
+    const d = loadJSON(KEY.draft, null);
+    if (d) {
+        $('in-hecho').value = d.hecho || '';
+        if (d.tono) $('in-tono').value = d.tono;
+        if (d.eje) $('in-eje').value = d.eje;
+        if (d.dep) $('in-dep').value = d.dep;
+        $('in-search').checked = d.search !== false;
+    }
+
+    state.cfg = loadJSON(KEY.cfg, {});
+    initSupabase();
+    await refreshSession();
+    refreshChrome();
+
+    // Eventos
+    document.querySelectorAll('.nav-btn').forEach((b) => b.addEventListener('click', () => {
+        showView(b.dataset.view === 'motor' && needsLogin() ? 'auth' : b.dataset.view);
+    }));
+    $('btn-login').addEventListener('click', login);
+    $('btn-magic').addEventListener('click', magicLink);
+    $('auth-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+    $('btn-logout').addEventListener('click', logout);
+    $('btn-generate').addEventListener('click', generar);
+    $('btn-new').addEventListener('click', nuevaPieza);
+    $('btn-save-cfg').addEventListener('click', saveSettings);
+    $('btn-test').addEventListener('click', testConnection);
+    $('hist-filter').addEventListener('change', renderHistory);
+    ['in-hecho', 'in-tono', 'in-eje', 'in-dep', 'in-search'].forEach((id) => $(id).addEventListener('input', saveDraft));
+
+    $('editor').addEventListener('input', () => {
+        if (!state.pieza) return;
+        state.pieza.formatos[state.tab] = $('editor').value;
+        updateCount();
+        queueSave();
+    });
+    $('tabs').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-tab]');
+        if (!b) return;
+        state.tab = b.dataset.tab;
+        renderTabs();
+        renderEditor();
+    });
+    $('estado-group').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-estado]');
+        if (b) setEstado(b.dataset.estado);
+    });
+    $('checklist').addEventListener('change', (e) => {
+        const i = e.target.dataset.check;
+        if (i === undefined || !state.pieza) return;
+        state.pieza.verificacion[Number(i)].ok = e.target.checked;
+        // Si se desmarca algo, la pieza deja de estar "revisada".
+        if (!e.target.checked && state.pieza.estado !== 'borrador') {
+            state.pieza.estado = 'borrador';
+            renderEstado();
+            toast('Volvió a borrador: hay datos sin verificar.');
+        }
+        renderChecklist();
+        queueSave();
+    });
+    document.querySelectorAll('.act').forEach((b) => b.addEventListener('click', () => handleAction(b.dataset.act)));
+    $('hist-list').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-h]');
+        if (b) historyAction(b.dataset.h, b.dataset.id);
+    });
+
+    // Vista inicial
+    if (!state.sb && !devKey()) {
+        showView('ajustes');
+        toast('Configurá tu proyecto Supabase para empezar.');
+    } else if (needsLogin()) {
+        showView('auth');
+    } else {
+        showView('motor');
+        await restoreCurrent();
+    }
+    if (state.sb) {
+        try { const l = await listPiezas(); $('hist-count').textContent = l.length ? `(${l.length})` : ''; } catch { /* sin sesión */ }
+    } else {
+        const n = loadJSON(KEY.hist, []).length;
+        $('hist-count').textContent = n ? `(${n})` : '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
