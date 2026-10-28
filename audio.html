@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcriptor de Audio a Texto (Español)</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar styling for transcript box */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <div class="max-w-4xl mx-auto w-full px-4 py-8 flex-grow">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="inline-flex items-center justify-center p-3 bg-indigo-100 text-indigo-600 rounded-2xl mb-3 shadow-sm">
+                <i data-lucide="mic" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Transcriptor de Audio</h1>
+            <p class="text-slate-600 mt-2 text-base sm:text-lg max-w-xl mx-auto">
+                Convierte tus archivos de audio a texto en español utilizando el reconocimiento de voz nativo de tu navegador (sin IA ni servidores externos).
+            </p>
+        </header>
+
+        <!-- Main Card Container -->
+        <main class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+            
+            <div class="p-6 sm:p-8 space-y-6">
+                <!-- Mode Switcher -->
+                <div class="flex p-1 bg-slate-100 rounded-xl max-w-md mx-auto mb-6">
+                    <button id="tab-file" onclick="switchTab('file')" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all shadow-sm bg-white text-indigo-600">
+                        <i data-lucide="file-audio" class="w-4 h-4 inline mr-1.5"></i> Cargar Archivo
+                    </button>
+                    <button id="tab-mic" onclick="switchTab('mic')" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                        <i data-lucide="mic" class="w-4 h-4 inline mr-1.5"></i> Grabar Micrófono
+                    </button>
+                </div>
+
+                <!-- Section 1: File Upload Box -->
+                <div id="section-file" class="space-y-4">
+                    <div id="drop-zone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/30 rounded-xl p-8 text-center cursor-pointer transition-colors flex flex-col items-center justify-center min-h-[180px]">
+                        <i data-lucide="upload-cloud" class="w-12 h-12 text-indigo-500 mb-3 animate-bounce"></i>
+                        <p class="text-slate-700 font-medium text-base mb-1">Arrastra tu archivo de audio aquí o haz clic para seleccionar</p>
+                        <p class="text-xs text-slate-500">Soporta formatos: MP3, WAV, OGG, M4A, WEBM</p>
+                        <input type="file" id="audio-input" accept="audio/*" class="hidden">
+                    </div>
+                </div>
+
+                <!-- Section 2: Microphone Live Recording -->
+                <div id="section-mic" class="hidden space-y-4 text-center py-6">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div id="mic-pulse" class="relative">
+                            <button id="btn-record" onclick="toggleRecording()" class="w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg transition-all focus:outline-none">
+                                <i data-lucide="mic" class="w-8 h-8"></i>
+                            </button>
+                        </div>
+                        <p id="record-status" class="text-slate-600 font-medium">Haz clic en el micrófono para empezar a hablar</p>
+                        <p id="record-timer" class="text-xs text-slate-400 hidden font-mono">00:00</p>
+                    </div>
+                </div>
+
+                <!-- Audio Player (Visible when file selected or mic recording available) -->
+                <div id="player-container" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                        <span id="audio-file-name" class="truncate max-w-[250px] sm:max-w-[400px]">audio.mp3</span>
+                        <span id="audio-duration">00:00</span>
+                    </div>
+                    <audio id="audio-player" class="w-full h-10" controls></audio>
+                </div>
+
+                <!-- Transcription Trigger & Options -->
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <label for="lang-select" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Idioma:</label>
+                        <select id="lang-select" class="text-sm bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 font-medium">
+                            <option value="es-ES">Español (España)</option>
+                            <option value="es-MX">Español (México)</option>
+                            <option value="es-AR">Español (Argentina)</option>
+                            <option value="es-CO">Español (Colombia)</option>
+                            <option value="es-CL">Español (Chile)</option>
+                            <option value="es-US">Español (EE.UU.)</option>
+                        </select>
+                    </div>
+
+                    <button id="btn-transcribe" onclick="startTranscription()" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md hover:shadow-indigo-200 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                        <span>Iniciar Transcripción</span>
+                    </button>
+                </div>
+
+                <!-- Notice / Compatibility Warning -->
+                <div id="browser-warning" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start space-x-2 text-xs text-amber-800">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                    <span><strong>Nota:</strong> Tu navegador no tiene soporte nativo para la API Web Speech. Por favor utiliza Chrome, Edge o Safari para una transcriptor funcional sin servidor.</span>
+                </div>
+
+                <!-- Progress & Status Indicator -->
+                <div id="status-container" class="hidden space-y-2">
+                    <div class="flex justify-between items-center text-xs font-semibold text-indigo-600">
+                        <span id="status-text">Procesando audio...</span>
+                        <span id="status-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div id="status-bar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <!-- Output Text Area Area -->
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-sm font-semibold text-slate-700 flex items-center space-x-1.5">
+                            <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
+                            <span>Texto Transcrito</span>
+                        </label>
+                        <div class="flex items-center space-x-2 text-xs">
+                            <span id="word-count" class="text-slate-400 font-medium">0 palabras</span>
+                            <button onclick="clearTranscript()" class="text-slate-400 hover:text-red-500 transition-colors p-1" title="Limpiar texto">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <textarea id="transcript-output" rows="8" placeholder="El texto transcrito aparecerá aquí. Puedes editarlo directamente si lo deseas..." class="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all custom-scrollbar text-sm sm:text-base leading-relaxed resize-y"></textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons: Download & Copy -->
+                <div class="flex flex-col sm:flex-row items-center justify-end gap-3">
+                    <button id="btn-copy" onclick="copyTranscript()" class="w-full sm:w-auto px-4 py-2 border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium rounded-xl transition-colors flex items-center justify-center space-x-2 text-sm">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span>Copiar Texto</span>
+                    </button>
+
+                    <button id="btn-download" onclick="downloadTranscript()" class="w-full sm:w-auto px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-all shadow-md hover:shadow-emerald-100 flex items-center justify-center space-x-2 text-sm">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Descargar (.txt)</span>
+                    </button>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Information / Disclaimer Footer -->
+        <footer class="mt-8 text-center text-xs text-slate-500 space-y-1">
+            <p>🔒 <strong>100% Privado:</strong> Tu audio no se envía a ningún servidor de Inteligencia Artificial ni se almacena externamente.</p>
+            <p>Funciona mediante la API Web Speech nativa del navegador. Requiere reproducción de audio para captura de voz.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 text-sm transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+        <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toast-message">Notificación</span>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // DOM Element References
+        const dropZone = document.getElementById('drop-zone');
+        const audioInput = document.getElementById('audio-input');
+        const audioPlayer = document.getElementById('audio-player');
+        const playerContainer = document.getElementById('player-container');
+        const audioFileName = document.getElementById('audio-file-name');
+        const audioDuration = document.getElementById('audio-duration');
+        const transcriptOutput = document.getElementById('transcript-output');
+        const btnTranscribe = document.getElementById('btn-transcribe');
+        const statusContainer = document.getElementById('status-container');
+        const statusText = document.getElementById('status-text');
+        const statusPercent = document.getElementById('status-percent');
+        const statusBar = document.getElementById('status-bar');
+        const langSelect = document.getElementById('lang-select');
+        const wordCount = document.getElementById('word-count');
+        const browserWarning = document.getElementById('browser-warning');
+
+        // State Variables
+        let audioFile = null;
+        let recognition = null;
+        let isTranscribing = false;
+        let activeTab = 'file';
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecordingMic = false;
+        let timerInterval = null;
+
+        // Check Web Speech API Compatibility
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            browserWarning.classList.remove('hidden');
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabFile = document.getElementById('tab-file');
+            const tabMic = document.getElementById('tab-mic');
+            const sectionFile = document.getElementById('section-file');
+            const sectionMic = document.getElementById('section-mic');
+
+            if (tab === 'file') {
+                tabFile.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                tabFile.classList.remove('text-slate-600');
+                tabMic.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                tabMic.classList.add('text-slate-600');
+                sectionFile.classList.remove('hidden');
+                sectionMic.classList.add('hidden');
+            } else {
+                tabMic.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                tabMic.classList.remove('text-slate-600');
+                tabFile.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                tabFile.classList.add('text-slate-600');
+                sectionMic.classList.remove('hidden');
+                sectionFile.classList.add('hidden');
+            }
+        }
+
+        // --- FILE UPLOAD HANDLING ---
+        dropZone.addEventListener('click', () => audioInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-indigo-500', 'bg-indigo-100/50');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-100/50');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-100/50');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        audioInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            if (!file.type.startsWith('audio/')) {
+                showToast('Por favor selecciona un archivo de audio válido.', 'alert-circle', 'text-amber-400');
+                return;
+            }
+
+            audioFile = file;
+            audioFileName.textContent = file.name;
+            const url = URL.createObjectURL(file);
+            audioPlayer.src = url;
+            playerContainer.classList.remove('hidden');
+
+            audioPlayer.onloadedmetadata = () => {
+                const minutes = Math.floor(audioPlayer.duration / 60);
+                const seconds = Math.floor(audioPlayer.duration % 60);
+                audioDuration.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            };
+
+            showToast('Archivo de audio cargado con éxito', 'check-circle', 'text-emerald-400');
+        }
+
+        // --- MICROPHONE RECORDING LOGIC ---
+        async function toggleRecording() {
+            const recordBtn = document.getElementById('btn-record');
+            const recordStatus = document.getElementById('record-status');
+            const recordTimer = document.getElementById('record-timer');
+
+            if (!isRecordingMic) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) recordedChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        audioFile = blob;
+                        const url = URL.createObjectURL(blob);
+                        audioPlayer.src = url;
+                        audioFileName.textContent = 'Grabación de micrófono.webm';
+                        playerContainer.classList.remove('hidden');
+                        
+                        // Stop all tracks to release mic
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    isRecordingMic = true;
+
+                    // UI Changes
+                    recordBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                    recordBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'animate-pulse');
+                    recordStatus.textContent = 'Grabando... Habla con claridad';
+                    recordTimer.classList.remove('hidden');
+
+                    let seconds = 0;
+                    recordTimer.textContent = '00:00';
+                    timerInterval = setInterval(() => {
+                        seconds++;
+                        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                        const s = (seconds % 60).toString().padStart(2, '0');
+                        recordTimer.textContent = `${m}:${s}`;
+                    }, 1000);
+
+                } catch (err) {
+                    showToast('No se pudo acceder al micrófono.', 'alert-circle', 'text-red-400');
+                }
+            } else {
+                // Stop Recording
+                mediaRecorder.stop();
+                isRecordingMic = false;
+                clearInterval(timerInterval);
+
+                recordBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                recordBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'animate-pulse');
+                recordStatus.textContent = 'Grabación finalizada. Lista para transcribir.';
+            }
+        }
+
+        // --- TRANSCRIPTION CORE ENGINE ---
+        function startTranscription() {
+            if (!SpeechRecognition) {
+                showToast('Tu navegador no es compatible con el reconocimiento de voz.', 'alert-circle', 'text-red-400');
+                return;
+            }
+
+            if (isTranscribing) {
+                stopTranscription();
+                return;
+            }
+
+            if (!audioPlayer.src) {
+                showToast('Carga un archivo de audio o graba uno primero.', 'alert-circle', 'text-amber-400');
+                return;
+            }
+
+            // Setup Speech Recognition
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = langSelect.value;
+
+            isTranscribing = true;
+            btnTranscribe.innerHTML = `<i data-lucide="square" class="w-4 h-4 fill-current"></i><span>Detener</span>`;
+            btnTranscribe.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            btnTranscribe.classList.add('bg-amber-600', 'hover:bg-amber-700');
+            lucide.createIcons();
+
+            statusContainer.classList.remove('hidden');
+            statusText.textContent = 'Escuchando y transcribiendo...';
+
+            let finalTranscript = transcriptOutput.value ? transcriptOutput.value + ' ' : '';
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript + ' ';
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                transcriptOutput.value = finalTranscript + interimTranscript;
+                updateWordCount();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error !== 'no-speech') {
+                    showToast('Error en el reconocimiento: ' + event.error, 'alert-circle', 'text-red-400');
+                }
+            };
+
+            recognition.onend = () => {
+                // If audio is still playing, automatically restart speech recognition (since Web Speech API closes on pauses)
+                if (isTranscribing && !audioPlayer.paused) {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        // Avoid errors if already running
+                    }
+                } else {
+                    stopTranscription();
+                }
+            };
+
+            // Start audio playback & speech recognition
+            audioPlayer.currentTime = 0;
+            audioPlayer.play().then(() => {
+                recognition.start();
+            }).catch(err => {
+                showToast('Permite la reproducción de audio en tu navegador.', 'alert-circle', 'text-amber-400');
+                stopTranscription();
+            });
+
+            // Update Audio Progress Bar
+            audioPlayer.ontimeupdate = () => {
+                if (audioPlayer.duration) {
+                    const percent = Math.floor((audioPlayer.currentTime / audioPlayer.duration) * 100);
+                    statusBar.style.width = percent + '%';
+                    statusPercent.textContent = percent + '%';
+                }
+            };
+
+            audioPlayer.onended = () => {
+                stopTranscription();
+                showToast('Transcripción completada.', 'check-circle', 'text-emerald-400');
+            };
+        }
+
+        function stopTranscription() {
+            isTranscribing = false;
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {}
+            }
+            if (!audioPlayer.paused) {
+                audioPlayer.pause();
+            }
+
+            btnTranscribe.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i><span>Iniciar Transcripción</span>`;
+            btnTranscribe.classList.remove('bg-amber-600', 'hover:bg-amber-700');
+            btnTranscribe.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            lucide.createIcons();
+
+            statusText.textContent = 'Proceso detenido';
+        }
+
+        // --- HELPER FUNCTIONS ---
+        function updateWordCount() {
+            const text = transcriptOutput.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            wordCount.textContent = `${words} palabras`;
+        }
+
+        transcriptOutput.addEventListener('input', updateWordCount);
+
+        function clearTranscript() {
+            if (confirm('¿Estás seguro de que deseas borrar el texto transcrito?')) {
+                transcriptOutput.value = '';
+                updateWordCount();
+                showToast('Texto limpiado', 'trash-2', 'text-slate-400');
+            }
+        }
+
+        function copyTranscript() {
+            const text = transcriptOutput.value;
+            if (!text) {
+                showToast('No hay texto para copiar', 'alert-circle', 'text-amber-400');
+                return;
+            }
+
+            // Using standard fallback for clipboard copy
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Texto copiado al portapapeles', 'copy', 'text-indigo-400');
+            } catch (err) {
+                showToast('Error al copiar el texto', 'alert-circle', 'text-red-400');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function downloadTranscript() {
+            const text = transcriptOutput.value;
+            if (!text) {
+                showToast('No hay texto para descargar', 'alert-circle', 'text-amber-400');
+                return;
+            }
+
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `transcripcion_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Archivo .txt descargado', 'download', 'text-emerald-400');
+        }
+
+        function showToast(message, iconName, iconColorClass) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.textContent = message;
+            toastIcon.setAttribute('data-lucide', iconName);
+            toastIcon.className = `w-5 h-5 ${iconColorClass}`;
+            lucide.createIcons();
+
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
