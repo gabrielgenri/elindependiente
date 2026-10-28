@@ -61,7 +61,7 @@
                     <div id="drop-zone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/30 rounded-xl p-8 text-center cursor-pointer transition-colors flex flex-col items-center justify-center min-h-[180px]">
                         <i data-lucide="upload-cloud" class="w-12 h-12 text-indigo-500 mb-3 animate-bounce"></i>
                         <p class="text-slate-700 font-medium text-base mb-1">Arrastra tu archivo de audio aquí o haz clic para seleccionar</p>
-                        <p class="text-xs text-slate-500">Soporta formatos: MP3, WAV, OGG, M4A, WEBM</p>
+                        <p class="text-xs text-slate-500">Soporta formatos: MP3, WAV, OGG, M4A, WEBM, AAC, FLAC</p>
                         <input type="file" id="audio-input" accept="audio/*" class="hidden">
                     </div>
                 </div>
@@ -93,9 +93,9 @@
                     <div class="flex items-center space-x-2">
                         <label for="lang-select" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Idioma:</label>
                         <select id="lang-select" class="text-sm bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 font-medium">
+                            <option value="es-AR" selected>Español (Argentina)</option>
                             <option value="es-ES">Español (España)</option>
                             <option value="es-MX">Español (México)</option>
-                            <option value="es-AR">Español (Argentina)</option>
                             <option value="es-CO">Español (Colombia)</option>
                             <option value="es-CL">Español (Chile)</option>
                             <option value="es-US">Español (EE.UU.)</option>
@@ -111,7 +111,7 @@
                 <!-- Notice / Compatibility Warning -->
                 <div id="browser-warning" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start space-x-2 text-xs text-amber-800">
                     <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
-                    <span><strong>Nota:</strong> Tu navegador no tiene soporte nativo para la API Web Speech. Por favor utiliza Chrome, Edge o Safari para una transcriptor funcional sin servidor.</span>
+                    <span><strong>Nota:</strong> Tu navegador no tiene soporte nativo para la API Web Speech. Por favor utiliza Chrome, Edge o Safari para una transcripción funcional.</span>
                 </div>
 
                 <!-- Progress & Status Indicator -->
@@ -163,7 +163,7 @@
 
         <!-- Information / Disclaimer Footer -->
         <footer class="mt-8 text-center text-xs text-slate-500 space-y-1">
-            <p>Gabriel Genri</p>
+            <p>El Independiente 2030 — Madre</p>
         </footer>
     </div>
 
@@ -196,6 +196,7 @@
 
         // State Variables
         let audioFile = null;
+        let objectUrl = null;
         let recognition = null;
         let isTranscribing = false;
         let activeTab = 'file';
@@ -203,6 +204,8 @@
         let recordedChunks = [];
         let isRecordingMic = false;
         let timerInterval = null;
+        let audioContext = null;
+        let mediaStreamSource = null;
 
         // Check Web Speech API Compatibility
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -250,27 +253,34 @@
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('border-indigo-500', 'bg-indigo-100/50');
-            if (e.dataTransfer.files.length > 0) {
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 handleFileSelect(e.dataTransfer.files[0]);
             }
         });
 
         audioInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
+            if (e.target.files && e.target.files.length > 0) {
                 handleFileSelect(e.target.files[0]);
             }
         });
 
         function handleFileSelect(file) {
-            if (!file.type.startsWith('audio/')) {
+            // Check MIME type or extensions
+            const validExtensions = /\.(mp3|wav|ogg|m4a|webm|aac|flac|mp4)$/i;
+            if (!file.type.startsWith('audio/') && !file.type.startsWith('video/') && !validExtensions.test(file.name)) {
                 showToast('Por favor selecciona un archivo de audio válido.', 'alert-circle', 'text-amber-400');
                 return;
             }
 
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+
             audioFile = file;
             audioFileName.textContent = file.name;
-            const url = URL.createObjectURL(file);
-            audioPlayer.src = url;
+            objectUrl = URL.createObjectURL(file);
+            audioPlayer.src = objectUrl;
+            audioPlayer.load();
             playerContainer.classList.remove('hidden');
 
             audioPlayer.onloadedmetadata = () => {
@@ -279,7 +289,7 @@
                 audioDuration.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             };
 
-            showToast('Archivo de audio cargado con éxito', 'check-circle', 'text-emerald-400');
+            showToast('Archivo cargado correctamente', 'check-circle', 'text-emerald-400');
         }
 
         // --- MICROPHONE RECORDING LOGIC ---
@@ -301,19 +311,19 @@
                     mediaRecorder.onstop = () => {
                         const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                         audioFile = blob;
-                        const url = URL.createObjectURL(blob);
-                        audioPlayer.src = url;
+                        if (objectUrl) URL.revokeObjectURL(objectUrl);
+                        objectUrl = URL.createObjectURL(blob);
+                        audioPlayer.src = objectUrl;
+                        audioPlayer.load();
                         audioFileName.textContent = 'Grabación de micrófono.webm';
                         playerContainer.classList.remove('hidden');
                         
-                        // Stop all tracks to release mic
                         stream.getTracks().forEach(track => track.stop());
                     };
 
                     mediaRecorder.start();
                     isRecordingMic = true;
 
-                    // UI Changes
                     recordBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
                     recordBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'animate-pulse');
                     recordStatus.textContent = 'Grabando... Habla con claridad';
@@ -332,7 +342,6 @@
                     showToast('No se pudo acceder al micrófono.', 'alert-circle', 'text-red-400');
                 }
             } else {
-                // Stop Recording
                 mediaRecorder.stop();
                 isRecordingMic = false;
                 clearInterval(timerInterval);
@@ -344,7 +353,7 @@
         }
 
         // --- TRANSCRIPTION CORE ENGINE ---
-        function startTranscription() {
+        async function startTranscription() {
             if (!SpeechRecognition) {
                 showToast('Tu navegador no es compatible con el reconocimiento de voz.', 'alert-circle', 'text-red-400');
                 return;
@@ -360,7 +369,19 @@
                 return;
             }
 
-            // Setup Speech Recognition
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    mediaStreamSource = audioContext.createMediaElementSource(audioPlayer);
+                    mediaStreamSource.connect(audioContext.destination);
+                }
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+            } catch (err) {
+                console.warn('AudioContext setup note:', err);
+            }
+
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
@@ -375,51 +396,51 @@
             statusContainer.classList.remove('hidden');
             statusText.textContent = 'Escuchando y transcribiendo...';
 
-            let finalTranscript = transcriptOutput.value ? transcriptOutput.value + ' ' : '';
+            let baseTranscript = transcriptOutput.value ? transcriptOutput.value.trim() + ' ' : '';
+            let currentFinals = '';
 
             recognition.onresult = (event) => {
                 let interimTranscript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript + ' ';
+                        currentFinals += event.results[i][0].transcript + ' ';
                     } else {
                         interimTranscript += event.results[i][0].transcript;
                     }
                 }
-                transcriptOutput.value = finalTranscript + interimTranscript;
+                transcriptOutput.value = baseTranscript + currentFinals + interimTranscript;
                 updateWordCount();
             };
 
             recognition.onerror = (event) => {
                 console.error('Speech recognition error:', event.error);
-                if (event.error !== 'no-speech') {
+                if (event.error !== 'no-speech' && event.error !== 'aborted') {
                     showToast('Error en el reconocimiento: ' + event.error, 'alert-circle', 'text-red-400');
                 }
             };
 
             recognition.onend = () => {
-                // If audio is still playing, automatically restart speech recognition (since Web Speech API closes on pauses)
-                if (isTranscribing && !audioPlayer.paused) {
+                if (isTranscribing && !audioPlayer.paused && !audioPlayer.ended) {
                     try {
                         recognition.start();
-                    } catch (e) {
-                        // Avoid errors if already running
-                    }
-                } else {
+                    } catch (e) {}
+                } else if (audioPlayer.ended || audioPlayer.paused) {
                     stopTranscription();
                 }
             };
 
-            // Start audio playback & speech recognition
             audioPlayer.currentTime = 0;
             audioPlayer.play().then(() => {
-                recognition.start();
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.error('Failed to start recognition:', e);
+                }
             }).catch(err => {
                 showToast('Permite la reproducción de audio en tu navegador.', 'alert-circle', 'text-amber-400');
                 stopTranscription();
             });
 
-            // Update Audio Progress Bar
             audioPlayer.ontimeupdate = () => {
                 if (audioPlayer.duration) {
                     const percent = Math.floor((audioPlayer.currentTime / audioPlayer.duration) * 100);
@@ -477,7 +498,6 @@
                 return;
             }
 
-            // Using standard fallback for clipboard copy
             const textarea = document.createElement('textarea');
             textarea.value = text;
             document.body.appendChild(textarea);
