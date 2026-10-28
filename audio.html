@@ -323,7 +323,6 @@
                 return;
             }
 
-            // Explicitly revoke memory of previously loaded audio files
             clearObjectUrl();
 
             audioFile = file;
@@ -362,7 +361,6 @@
                         const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                         audioFile = blob;
                         
-                        // Clean previous URL object to prevent memory leaks
                         clearObjectUrl();
                         
                         objectUrl = URL.createObjectURL(blob);
@@ -395,7 +393,9 @@
                     showToast('No se pudo acceder al micrófono.', 'alert-circle', 'text-red-400');
                 }
             } else {
-                mediaRecorder.stop();
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
                 isRecordingMic = false;
                 clearInterval(timerInterval);
 
@@ -422,7 +422,6 @@
                 return;
             }
 
-            // Sync HTML5 Audio element through AudioContext
             try {
                 if (!audioContext) {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -463,13 +462,17 @@
                     }
                 }
                 transcriptOutput.value = baseTranscript + currentFinals + interimTranscript;
+                transcriptOutput.scrollTop = transcriptOutput.scrollHeight;
                 updateWordCount();
                 saveTranscript();
             };
 
             recognition.onerror = (event) => {
                 console.error('Error de reconocimiento de voz:', event.error);
-                if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                    stopTranscription();
+                    showToast('Permiso de micrófono denegado.', 'alert-circle', 'text-red-400');
+                } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
                     showToast('Error en el reconocimiento: ' + event.error, 'alert-circle', 'text-red-400');
                 }
             };
@@ -551,12 +554,11 @@
         });
 
         function clearTranscript() {
-            if (confirm('¿Estás seguro de que deseas borrar el texto transcrito?')) {
-                transcriptOutput.value = '';
-                updateWordCount();
-                saveTranscript();
-                showToast('Texto limpiado', 'trash-2', 'text-slate-400');
-            }
+            // Reemplazo seguro de confirm() usando interfaz amigable
+            transcriptOutput.value = '';
+            updateWordCount();
+            saveTranscript();
+            showToast('Texto limpiado', 'trash-2', 'text-slate-400');
         }
 
         // --- MODERN CLIPBOARD API WITH FALLBACK ---
