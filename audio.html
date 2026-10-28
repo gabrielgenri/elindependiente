@@ -11,12 +11,24 @@
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
         /* Custom scrollbar styling for transcript box */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
@@ -32,7 +44,7 @@
 
         <!-- Main Card Container -->
         <main class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
-
+            
             <div class="p-6 sm:p-8 space-y-6">
                 <!-- Mode Switcher -->
                 <div class="flex p-1 bg-slate-100 rounded-xl max-w-md mx-auto mb-6">
@@ -67,7 +79,7 @@
                     </div>
                 </div>
 
-                <!-- Audio Player -->
+                <!-- Audio Player (Visible when file selected or mic recording available) -->
                 <div id="player-container" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                     <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
                         <span id="audio-file-name" class="truncate max-w-[250px] sm:max-w-[400px]">audio.mp3</span>
@@ -113,7 +125,7 @@
                     </div>
                 </div>
 
-                <!-- Output Text Area -->
+                <!-- Output Text Area Area -->
                 <div class="space-y-3 pt-2">
                     <div class="flex items-center justify-between">
                         <label class="text-sm font-semibold text-slate-700 flex items-center space-x-1.5">
@@ -200,19 +212,30 @@
         const LS_LANG = 'transcriptor_lang';
         const LS_TAB = 'transcriptor_tab';
 
-        // Restore persisted state
+        // Helper to release existing object URLs to avoid memory leaks
+        function clearObjectUrl() {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
+            }
+        }
+
+        // Restore persisted state on startup
         (function restoreState() {
             try {
                 const savedText = localStorage.getItem(LS_TRANSCRIPT);
                 if (savedText) {
                     transcriptOutput.value = savedText;
+                    updateWordCount();
                 }
                 const savedLang = localStorage.getItem(LS_LANG);
                 if (savedLang) {
                     const opt = langSelect.querySelector(`option[value="${savedLang}"]`);
                     if (opt) langSelect.value = savedLang;
                 }
-            } catch (e) { console.warn('localStorage no disponible:', e); }
+            } catch (e) {
+                console.warn('localStorage no disponible:', e);
+            }
         })();
 
         // Check Web Speech API Compatibility
@@ -226,7 +249,16 @@
             const hash = (location.hash || '').replace('#/', '');
             switchTab(hash === 'microfono' ? 'mic' : 'file', true);
         }
+
         window.addEventListener('hashchange', applyRoute);
+        window.addEventListener('load', () => {
+            const initialTab = localStorage.getItem(LS_TAB);
+            if (!location.hash && initialTab) {
+                location.hash = initialTab === 'mic' ? '#/microfono' : '#/archivo';
+            } else {
+                applyRoute();
+            }
+        });
 
         // Tab Switching
         function switchTab(tab, fromRoute) {
@@ -285,16 +317,14 @@
         });
 
         function handleFileSelect(file) {
-            // Check MIME type or extensions
             const validExtensions = /\.(mp3|wav|ogg|m4a|webm|aac|flac|mp4)$/i;
             if (!file.type.startsWith('audio/') && !file.type.startsWith('video/') && !validExtensions.test(file.name)) {
                 showToast('Por favor selecciona un archivo de audio válido.', 'alert-circle', 'text-amber-400');
                 return;
             }
 
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl);
-            }
+            // Explicitly revoke memory of previously loaded audio files
+            clearObjectUrl();
 
             audioFile = file;
             audioFileName.textContent = file.name;
@@ -331,7 +361,10 @@
                     mediaRecorder.onstop = () => {
                         const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                         audioFile = blob;
-                        if (objectUrl) URL.revokeObjectURL(objectUrl);
+                        
+                        // Clean previous URL object to prevent memory leaks
+                        clearObjectUrl();
+                        
                         objectUrl = URL.createObjectURL(blob);
                         audioPlayer.src = objectUrl;
                         audioPlayer.load();
@@ -372,7 +405,7 @@
             }
         }
 
-        // --- TRANSCRIPTION CORE ENGINE ---
+        // --- TRANSCRIPTION CORE ENGINE & WEB AUDIO API SYNCHRONIZATION ---
         async function startTranscription() {
             if (!SpeechRecognition) {
                 showToast('Tu navegador no es compatible con el reconocimiento de voz.', 'alert-circle', 'text-red-400');
@@ -389,6 +422,7 @@
                 return;
             }
 
+            // Sync HTML5 Audio element through AudioContext
             try {
                 if (!audioContext) {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -399,7 +433,7 @@
                     await audioContext.resume();
                 }
             } catch (err) {
-                console.warn('AudioContext setup note:', err);
+                console.warn('Nota sobre la inicialización de AudioContext:', err);
             }
 
             recognition = new SpeechRecognition();
@@ -434,7 +468,7 @@
             };
 
             recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
+                console.error('Error de reconocimiento de voz:', event.error);
                 if (event.error !== 'no-speech' && event.error !== 'aborted') {
                     showToast('Error en el reconocimiento: ' + event.error, 'alert-circle', 'text-red-400');
                 }
@@ -455,7 +489,7 @@
                 try {
                     recognition.start();
                 } catch (e) {
-                    console.error('Failed to start recognition:', e);
+                    console.error('Error al iniciar el reconocimiento:', e);
                 }
             }).catch(err => {
                 showToast('Permite la reproducción de audio en tu navegador.', 'alert-circle', 'text-amber-400');
@@ -496,7 +530,7 @@
             saveTranscript();
         }
 
-        // --- HELPER FUNCTIONS ---
+        // --- HELPER & PERSISTENCE FUNCTIONS ---
         function saveTranscript() {
             try { localStorage.setItem(LS_TRANSCRIPT, transcriptOutput.value); } catch (e) {}
         }
@@ -525,16 +559,31 @@
             }
         }
 
-        function copyTranscript() {
+        // --- MODERN CLIPBOARD API WITH FALLBACK ---
+        async function copyTranscript() {
             const text = transcriptOutput.value;
             if (!text) {
                 showToast('No hay texto para copiar', 'alert-circle', 'text-amber-400');
                 return;
             }
 
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showToast('Texto copiado al portapapeles', 'copy', 'text-indigo-400');
+                    return;
+                } catch (err) {
+                    console.warn('Falló navigator.clipboard, recurriendo a fallback:', err);
+                }
+            }
+
+            // Legacy fallback using textarea
             const textarea = document.createElement('textarea');
             textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
             document.body.appendChild(textarea);
+            textarea.focus();
             textarea.select();
             try {
                 document.execCommand('copy');
@@ -583,10 +632,6 @@
                 toast.classList.add('opacity-0', 'pointer-events-none');
             }, 3000);
         }
-
-        // Initial route from hash (or persisted tab)
-        applyRoute();
-        updateWordCount();
     </script>
 </body>
 </html>
