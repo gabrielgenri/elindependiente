@@ -63,11 +63,11 @@
         <nav aria-label="Modalidades de operación" class="bg-slate-100 rounded-xl p-1 max-w-md mx-auto flex space-x-1 shadow-inner">
             <button id="tab-file" onclick="switchTab('file')" role="tab" aria-selected="true" class="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 bg-white text-indigo-600 shadow-sm">
                 <i data-lucide="file-audio" class="w-4 h-4"></i>
-                <span>Cargar Archivo (Whisper ML)</span>
+                <span>Cargar Archivo</span>
             </button>
             <button id="tab-mic" onclick="switchTab('mic')" role="tab" aria-selected="false" class="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900">
                 <i data-lucide="mic" class="w-4 h-4"></i>
-                <span>Grabar Micrófono (Live API)</span>
+                <span>Grabar Micrófono</span>
             </button>
         </nav>
 
@@ -113,7 +113,7 @@
                         <div class="flex justify-between items-center text-xs text-slate-600 font-medium">
                             <span id="ml-status-text" class="flex items-center space-x-1.5">
                                 <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-600"></i>
-                                <span>Listo para procesar con Whisper (Client-Side ML)</span>
+                                <span>Listo para procesar</span>
                             </span>
                             <span id="transcribe-progress-text" class="font-mono">0%</span>
                         </div>
@@ -125,7 +125,7 @@
                     <div class="flex flex-wrap gap-3 pt-2">
                         <button id="btn-start-file-transcription" onclick="transcribeFileWithWhisper()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
                             <i data-lucide="sparkles" class="w-4 h-4"></i>
-                            <span>Transcribir Archivo con Whisper AI (Local)</span>
+                            <span>Transcribir</span>
                         </button>
                     </div>
                 </div>
