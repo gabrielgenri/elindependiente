@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AudioTranscribe - Transcripción de Audio Local y Privada</title>
+  
+  <!-- Security CSP Meta Tag Preparation -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com data: blob:;">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eep2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Focus Ring Styles for Enhanced Accessibility (WCAG AA) */
+    :focus-visible {
+      outline: 3px solid #4f46e5;
+      outline-offset: 2px;
+    }
+
+    /* Scrollbar Aesthetics for Textarea */
+    textarea::-webkit-scrollbar {
+      width: 8px;
+    }
+    textarea::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    textarea::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    textarea::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- Main Container -->
+  <main class="container mx-auto px-4 py-8 sm:py-12 max-w-4xl flex-grow flex flex-col justify-center" id="main-content">
+    
+    <!-- Header Section -->
+    <header class="text-center mb-8 sm:mb-10">
+      <div class="inline-flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-2xl p-3.5 shadow-sm mb-4">
+        <i data-lucide="mic" class="w-8 h-8 stroke-[2.25]" aria-hidden="true"></i>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-2">
+        AudioTranscribe Local
+      </h1>
+      <p class="text-slate-600 text-base sm:text-lg max-w-xl mx-auto">
+        Transcripción en español directamente en tu navegador. Privada, rápida y sin depender de servidores externos.
+      </p>
+    </header>
+
+    <!-- Main Card Container -->
+    <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-6 sm:p-8 space-y-6">
+
+      <!-- Navigation Tabs & Language Selector -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-6">
+        
+        <!-- Tab Controls (File vs Mic) -->
+        <nav class="bg-slate-100 rounded-xl p-1 flex w-full sm:w-auto max-w-md" aria-label="Modos de captura">
+          <button 
+            id="tab-file-btn"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-file"
+            class="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-white text-slate-900 shadow-sm"
+            onclick="switchTab('file')">
+            <i data-lucide="file-audio" class="w-4 h-4 text-indigo-600" aria-hidden="true"></i>
+            <span>Cargar Archivo</span>
+          </button>
+          
+          <button 
+            id="tab-mic-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-mic"
+            class="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900"
+            onclick="switchTab('mic')">
+            <i data-lucide="mic" class="w-4 h-4 text-indigo-600" aria-hidden="true"></i>
+            <span>Grabar Micrófono</span>
+          </button>
+        </nav>
+
+        <!-- Language Selector Dropdown -->
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <label for="language-select" class="text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+            Idioma:
+          </label>
+          <div class="relative w-full sm:w-48">
+            <select 
+              id="language-select" 
+              class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 pr-8 text-sm font-medium text-slate-700 hover:border-slate-300 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer">
+              <option value="es-AR">Español (Argentina)</option>
+              <option value="es-ES">Español (España)</option>
+              <option value="es-MX">Español (México)</option>
+              <option value="es-CO">Español (Colombia)</option>
+              <option value="es-CL">Español (Chile)</option>
+              <option value="es-US">Español (EE.UU.)</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400">
+              <i data-lucide="chevron-down" class="w-4 h-4" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content Area -->
+      <section id="tab-panels-container">
+        
+        <!-- Panel 1: File Upload Mode -->
+        <div id="panel-file" role="tabpanel" aria-labelledby="tab-file-btn" class="space-y-4">
+          <div 
+            id="drop-zone"
+            class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-2xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center min-h-[180px] group">
+            <input 
+              type="file" 
+              id="audio-file-input" 
+              accept="audio/*,.mp3,.wav,.ogg,.m4a,.webm,.aac,.flac,.opus" 
+              class="hidden" 
+              aria-label="Seleccionar archivo de audio para transcribir">
+            
+            <div class="p-3 bg-white rounded-full shadow-sm text-indigo-600 mb-3 group-hover:scale-110 transition-transform">
+              <i data-lucide="upload-cloud" class="w-7 h-7" aria-hidden="true"></i>
+            </div>
+            <p class="text-slate-800 font-semibold mb-1">
+              Haz clic o arrastra un archivo de audio aquí
+            </p>
+            <p class="text-xs text-slate-500">
+              Formatos soportados: MP3, WAV, OGG, M4A, WEBM, AAC, FLAC (Máx. 250 MB)
+            </p>
+          </div>
+
+          <!-- File Info Badge & Player -->
+          <div id="file-info-bar" class="hidden flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-3 overflow-hidden w-full sm:w-auto">
+              <div class="p-2 bg-indigo-100 text-indigo-600 rounded-lg shrink-0">
+                <i data-lucide="music" class="w-5 h-5" aria-hidden="true"></i>
+              </div>
+              <div class="truncate">
+                <p id="loaded-file-name" class="text-sm font-semibold text-slate-800 truncate">archivo.mp3</p>
+                <p id="loaded-file-size" class="text-xs text-slate-500">0.00 MB</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+              <audio id="audio-player" controls class="h-9 w-full sm:w-64 focus:outline-none"></audio>
+              <button 
+                id="btn-process-file"
+                onclick="toggleFileTranscription()"
+                class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2 rounded-xl shadow-sm transition-all whitespace-nowrap shrink-0">
+                <i data-lucide="play" class="w-4 h-4 fill-current" aria-hidden="true"></i>
+                <span id="btn-process-file-text">Transcribir</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Microphone Recording Mode -->
+        <div id="panel-mic" role="tabpanel" aria-labelledby="tab-mic-btn" class="hidden space-y-6 text-center py-4">
+          <div class="flex flex-col items-center justify-center">
+            
+            <!-- Record Button -->
+            <button 
+              id="btn-record"
+              onclick="toggleMicRecording()"
+              aria-label="Iniciar grabación de voz"
+              class="relative w-20 h-20 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all group">
+              <span id="record-ping" class="hidden absolute inset-0 rounded-full bg-red-400 animate-ping opacity-75"></span>
+              <i id="record-icon" data-lucide="mic" class="w-8 h-8 relative z-10" aria-hidden="true"></i>
+            </button>
+
+            <!-- Recording Status Label -->
+            <div class="mt-4 space-y-1">
+              <p id="record-status-text" class="text-base font-semibold text-slate-800">
+                Haz clic para empezar a hablar
+              </p>
+              <p id="record-timer" class="text-xs text-slate-500 font-mono hidden">
+                00:00
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Visual Audio Wave / Recognition Indicator Bar -->
+      <div id="transcription-indicator" class="hidden bg-slate-900 text-slate-200 rounded-xl p-3.5 items-center justify-between gap-3 text-xs sm:text-sm">
+        <div class="flex items-center gap-3">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <span id="indicator-status-msg" class="font-medium">Escuchando audio y procesando transcripción...</span>
+        </div>
+        <div class="flex items-center gap-1 font-mono text-xs text-slate-400" id="audio-live-feedback">
+          <span>[Procesando]</span>
+        </div>
+      </div>
+
+      <!-- Textarea Transcribed Output Section -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <label for="transcription-textarea" class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+            <i data-lucide="file-text" class="w-4 h-4 text-indigo-600" aria-hidden="true"></i>
+            Texto Transcrito
+          </label>
+          
+          <!-- Word / Character Counters -->
+          <div class="text-xs text-slate-500 flex items-center gap-3">
+            <span>Palabras: <strong id="word-count" class="text-slate-800 font-semibold">0</strong></span>
+            <span>Caracteres: <strong id="char-count" class="text-slate-800 font-semibold">0</strong></span>
+          </div>
+        </div>
+
+        <div class="relative">
+          <textarea 
+            id="transcription-textarea" 
+            rows="10"
+            placeholder="El texto transcrito aparecerá aquí en tiempo real. También puedes escribir o editar manualmente este campo..."
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all resize-y"
+            oninput="updateTextStats()"></textarea>
+        </div>
+
+        <!-- Action Control Buttons -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          
+          <button 
+            onclick="clearTextarea()"
+            class="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-red-600 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4" aria-hidden="true"></i>
+            Limpiar Texto
+          </button>
+
+          <div class="flex items-center gap-3">
+            <button 
+              onclick="copyToClipboard()"
+              class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm px-4 py-2.5 rounded-xl transition-all active:scale-95">
+              <i data-lucide="copy" class="w-4 h-4" aria-hidden="true"></i>
+              Copiar
+            </button>
+
+            <button 
+              onclick="downloadTXT()"
+              class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-all active:scale-95">
+              <i data-lucide="download" class="w-4 h-4" aria-hidden="true"></i>
+              Guardar (.txt)
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Transparent Technical Disclaimer -->
+      <footer class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 flex items-start gap-3 text-xs text-indigo-900">
+        <i data-lucide="info" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" aria-hidden="true"></i>
+        <div class="space-y-1">
+          <p class="font-semibold">Nota sobre el funcionamiento y privacidad:</p>
+          <p class="text-indigo-900/80 leading-relaxed">
+            Esta aplicación utiliza el motor nativo <strong>Web Speech API</strong> de tu navegador. El procesamiento es local y no requiere claves de API. Se recomienda el uso de <strong>auriculares</strong> durante la reproducción de archivos para prevenir acoplamientos o eco en la captura del sistema.
+          </p>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="py-4 text-center text-xs text-slate-400">
+    <p>AudioTranscribe SPA Local &bull; Atajos: <kbd class="px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded text-[10px]">Ctrl + Enter</kbd> (Iniciar/Detener) | <kbd class="px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded text-[10px]">Ctrl + S</kbd> (Guardar .txt)</p>
+  </footer>
+
+  <!-- Toast Notification Container (WCAG AA Compliant) -->
+  <div 
+    id="toast-container" 
+    role="status" 
+    aria-live="polite" 
+    class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
+  </div>
+
+  <!-- JavaScript Logic & Web APIs Integration -->
+  <script>
+    /* ==========================================================================
+       STATE MANAGEMENT & GLOBAL VARIABLES
+       ========================================================================== */
+    const STORAGE_KEYS = {
+      LANGUAGE: 'audiotranscribe_lang',
+      ACTIVE_TAB: 'audiotranscribe_tab',
+      TEXT_DRAFT: 'audiotranscribe_draft'
+    };
+
+    let activeTab = 'file'; // 'file' or 'mic'
+    let currentObjectUrl = null; // Memory management tracker for Blob URLs
+    let loadedFile = null;
+    let isTranscribingFile = false;
+    let isRecordingMic = false;
+    let micTimerInterval = null;
+    let micSecondsElapsed = 0;
+
+    // Web Speech API Recognition Instance
+    let recognition = null;
+
+    /* ==========================================================================
+       DOM ELEMENTS REFERENCES
+       ========================================================================== */
+    const elements = {
+      languageSelect: document.getElementById('language-select'),
+      tabFileBtn: document.getElementById('tab-file-btn'),
+      tabMicBtn: document.getElementById('tab-mic-btn'),
+      panelFile: document.getElementById('panel-file'),
+      panelMic: document.getElementById('panel-mic'),
+      dropZone: document.getElementById('drop-zone'),
+      audioFileInput: document.getElementById('audio-file-input'),
+      fileInfoBar: document.getElementById('file-info-bar'),
+      loadedFileName: document.getElementById('loaded-file-name'),
+      loadedFileSize: document.getElementById('loaded-file-size'),
+      audioPlayer: document.getElementById('audio-player'),
+      btnProcessFile: document.getElementById('btn-process-file'),
+      btnProcessFileText: document.getElementById('btn-process-file-text'),
+      btnRecord: document.getElementById('btn-record'),
+      recordPing: document.getElementById('record-ping'),
+      recordIcon: document.getElementById('record-icon'),
+      recordStatusText: document.getElementById('record-status-text'),
+      recordTimer: document.getElementById('record-timer'),
+      transcriptionIndicator: document.getElementById('transcription-indicator'),
+      indicatorStatusMsg: document.getElementById('indicator-status-msg'),
+      transcriptionTextarea: document.getElementById('transcription-textarea'),
+      wordCount: document.getElementById('word-count'),
+      charCount: document.getElementById('char-count'),
+      toastContainer: document.getElementById('toast-container')
+    };
+
+    /* ==========================================================================
+       INITIALIZATION & STORAGE PERSISTENCE
+       ========================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Lucide Icons
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      // Check Speech Recognition Browser Compatibility
+      initSpeechRecognition();
+
+      // Restore Saved Settings from localStorage
+      loadSavedState();
+
+      // Register Drag and Drop & Event Listeners
+      setupEventListeners();
+    });
+
+    /**
+     * Loads persisted language, active tab, and draft text from localStorage
+     */
+    function loadSavedState() {
+      // 1. Language Preference
+      const savedLang = localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'es-AR';
+      elements.languageSelect.value = savedLang;
+
+      // 2. Draft Text Persistence
+      const savedDraft = localStorage.getItem(STORAGE_KEYS.TEXT_DRAFT);
+      if (savedDraft) {
+        elements.transcriptionTextarea.value = savedDraft;
+        updateTextStats();
+      }
+
+      // 3. Tab State
+      const savedTab = localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB) || 'file';
+      switchTab(savedTab, false);
+    }
+
+    /**
+     * Initializes SpeechRecognition API with Browser Fallbacks
+     */
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        showToast('Tu navegador no admite Web Speech API de manera nativa. Usa Chrome o Edge.', 'error');
+        elements.btnProcessFile.disabled = true;
+        elements.btnRecord.disabled = true;
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = elements.languageSelect.value;
+
+      // Result Event Handler
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscriptChunk = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscriptChunk += event.results[i][0].transcript + ' ';
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+
+        if (finalTranscriptChunk) {
+          appendTranscribedText(finalTranscriptChunk);
+        }
+      };
+
+      // Error Event Handler
+      recognition.onerror = (event) => {
+        console.error('Speech Recognition Error:', event.error);
+        if (event.error === 'not-allowed') {
+          showToast('Permiso de micrófono denegado. Habilítalo en los ajustes del navegador.', 'error');
+          stopMicRecording();
+        } else if (event.error === 'no-speech') {
+          // Normal pause in speech, ignore
+        } else {
+          showToast(`Error de reconocimiento: ${event.error}`, 'warning');
+        }
+      };
+
+      // Recognition End Event Handler (Auto Restart if active)
+      recognition.onend = () => {
+        if (isRecordingMic || isTranscribingFile) {
+          try {
+            recognition.start();
+          } catch (e) {
+            // Restart safely
+          }
+        } else {
+          hideTranscriptionIndicator();
+        }
+      };
+    }
+
+    /* ==========================================================================
+       TAB SWITCHING & NAVIGATION
+       ========================================================================== */
+    function switchTab(tabName, saveState = true) {
+      activeTab = tabName;
+      if (saveState) {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, tabName);
+      }
+
+      if (tabName === 'file') {
+        elements.tabFileBtn.className = "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-white text-slate-900 shadow-sm";
+        elements.tabMicBtn.className = "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900";
+        elements.tabFileBtn.setAttribute('aria-selected', 'true');
+        elements.tabMicBtn.setAttribute('aria-selected', 'false');
+
+        elements.panelFile.classList.remove('hidden');
+        elements.panelMic.classList.add('hidden');
+
+        if (isRecordingMic) stopMicRecording();
+
+      } else {
+        elements.tabMicBtn.className = "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-white text-slate-900 shadow-sm";
+        elements.tabFileBtn.className = "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900";
+        elements.tabMicBtn.setAttribute('aria-selected', 'true');
+        elements.tabFileBtn.setAttribute('aria-selected', 'false');
+
+        elements.panelMic.classList.remove('hidden');
+        elements.panelFile.classList.add('hidden');
+
+        if (isTranscribingFile) stopFileTranscription();
+      }
+    }
+
+    /* ==========================================================================
+       EVENT LISTENERS & HANDLERS
+       ========================================================================== */
+    function setupEventListeners() {
+      // Language Change
+      elements.languageSelect.addEventListener('change', (e) => {
+        const selectedLang = e.target.value;
+        localStorage.setItem(STORAGE_KEYS.LANGUAGE, selectedLang);
+        if (recognition) {
+          recognition.lang = selectedLang;
+        }
+        showToast(`Idioma cambiado a: ${e.target.options[e.target.selectedIndex].text}`, 'info');
+      });
+
+      // Drag and Drop File Events
+      const dropZone = elements.dropZone;
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('border-indigo-500', 'bg-indigo-100/50');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('border-indigo-500', 'bg-indigo-100/50');
+        }, false);
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+          handleFileSelection(files[0]);
+        }
+      });
+
+      dropZone.addEventListener('click', () => {
+        elements.audioFileInput.click();
+      });
+
+      elements.audioFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          handleFileSelection(e.target.files[0]);
+        }
+      });
+
+      // HTML5 Audio Player Ended Handler
+      elements.audioPlayer.addEventListener('ended', () => {
+        if (isTranscribingFile) {
+          stopFileTranscription();
+          showToast('Transcripción del archivo completada.', 'success');
+        }
+      });
+
+      // Keyboard Shortcuts (Ctrl + S & Ctrl + Enter)
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 's') {
+          e.preventDefault();
+          downloadTXT();
+        } else if (e.ctrlKey && e.key === 'Enter') {
+          e.preventDefault();
+          if (activeTab === 'file') {
+            toggleFileTranscription();
+          } else {
+            toggleMicRecording();
+          }
+        }
+      });
+    }
+
+    /* ==========================================================================
+       FILE HANDLING & STRICT MEMORY MANAGEMENT
+       ========================================================================== */
+    function handleFileSelection(file) {
+      const validTypes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/webm', 'audio/aac', 'audio/flac', 'audio/opus'];
+      const isExtensionValid = /\.(mp3|wav|ogg|m4a|webm|aac|flac|opus)$/i.test(file.name);
+
+      if (!validTypes.includes(file.type) && !isExtensionValid) {
+        showToast('Formato de archivo no soportado. Selecciona un audio válido.', 'error');
+        return;
+      }
+
+      if (file.size > 250 * 1024 * 1024) {
+        showToast('El archivo supera el límite recomendado de 250 MB.', 'warning');
+      }
+
+      // Memory Management: Revoke Previous Object URL
+      if (currentObjectUrl) {
+        URL.revokeObjectURL(currentObjectUrl);
+        currentObjectUrl = null;
+      }
+
+      loadedFile = file;
+      currentObjectUrl = URL.createObjectURL(file);
+
+      // Display UI Updates
+      elements.loadedFileName.textContent = file.name;
+      elements.loadedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+      elements.audioPlayer.src = currentObjectUrl;
+      elements.fileInfoBar.classList.remove('hidden');
+      elements.fileInfoBar.classList.add('flex');
+
+      showToast('Archivo cargado correctamente.', 'info');
+    }
+
+    /* ==========================================================================
+       FILE TRANSCRIPTION FLOW
+       ========================================================================== */
+    function toggleFileTranscription() {
+      if (!loadedFile) {
+        showToast('Primero debes cargar un archivo de audio.', 'warning');
+        return;
+      }
+
+      if (isTranscribingFile) {
+        stopFileTranscription();
+      } else {
+        startFileTranscription();
+      }
+    }
+
+    function startFileTranscription() {
+      if (!recognition) return;
+
+      isTranscribingFile = true;
+      elements.btnProcessFileText.textContent = 'Detener';
+      elements.btnProcessFile.classList.replace('bg-indigo-600', 'bg-red-600');
+      elements.btnProcessFile.classList.replace('hover:bg-indigo-700', 'hover:bg-red-700');
+
+      showTranscriptionIndicator('Transcribiendo archivo de audio...');
+
+      try {
+        recognition.lang = elements.languageSelect.value;
+        recognition.start();
+        elements.audioPlayer.play();
+      } catch (err) {
+        console.warn('Recognition start exception:', err);
+      }
+    }
+
+    function stopFileTranscription() {
+      isTranscribingFile = false;
+      elements.btnProcessFileText.textContent = 'Transcribir';
+      elements.btnProcessFile.classList.replace('bg-red-600', 'bg-indigo-600');
+      elements.btnProcessFile.classList.replace('hover:bg-red-700', 'hover:bg-indigo-700');
+
+      elements.audioPlayer.pause();
+      if (recognition) {
+        try { recognition.stop(); } catch (e) {}
+      }
+
+      hideTranscriptionIndicator();
+    }
+
+    /* ==========================================================================
+       MICROPHONE RECORDING FLOW
+       ========================================================================== */
+    async function toggleMicRecording() {
+      if (isRecordingMic) {
+        stopMicRecording();
+      } else {
+        await startMicRecording();
+      }
+    }
+
+    async function startMicRecording() {
+      if (!recognition) return;
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+      } catch (err) {
+        showToast('Acceso al micrófono denegado o no disponible.', 'error');
+        return;
+      }
+
+      isRecordingMic = true;
+      
+      elements.btnRecord.classList.replace('bg-indigo-600', 'bg-red-600');
+      elements.btnRecord.classList.replace('hover:bg-indigo-700', 'hover:bg-red-700');
+      elements.recordPing.classList.remove('hidden');
+      elements.recordStatusText.textContent = 'Grabando... Haz clic para detener';
+      elements.recordTimer.classList.remove('hidden');
+
+      micSecondsElapsed = 0;
+      updateMicTimerDisplay();
+      micTimerInterval = setInterval(() => {
+        micSecondsElapsed++;
+        updateMicTimerDisplay();
+      }, 1000);
+
+      showTranscriptionIndicator('Escuchando micrófono en tiempo real...');
+
+      try {
+        recognition.lang = elements.languageSelect.value;
+        recognition.start();
+      } catch (err) {
+        console.warn('Recognition active:', err);
+      }
+    }
+
+    function stopMicRecording() {
+      isRecordingMic = false;
+
+      elements.btnRecord.classList.replace('bg-red-600', 'bg-indigo-600');
+      elements.btnRecord.classList.replace('hover:bg-red-700', 'hover:bg-indigo-700');
+      elements.recordPing.classList.add('hidden');
+      elements.recordStatusText.textContent = 'Haz clic para empezar a hablar';
+      elements.recordTimer.classList.add('hidden');
+
+      if (micTimerInterval) {
+        clearInterval(micTimerInterval);
+        micTimerInterval = null;
+      }
+
+      if (recognition) {
+        try { recognition.stop(); } catch (e) {}
+      }
+
+      hideTranscriptionIndicator();
+      showToast('Grabación de micrófono finalizada.', 'info');
+    }
+
+    function updateMicTimerDisplay() {
+      const mins = Math.floor(micSecondsElapsed / 60).toString().padStart(2, '0');
+      const secs = (micSecondsElapsed % 60).toString().padStart(2, '0');
+      elements.recordTimer.textContent = `${mins}:${secs}`;
+    }
+
+    /* ==========================================================================
+       TEXT PROCESSING, AUTO-SCROLL & STATS
+       ========================================================================== */
+    function appendTranscribedText(newChunk) {
+      const textarea = elements.transcriptionTextarea;
+      const currentText = textarea.value;
+
+      if (currentText.length > 0 && !currentText.endsWith(' ') && !currentText.endsWith('\n')) {
+        textarea.value += ' ' + newChunk;
+      } else {
+        textarea.value += newChunk;
+      }
+
+      textarea.scrollTop = textarea.scrollHeight;
+      updateTextStats();
+      localStorage.setItem(STORAGE_KEYS.TEXT_DRAFT, textarea.value);
+    }
+
+    function updateTextStats() {
+      const text = elements.transcriptionTextarea.value.trim();
+      const charCount = text.length;
+      const wordCount = text ? text.split(/\s+/).filter(Boolean).length : 0;
+
+      elements.charCount.textContent = charCount;
+      elements.wordCount.textContent = wordCount;
+
+      localStorage.setItem(STORAGE_KEYS.TEXT_DRAFT, elements.transcriptionTextarea.value);
+    }
+
+    function clearTextarea() {
+      if (confirm('¿Estás seguro de que deseas borrar todo el texto transcrito?')) {
+        elements.transcriptionTextarea.value = '';
+        updateTextStats();
+        localStorage.removeItem(STORAGE_KEYS.TEXT_DRAFT);
+        showToast('Texto borrado.', 'info');
+      }
+    }
+
+    /* ==========================================================================
+       INDICATOR & UTILITY FUNCTIONS
+       ========================================================================== */
+    function showTranscriptionIndicator(message) {
+      elements.indicatorStatusMsg.textContent = message;
+      elements.transcriptionIndicator.classList.remove('hidden');
+      elements.transcriptionIndicator.classList.add('flex');
+    }
+
+    function hideTranscriptionIndicator() {
+      elements.transcriptionIndicator.classList.add('hidden');
+      elements.transcriptionIndicator.classList.remove('flex');
+    }
+
+    /* ==========================================================================
+       CLIPBOARD & EXPORTING
+       ========================================================================== */
+    async function copyToClipboard() {
+      const text = elements.transcriptionTextarea.value;
+      if (!text) {
+        showToast('No hay texto para copiar.', 'warning');
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          elements.transcriptionTextarea.select();
+          document.execCommand('copy');
+        }
+        showToast('¡Texto copiado al portapapeles!', 'success');
+      } catch (err) {
+        showToast('Error al copiar el texto.', 'error');
+      }
+    }
+
+    function downloadTXT() {
+      const text = elements.transcriptionTextarea.value;
+      if (!text) {
+        showToast('El texto está vacío. Transcribe algo antes de exportar.', 'warning');
+        return;
+      }
+
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      let baseName = 'grabacion_mic';
+      
+      if (activeTab === 'file' && loadedFile) {
+        baseName = loadedFile.name.replace(/\.[^/.]+$/, "");
+      }
+      
+      const fileName = `transcripcion_${baseName}_${dateStr}.txt`;
+
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const tempUrl = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      
+      downloadAnchor.href = tempUrl;
+      downloadAnchor.download = fileName;
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      
+      document.body.removeChild(downloadAnchor);
+      setTimeout(() => URL.revokeObjectURL(tempUrl), 100);
+
+      showToast(`Archivo guardado: ${fileName}`, 'success');
+    }
+
+    /* ==========================================================================
+       TOAST NOTIFICATIONS SYSTEM
+       ========================================================================== */
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      
+      let iconName = 'info';
+      let iconColorClass = 'text-indigo-400';
+      
+      if (type === 'success') {
+        iconName = 'check-circle';
+        iconColorClass = 'text-emerald-400';
+      } else if (type === 'warning') {
+        iconName = 'alert-triangle';
+        iconColorClass = 'text-amber-400';
+      } else if (type === 'error') {
+        iconName = 'alert-circle';
+        iconColorClass = 'text-rose-400';
+      }
+
+      toast.className = `pointer-events-auto flex items-center gap-3 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl border border-slate-800 transform transition-all duration-300 translate-y-2 opacity-0`;
+      
+      toast.innerHTML = `
+        <i data-lucide="${iconName}" class="w-5 h-5 ${iconColorClass} shrink-0" aria-hidden="true"></i>
+        <span class="font-medium">${message}</span>
+      `;
+
+      elements.toastContainer.appendChild(toast);
+
+      if (window.lucide) {
+        lucide.createIcons({
+          targets: [toast]
+        });
+      }
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
