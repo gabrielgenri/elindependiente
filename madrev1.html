@@ -1,0 +1,716 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contenidos IA - El Independiente 2030</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f9fafb; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        @media print {
+            body { background: white; color: black; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-[#111111] min-h-screen flex flex-col antialiased selection:bg-black selection:text-white">
+
+    <header class="border-b border-gray-300 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-black text-white font-serif font-bold flex items-center justify-center text-base">EI</div>
+                <div>
+                    <h1 class="font-serif font-bold text-lg tracking-tight">El Independiente</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Estudio de Contenidos IA • Eje 3 & 5</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openHistoryModal()" class="px-3 py-1.5 text-xs font-medium border border-gray-300 bg-white text-black hover:border-black transition flex items-center space-x-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="hidden sm:inline">Historial</span>
+                </button>
+                <button onclick="loadPreset('inauguracion')" class="px-3 py-1.5 text-xs font-medium bg-black text-white hover:bg-gray-800 transition">Ejemplo Rápido</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Panel: Input & Controls -->
+        <div class="lg:col-span-5 flex flex-col space-y-6">
+            
+            <div class="bg-white border border-gray-300 p-6 shadow-sm flex flex-col space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="font-serif font-bold text-xl tracking-tight">Asistente IA de Redacción</h2>
+                    <span class="text-[10px] uppercase font-mono bg-gray-100 px-2 py-0.5 text-gray-600 border border-gray-200">Ecosistema Transmedia</span>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    Ingrese un hecho, titular o tema central sobre La Rioja. Nuestra IA generará automáticamente el ecosistema completo de 5 formatos informativos bajo el modelo de <strong>Contenido Madre</strong>.
+                </p>
+
+                <!-- Input Field -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">Hecho, Tema o Noticia Central</label>
+                    <textarea id="topic-input" rows="4" class="w-full px-3.5 py-2.5 text-sm border border-gray-300 bg-white focus:outline-none focus:border-black font-sans resize-none" placeholder="Ej. El Gobierno Provincial anunció la ampliación del Parque Eólico Arauco con una inversión de 50 millones de dólares para abastecer a 40.000 hogares..."></textarea>
+                </div>
+
+                <!-- Tone and Style selectors -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1">Tono Editorial</label>
+                        <select id="tone-select" class="w-full px-3 py-2 text-xs border border-gray-300 bg-white focus:outline-none focus:border-black">
+                            <option value="periodistico">Periodístico Riguroso</option>
+                            <option value="divulgativo">Divulgativo Cercano</option>
+                            <option value="urgente">Alerta / Inmediato</option>
+                            <option value="analitico">Analítico / Profundo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1">Enfoque Regional</label>
+                        <select id="region-select" class="w-full px-3 py-2 text-xs border border-gray-300 bg-white focus:outline-none focus:border-black">
+                            <option value="general">Provincial (La Rioja)</option>
+                            <option value="chilecito">Interior: Chilecito / Famatina</option>
+                            <option value="llanos">Llanos Riojanos</option>
+                            <option value="cordillerana">Zona Cordillerana / Minería</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <button onclick="generateContent()" id="generate-btn" class="w-full py-3 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 transition flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span>Generar Ecosistema de 5 Formatos</span>
+                </button>
+            </div>
+
+            <!-- Preset Quick Cards -->
+            <div class="border border-gray-300 bg-white p-5 space-y-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700">Temas de Referencia Rápida</h3>
+                <div class="space-y-2">
+                    <button onclick="loadPreset('agua')" class="w-full text-left p-2.5 text-xs border border-gray-200 hover:border-black transition flex justify-between items-center group">
+                        <span class="font-medium text-gray-800 group-hover:text-black">Plan Hídrico Provincial y Acueductos</span>
+                        <span class="text-[10px] text-gray-400 font-mono">Infraestructura</span>
+                    </button>
+                    <button onclick="loadPreset('chaya')" class="w-full text-left p-2.5 text-xs border border-gray-200 hover:border-black transition flex justify-between items-center group">
+                        <span class="font-medium text-gray-800 group-hover:text-black">Impacto Económico de la Fiesta de la Chaya</span>
+                        <span class="text-[10px] text-gray-400 font-mono">Cultura & Turismo</span>
+                    </button>
+                    <button onclick="loadPreset('mineria')" class="w-full text-left p-2.5 text-xs border border-gray-200 hover:border-black transition flex justify-between items-center group">
+                        <span class="font-medium text-gray-800 group-hover:text-black">Desarrollo Minero Sostenible en Famatina</span>
+                        <span class="text-[10px] text-gray-400 font-mono">Economía</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Panel: Output Format Tabs & Content Viewer -->
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <!-- Format Tabs -->
+            <div class="border-b border-gray-300 flex flex-wrap gap-2 pb-2 bg-white px-2">
+                <button onclick="switchTab('article')" id="tab-article" class="px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-black text-black transition">1. Artículo Web</button>
+                <button onclick="switchTab('reel')" id="tab-reel" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-black transition">2. Reel (60s)</button>
+                <button onclick="switchTab('podcast')" id="tab-podcast" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-black transition">3. Podcast</button>
+                <button onclick="switchTab('carousel')" id="tab-carousel" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-black transition">4. Carrusel (8 Placas)</button>
+                <button onclick="switchTab('newsletter')" id="tab-newsletter" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-black transition">5. Newsletter</button>
+            </div>
+
+            <!-- Content Container -->
+            <div class="bg-white border border-gray-300 flex-1 p-6 sm:p-8 flex flex-col relative min-h-[500px] shadow-sm">
+                
+                <!-- Empty State Prompt -->
+                <div id="empty-state" class="absolute inset-0 bg-white/95 z-10 flex flex-col items-center justify-center p-8 text-center">
+                    <div class="w-12 h-12 border border-black flex items-center justify-center font-serif text-lg mb-3">AI</div>
+                    <h3 class="font-serif font-bold text-lg mb-1">Esperando Contenido Madre</h3>
+                    <p class="text-xs text-gray-500 max-w-sm mb-4">Ingresa un hecho periodístico a la izquierda o selecciona un ejemplo rápido para activar la transformación automática en múltiples formatos.</p>
+                    <button onclick="loadPreset('inauguracion')" class="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-gray-800 transition">Generar Ejemplo Ahora</button>
+                </div>
+
+                <!-- Loading Animation Overlay -->
+                <div id="loading-state" class="absolute inset-0 bg-white/95 z-20 hidden flex flex-col items-center justify-center p-8 text-center space-y-3">
+                    <div class="w-8 h-8 border-2 border-black border-t-transparent animate-spin"></div>
+                    <p class="text-xs font-mono font-bold tracking-widest text-black uppercase" id="loading-text">Sintetizando ecosistema transmedia...</p>
+                </div>
+
+                <!-- Action Toolbar for Output -->
+                <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-black"></span>
+                        <span id="output-title-tag" class="text-xs font-mono uppercase tracking-wider text-gray-700">Formato Activo: Artículo Periodístico</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyCurrentOutput()" class="px-3 py-1 text-xs border border-gray-300 text-gray-700 hover:border-black hover:text-black transition flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            <span>Copiar</span>
+                        </button>
+                        <button onclick="downloadCurrentOutput()" class="px-3 py-1 text-xs bg-black text-white hover:bg-gray-800 transition flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span>Descargar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Content Display Area -->
+                <div id="content-display" class="flex-1 overflow-y-auto font-sans text-sm text-gray-800 leading-relaxed space-y-4">
+                    <!-- Populated via JavaScript -->
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-gray-300 max-w-lg w-full p-6 shadow-xl flex flex-col space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-200 pb-3">
+                <h3 class="font-serif font-bold text-lg">Historial de Generaciones</h3>
+                <button onclick="closeHistoryModal()" class="text-gray-500 hover:text-black text-sm">✕</button>
+            </div>
+            <div id="history-list" class="max-h-64 overflow-y-auto space-y-2">
+                <!-- History items -->
+            </div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-black text-white text-xs font-medium">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-black text-white px-4 py-3 text-xs font-mono shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2">
+        <span id="toast-msg">Notificación del sistema</span>
+    </div>
+
+    <script>
+        // Preset Datasets representing real Riojan news themes
+        const presets = {
+            inauguracion: {
+                topic: "El Gobierno Provincial inauguró la ampliación del Parque Eólico Arauco con una inversión de 50 millones de dólares, incorporando 14 nuevos aerogeneradores para abastecer a 40.000 hogares y consolidando la matriz de energías renovables de La Rioja.",
+                article: {
+                    title: "La Rioja consolida su liderazgo en transición energética con la ampliación histórica del Parque Eólico Arauco",
+                    subtitle: "Con una inversión de 50 millones de dólares, se sumaron 14 nuevos aerogeneradores. La provincia avanza hacia la soberanía eléctrica y la diversificación productiva.",
+                    body: "La Rioja dio un paso decisivo en su matriz energética e industrial. En un acto encabezado por autoridades provinciales, se inauguró formalmente la ampliación del Parque Eólico Arauco, un complejo pionero en el NOA que suma 14 nuevos aerogeneradores de última generación.<br><br>La obra requirió una inversión estratégica de 50 millones de dólares y permitirá inyectar energía limpia adicional al sistema interconectado, abasteciendo directamente a más de 40.000 hogares riojanos.<br><br>'Este no es solo un logro técnico, sino la prueba de que La Rioja tiene una visión de futuro basada en sus propios recursos naturales y en el talento de su gente', destacaron los equipos técnicos durante la presentación del Observatorio Energético Provincial.<br><br>Con esta ampliación, el parque incrementa su capacidad instalada en un 35%, posicionando a la región como un referente indiscutido en generación eólica y desarrollo sostenible."
+                },
+                reel: {
+                    hook: "¡Atención La Rioja! 🌬️ Así funciona el nuevo gigante de energía limpia que acaba de inaugurarse en Arauco.",
+                    script: [
+                        { time: "0-5s", visual: "Plano panorámico drone de los aerogeneradores gigantes en Arauco.", audio: "La Rioja acaba de dar un salto gigante en energía limpia." },
+                        { time: "5-25s", visual: "Gráfico dinámico en pantalla con la cifra: 50 millones de dólares / 40.000 hogares.", audio: "Con una inversión de 50 millones de dólares, el Parque Eólico Arauco sumó 14 nuevos aerogeneradores. ¿Qué significa esto? Que más de 40.000 hogares riojanos ya se abastecen con energía 100% renovable." },
+                        { time: "25-45s", visual: "Entrevista corta a un técnico especialista local frente a la torre de control.", audio: "Esto posiciona a nuestra provincia a la vanguardia nacional en transición energética y soberanía productiva." },
+                        { time: "45-60s", visual: "Placa final con logo de El Independiente y llamado a la acción.", audio: "Leé el informe completo y los datos técnicos en el enlace de nuestra biografía." }
+                    ]
+                },
+                podcast: {
+                    title: "Episodio 42: El Despegue Energético de La Rioja",
+                    duration: "8 min 30 seg",
+                    intro: "Bienvenidos a 'Primera Hora', el podcast diario de El Independiente. Hoy analizamos el impacto geopolítico y económico de la ampliación del Parque Eólico Arauco.",
+                    segments: [
+                        { title: "Bloque 1: Los números detrás de la inversión", text: "Analizamos cómo se estructuró el financiamiento de 50 millones de dólares y el impacto en la matriz provincial." },
+                        { title: "Bloque 2: Entrevista con la Secretaría de Energía", text: "Conversamos con ingenieros locales sobre el desafío logístico de instalar aerogeneradores en suelo riojano." },
+                        { title: "Bloque 3: El futuro verde de los Llanos", text: "Proyecciones hacia el 2030 y el hidrógeno verde." }
+                    ],
+                    outro: "Gracias por acompañarnos. Suscribite a nuestra comunidad en Spotify para no perderte ningún análisis exclusivo."
+                },
+                carousel: [
+                    { placa: 1, title: "NUEVA ERA EN ARAUCO 🌬️", desc: "La Rioja amplía su matriz energética con una inversión histórica de 50M USD." },
+                    { placa: 2, title: "14 NUEVOS GIGANTES", desc: "Aerogeneradores de última generación ya se encuentran operando en el parque eólico." },
+                    { placa: 3, title: "40.000 HOGARES", desc: "Equivale a llevar energía limpia a una ciudad entera de nuestra provincia." },
+                    { placa: 4, title: "SBERANÍA ELÉCTRICA", desc: "Cómo la provincia aprovecha sus vientos cordilleranos y llanos." },
+                    { placa: 5, title: "IMPACTO AMBIENTAL", desc: "Reducción significativa de emisiones de carbono según el Observatorio Ambiental." },
+                    { placa: 6, title: "EMPLEO LOCAL", desc: "Más de 120 puestos de trabajo directos e indirectos durante la fase de montaje." },
+                    { placa: 7, title: "PALABRA OFICIAL", desc: "'Este es el modelo de provincia que construimos con conocimiento y trabajo'." },
+                    { placa: 8, title: "LEÉ EL INFORME COMPLETO", desc: "Ingresá a elindependiente.com.ar o consultá el enlace en bio." }
+                ],
+                newsletter: {
+                    subject: "⚡ La Rioja amplía su Parque Eólico: Inversión, energía limpia y soberanía",
+                    intro: "Hola, lector de El Independiente. Hoy te acercamos el análisis exclusivo sobre la gran noticia energética de la semana en la provincia.",
+                    highlights: [
+                        "50 millones de dólares invertidos en Arauco.",
+                        "14 nuevos aerogeneradores operativos.",
+                        "40.000 hogares riojanos beneficiados directamente."
+                    ],
+                    conclusion: "Una muestra clara de cómo el periodismo de profundidad y datos transforma la información en conocimiento útil para la comunidad."
+                }
+            },
+            agua: {
+                topic: "El Gobierno Provincial presentó el Plan Hídrico Integral para los llanos riojanos, con la construcción de nuevos acueductos y perforaciones estratégicas para optimizar el recurso del agua potable.",
+                article: {
+                    title: "Plan Hídrico Provincial: La estrategia integral para asegurar el recurso en los llanos riojanos",
+                    subtitle: "Con una red de nuevos acueductos y tecnología de monitoreo satelital, la provincia optimiza la distribución de agua potable.",
+                    body: "Frente al desafío climático y el crecimiento demográfico, la provincia puso en marcha el Plan Hídrico Integral, una obra de infraestructura sin precedentes destinada a garantizar el suministro de agua potable en los departamentos de los llanos riojanos.<br><br>El proyecto contempla la construcción de más de 80 kilómetros de nuevos acueductos troncales, la habilitación de perforaciones de alta profundidad y la incorporación de sensores telemétricos en tiempo real conectados al Observatorio Territorial.<br><br>'El agua es el recurso más crítico de nuestra geografía; gestionarla con datos precisos y obras estructurales es una prioridad absoluta', señalaron los ingenieros a cargo del proyecto.<br><br>Esta iniciativa se integra a la Biblioteca Riojana de Conocimiento Público, permitiendo a los ciudadanos consultar el estado de embalses y redes mediante tableros interactivos."
+                },
+                reel: {
+                    hook: "💧 ¿Cómo llega el agua a cada hogar en una zona árida como La Rioja? Te lo explicamos en 60 segundos.",
+                    script: [
+                        { time: "0-10s", visual: "Imágenes aéreas de los llanos riojanos y canales de conducción.", audio: "El agua en La Rioja no es solo un servicio, es un recurso estratégico que requiere ingeniería de punta." },
+                        { time: "10-35s", visual: "Gráficos animados de los 80km de nuevos acueductos.", audio: "El nuevo Plan Hídrico Provincial suma 80 kilómetros de acueductos y sensores inteligentes en tiempo real para evitar pérdidas." },
+                        { time: "35-60s", visual: "Cierre con infografía del Observatorio Territorial.", audio: "Consultá el mapa interactivo de obras en nuestra web." }
+                    ]
+                },
+                podcast: {
+                    title: "Episodio 43: El Agua en La Geografía Riojana",
+                    duration: "7 min 15 seg",
+                    intro: "Un recorrido detallado por la historia y el presente de los sistemas hídricos en la provincia.",
+                    segments: [
+                        { title: "Bloque 1: Historia de sequías y soluciones", text: "De los antiguos canales a la tecnología telemétrica." },
+                        { title: "Bloque 2: El rol del Observatorio Territorial", text: "Monitoreo en tiempo real de perforaciones y caudales." }
+                    ],
+                    outro: "Escuchanos cada mañana en Spotify y Apple Podcasts."
+                },
+                carousel: [
+                    { placa: 1, title: "EL AGUA COMO EJE ESTRATÉGICO 💧", desc: "Nuevo Plan Hídrico Integral en marcha para los llanos riojanos." },
+                    { placa: 2, title: "80 KM DE ACUEDUCTOS", desc: "Obras troncales para conectar fuentes seguras con las comunidades." },
+                    { placa: 3, title: "TELEMETRÍA EN VIVO", desc: "Monitoreo satelital de pozos y redes para evitar derroches." },
+                    { placa: 4, title: "INVERSIÓN PROVINCIAL", desc: "Compromiso con la infraestructura básica y el desarrollo humano." },
+                    { placa: 5, title: "IMPACTO EN EL INTERIOR", desc: "Garantía de suministro para productores y familias rurales." },
+                    { placa: 6, title: "CIENCIA Y TÉCNICA", desc: "Articulación con universidades y especialistas locales." },
+                    { placa: 7, title: "DATO CLAVE", desc: "El 100% de las obras quedan integradas al Observatorio de Datos Públicos." },
+                    { placa: 8, title: "COMPARTI ESTA INFO", desc: "Conocé todos los detalles en el artículo web de El Independiente." }
+                ],
+                newsletter: {
+                    subject: "💧 Plan Hídrico en La Rioja: Nuevos acueductos y tecnología para el agua",
+                    intro: "Hola. En esta edición especial analizamos la infraestructura hídrica que transforma la realidad de los llanos.",
+                    highlights: [
+                        "80 kilómetros de acueductos nuevos.",
+                        "Sensores inteligentes de caudal.",
+                        "Integración con el Observatorio Territorial."
+                    ],
+                    conclusion: "El conocimiento público al servicio de la gestión ciudadana."
+                }
+            },
+            chaya: {
+                topic: "La Fiesta Nacional de la Chaya generó un impacto económico superior a los 4.000 millones de pesos en turismo, hotelería y gastronomía, consolidándose como el evento cultural y financiero más importante del verano riojano.",
+                article: {
+                    title: "Impacto Chayero: La fiesta mayor de los riojanos movilizó más de 4.000 millones de pesos",
+                    subtitle: "Hotelería al 100%, gastronomía en plena ebullición y artistas de todo el país consolidan el festival como motor económico regional.",
+                    body: "La Chaya no es solamente la celebración cultural más entrañable de La Rioja; se ha transformado también en el motor económico de mayor tracción durante la temporada estival. Según estimaciones del Observatorio Económico de El Independiente, la edición de este año superó los 4.000 millones de pesos en impacto directo e indirecto.<br><br>Con una ocupación hotelera que rozó el 100% en la Capital y departamentos aledaños, el turismo federal colmó plazas, peñas, bodegas y restaurantes.<br><br>'El derrame económico beneficia directamente a artesanos, gastronómicos, músicos y pequeños emprendedores', destacan los informes sectoriales. La Chaya demuestra que la cultura es también una industria altamente rentable para la provincia."
+                },
+                reel: {
+                    hook: " harina, albahaca y... ¿millones en la economía local? 🌿🎸 Así impacta la Chaya en La Rioja.",
+                    script: [
+                        { time: "0-10s", visual: "Multitud chayando con harina y música de fondo.", audio: "La Chaya es alegría, pero también es el motor económico más fuerte del verano riojano." },
+                        { time: "10-35s", visual: "Placas con datos de ocupación hotelera y 4.000 millones de pesos.", audio: "Más de 4.000 millones de pesos de impacto económico, hotelería al 100% y miles de turistas recorriendo nuestra provincia." },
+                        { time: "35-60s", visual: "Entrevistas a comerciantes locales sonrientes.", audio: "El turismo y la cultura generan trabajo genuino en toda la región." }
+                    ]
+                },
+                podcast: {
+                    title: "Episodio 44: Economía Chayera y Cultura Viva",
+                    duration: "9 min 00 seg",
+                    intro: "Un análisis imperdible sobre cómo la fiesta mayor riojana dinamiza la economía provincial.",
+                    segments: [
+                        { title: "Bloque 1: Hotelería y gastronomía en récord", text: "Cifras oficiales y testimonios del sector." },
+                        { title: "Bloque 2: El impacto en los artistas independientes", text: "Escenarios barriales y festivales federales." }
+                    ],
+                    outro: "Suscribite a nuestro podcast en Spotify."
+                },
+                carousel: [
+                    { placa: 1, title: "EL PULSO ECONÓMICO DE LA CHAYA 🌿", desc: "Más de 4.000 millones de pesos movilizados en la temporada." },
+                    { placa: 2, title: "OCUPACIÓN HOTELERA PLENA", desc: "Turistas de todo el país colmaron la Capital y los valles." },
+                    { placa: 3, title: "GASTRONOMÍA Y BODEGAS", desc: "Ventas récord en productos regionales y circuitos turísticos." },
+                    { placa: 4, title: "TRABAJO GENUINO", desc: "Artesanos, músicos y transportistas beneficiados por el flujo." },
+                    { placa: 5, title: "IDENTIDAD CULTURAL", desc: "La tradición ancestral convertida en polo de atracción turística." },
+                    { placa: 6, title: "EL ROL DE LOS OBSERVATORIOS", desc: "Datos precisos medidos por el Observatorio Económico Riojano." },
+                    { placa: 7, title: "FIESTA FEDERAL", desc: "Un evento que trasciende fronteras y nos une como comunidad." },
+                    { placa: 8, title: "LEÉ LA NOTA COMPLETA", desc: "Encontrá el informe especial en elindependiente.com.ar" }
+                ],
+                newsletter: {
+                    subject: "🌿 Chaya 2030: Tradición, cultura y un impacto económico récord de 4.000 millones",
+                    intro: "Hola. Hoy analizamos cómo nuestra fiesta mayor dinamiza la economía provincial.",
+                    highlights: [
+                        "Ocupación hotelera cercana al 100%.",
+                        "Derrame en gastronomía y bodegas.",
+                        "Trabajo para artistas y emprendedores locales."
+                    ],
+                    conclusion: "Cultura y economía de la mano en el corazón de La Rioja."
+                }
+            }
+        };
+
+        // Active state object
+        let currentData = null;
+        let activeTab = 'article';
+        let history = JSON.parse(localStorage.getItem('ei_ai_history') || '[]');
+
+        // Initialize with default preset
+        window.onload = function() {
+            loadPreset('inauguracion');
+        };
+
+        // Load preset function
+        function loadPreset(key) {
+            const data = presets[key];
+            if (!data) return;
+            document.getElementById('topic-input').value = data.topic;
+            currentData = data;
+            
+            // Trigger generation simulation
+            simulateGeneration();
+        }
+
+        // Simulate AI Generation workflow with loading states
+        function simulateGeneration() {
+            const inputVal = document.getElementById('topic-input').value.trim();
+            if (!inputVal) {
+                showToast("Por favor ingresa un tema o hecho válido");
+                return;
+            }
+
+            const loadingState = document.getElementById('loading-state');
+            const loadingText = document.getElementById('loading-text');
+            loadingState.classList.remove('hidden');
+
+            const steps = [
+                "Analizando contexto geográfico e histórico riojano...",
+                "Extrayendo entidades clave y datos de los observatorios...",
+                "Sintetizando Artículo Web bajo directrices SEO (Rank Math)...",
+                "Estructurando guion de Reel (60s) y Podcast...",
+                "Diseñando placas para Carrusel de Instagram...",
+                "Redactando Newsletter de audiencia propia...",
+                "¡Ecosistema transmedia generado con éxito!"
+            ];
+
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < steps.length) {
+                    loadingText.innerText = steps[i];
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    loadingState.classList.add('hidden');
+                    document.getElementById('empty-state').classList.add('hidden');
+                    
+                    // If custom input without preset, build dynamic fallback
+                    if (!currentData || document.getElementById('topic-input').value !== presets.inauguracion.topic && 
+                        document.getElementById('topic-input').value !== presets.agua.topic && 
+                        document.getElementById('topic-input').value !== presets.chaya.topic) {
+                        buildDynamicData(inputVal);
+                    }
+
+                    renderActiveTab();
+                    saveToHistory(inputVal);
+                    showToast("¡5 formatos generados correctamente!");
+                }
+            }, 250);
+        }
+
+        function generateContent() {
+            simulateGeneration();
+        }
+
+        // Build dynamic mock data for custom inputs
+        function buildDynamicData(topic) {
+            currentData = {
+                topic: topic,
+                article: {
+                    title: "Análisis estratégico: " + topic.substring(0, 60) + "...",
+                    subtitle: "Informe especial elaborado por la redacción ampliada de El Independiente con asistencia de IA.",
+                    body: "En relación a los acontecimientos recientes sobre <strong>" + topic + "</strong>, la redacción de El Independiente ha procesado los datos contextuales para ofrecer una mirada profunda sobre el impacto en nuestra provincia.<br><br>Los equipos técnicos y observatorios provinciales señalan que este hecho marca un hito en la agenda pública riojana, requiriendo un seguimiento permanente en nuestras secciones de actualidad y profundización (modelo 70-20-10).<br><br>'La ciudadanía demanda explicaciones claras y datos verificables', remarcan los editores responsables de la plataforma digital."
+                },
+                reel: {
+                    hook: "🚨 Clave en La Rioja: Lo que tenés que saber sobre este tema en 60 segundos.",
+                    script: [
+                        { time: "0-15s", visual: "Zócalo dinámico con titular principal.", audio: "Analizamos el hecho que marca agenda hoy en La Rioja." },
+                        { time: "15-45s", visual: "Datos estadísticos superpuestos.", audio: "Los puntos centrales que impactan directamente en la economía y la comunidad." },
+                        { time: "45-60s", visual: "Llamado a la acción institucional.", audio: "Leé el informe completo en elindependiente.com.ar" }
+                    ]
+                },
+                podcast: {
+                    title: "Episodio Especial: Análisis de Actualidad Riojana",
+                    duration: "6 min 10 seg",
+                    intro: "Bienvenidos a nuestro podcast de actualización diaria.",
+                    segments: [
+                        { title: "Bloque único", text: "Desglose completo de los acontecimientos y repercusiones provinciales." }
+                    ],
+                    outro: "Gracias por ser parte de nuestra comunidad."
+                },
+                carousel: [
+                    { placa: 1, title: "CLAVE DEL DÍA 📍", desc: topic.substring(0, 80) + "..." },
+                    { placa: 2, title: "CONTEXTO PROVINCIAL", desc: "Cómo impacta esta medida en los departamentos de La Rioja." },
+                    { placa: 3, title: "DATOS VERIFICADOS", desc: "Cruzamiento de información oficial y fuentes institucionales." },
+                    { placa: 4, title: "VOCES Y TESTIMONIOS", desc: "La palabra de los protagonistas y especialistas." },
+                    { placa: 5, title: "IMPACTO SOCIOECONÓMICO", desc: "Proyecciones a corto y mediano plazo." },
+                    { placa: 6, title: "EL ROL DE LA COMUNIDAD", desc: "Participación ciudadana a través de nuestros canales." },
+                    { placa: 7, title: "SÍNTESIS EDITORIAL", desc: "Una mirada rigurosa para comprender la realidad." },
+                    { placa: 8, title: "LEÉ LA NOTA", desc: "Ingresá a elindependiente.com.ar para más información." }
+                ],
+                newsletter: {
+                    subject: "📰 Informe Especial: " + topic.substring(0, 50) + "...",
+                    intro: "Hola, suscriptor. Te acercamos el resumen indispensable de la jornada en La Rioja.",
+                    highlights: [
+                        "Análisis detallado del hecho central.",
+                        "Repercusiones institucionales y sociales.",
+                        "Enlaces a nuestros observatorios de datos."
+                    ],
+                    conclusion: "Gracias por confiar en el periodismo riguroso de El Independiente."
+                }
+            };
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabs = ['article', 'reel', 'podcast', 'carousel', 'newsletter'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = "px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-black text-black transition";
+                } else {
+                    btn.className = "px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-black transition";
+                }
+            });
+            if (currentData) {
+                renderActiveTab();
+            }
+        }
+
+        // Render Active Tab Content
+        function renderActiveTab() {
+            if (!currentData) return;
+            const container = document.getElementById('content-display');
+            const titleTag = document.getElementById('output-title-tag');
+            container.innerHTML = '';
+
+            if (activeTab === 'article') {
+                titleTag.innerText = "Formato Activo: 1 Artículo Web Periodístico";
+                container.innerHTML = `
+                    <div class="space-y-4 border-b border-gray-200 pb-6">
+                        <span class="text-[10px] font-mono uppercase bg-gray-100 px-2 py-1 text-gray-600">Sección: Actualidad & Profundización</span>
+                        <h2 class="font-serif font-bold text-2xl sm:text-3xl text-black leading-tight">${currentData.article.title}</h2>
+                        <p class="text-base text-gray-600 font-serif italic">${currentData.article.subtitle}</p>
+                    </div>
+                    <div class="prose max-w-none text-gray-800 space-y-4 pt-2">
+                        ${currentData.article.body}
+                    </div>
+                `;
+            } else if (activeTab === 'reel') {
+                titleTag.innerText = "Formato Activo: 1 Reel de 60s (Guión Audiovisual)";
+                let stepsHtml = currentData.reel.script.map(s => `
+                    <div class="border border-gray-200 p-4 bg-gray-50 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-mono font-bold bg-black text-white px-2 py-0.5">${s.time}</span>
+                            <span class="text-[10px] text-gray-500 uppercase tracking-wider">Instagram / TikTok</span>
+                        </div>
+                        <p class="text-xs text-gray-700"><strong>Visual:</strong> ${s.visual}</p>
+                        <p class="text-xs text-black font-medium"><strong>Locución / Audio:</strong> "${s.audio}"</p>
+                    </div>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="border-b border-gray-200 pb-4">
+                            <span class="text-[10px] font-mono uppercase bg-gray-100 px-2 py-1 text-gray-600">Formato Vertical • 9:16</span>
+                            <h3 class="font-serif font-bold text-xl mt-2">${currentData.reel.hook}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            ${stepsHtml}
+                        </div>
+                    </div>
+                `;
+            } else if (activeTab === 'podcast') {
+                titleTag.innerText = "Formato Activo: 1 Episodio de Podcast (Spotify for Creators)";
+                let segHtml = currentData.podcast.segments.map((seg, idx) => `
+                    <div class="border-l-2 border-black pl-4 py-2 space-y-1">
+                        <h4 class="font-bold text-sm text-black">Bloque ${idx + 1}: ${seg.title}</h4>
+                        <p class="text-xs text-gray-700">${seg.text}</p>
+                    </div>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="border-b border-gray-200 pb-4">
+                            <span class="text-[10px] font-mono uppercase bg-gray-100 px-2 py-1 text-gray-600">Audio Formato Largo • ${currentData.podcast.duration}</span>
+                            <h3 class="font-serif font-bold text-xl mt-2">${currentData.podcast.title}</h3>
+                            <p class="text-xs text-gray-600 mt-1"><strong>Intro:</strong> ${currentData.podcast.intro}</p>
+                        </div>
+                        <div class="space-y-4 pt-2">
+                            ${segHtml}
+                        </div>
+                        <div class="bg-gray-50 p-4 border border-gray-200 mt-4">
+                            <p class="text-xs text-gray-600"><strong>Outro:</strong> ${currentData.podcast.outro}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (activeTab === 'carousel') {
+                titleTag.innerText = "Formato Activo: 1 Carrusel de 8 Placas (Canva / IG)";
+                let platesHtml = currentData.carousel.map(p => `
+                    <div class="border border-gray-300 p-5 bg-white flex flex-col justify-between space-y-3 shadow-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-mono font-bold bg-black text-white px-2 py-0.5">Placa ${p.placa} / 8</span>
+                            <span class="text-[10px] text-gray-400 uppercase">El Independiente</span>
+                        </div>
+                        <h4 class="font-serif font-bold text-base text-black">${p.title}</h4>
+                        <p class="text-xs text-gray-600 leading-relaxed">${p.desc}</p>
+                    </div>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="border-b border-gray-200 pb-4">
+                            <span class="text-[10px] font-mono uppercase bg-gray-100 px-2 py-1 text-gray-600">Diseño Gráfico • 1080x1080px</span>
+                            <h3 class="font-serif font-bold text-xl mt-2">Secuencia de 8 Placas Interactivas</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            ${platesHtml}
+                        </div>
+                    </div>
+                `;
+            } else if (activeTab === 'newsletter') {
+                titleTag.innerText = "Formato Activo: 1 Newsletter (Beehiiv / Audiencia Propia)";
+                let highHtml = currentData.newsletter.highlights.map(h => `<li class="text-xs text-gray-700 flex items-center space-x-2"><span class="w-1.5 h-1.5 bg-black rounded-full"></span><span>${h}</span></li>`).join('');
+
+                container.innerHTML = `
+                    <div class="border border-gray-300 p-6 sm:p-8 bg-gray-50 space-y-6">
+                        <div class="border-b border-gray-300 pb-4 space-y-2">
+                            <span class="text-[10px] font-mono uppercase bg-black text-white px-2 py-0.5">Asunto de Correo</span>
+                            <h3 class="font-serif font-bold text-xl text-black">${currentData.newsletter.subject}</h3>
+                        </div>
+                        <div class="space-y-3 text-xs text-gray-700">
+                            <p>${currentData.newsletter.intro}</p>
+                            <div class="bg-white p-4 border border-gray-200 space-y-2 my-4">
+                                <span class="font-bold uppercase tracking-wider text-[10px] text-gray-500">Puntos Clave de la Edición</span>
+                                <ul class="space-y-1.5 pt-1">
+                                    ${highHtml}
+                                </ul>
+                            </div>
+                            <p>${currentData.newsletter.conclusion}</p>
+                        </div>
+                        <div class="pt-4 border-t border-gray-300 flex justify-between items-center text-[11px] text-gray-500">
+                            <span>Diario El Independiente • Comunidad Riojana</span>
+                            <span>Desuscribirse en 1 clic</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Copy current output to clipboard
+        function copyCurrentOutput() {
+            if (!currentData) return;
+            let textToCopy = "";
+            if (activeTab === 'article') {
+                textToCopy = `${currentData.article.title}\n\n${currentData.article.subtitle}\n\n${currentData.article.body.replace(/<br>/g, '\n')}`;
+            } else if (activeTab === 'reel') {
+                textToCopy = `${currentData.reel.hook}\n\n` + currentData.reel.script.map(s => `[${s.time}] Visual: ${s.visual} | Audio: ${s.audio}`).join('\n');
+            } else if (activeTab === 'podcast') {
+                textToCopy = `${currentData.podcast.title} (${currentData.podcast.duration})\nIntro: ${currentData.podcast.intro}\n\n` + currentData.podcast.segments.map(seg => `${seg.title}: ${seg.text}`).join('\n\n');
+            } else if (activeTab === 'carousel') {
+                textToCopy = currentData.carousel.map(p => `Placa ${p.placa}: ${p.title} - ${p.desc}`).join('\n\n');
+            } else if (activeTab === 'newsletter') {
+                textToCopy = `Asunto: ${currentData.newsletter.subject}\n\n${currentData.newsletter.intro}\n\nHighlights:\n` + currentData.newsletter.highlights.join('\n') + `\n\n${currentData.newsletter.conclusion}`;
+            }
+
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Formato copiado al portapapeles");
+            } catch (err) {
+                showToast("Error al copiar");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Download current output as text file
+        function downloadCurrentOutput() {
+            if (!currentData) return;
+            let textToDownload = "";
+            let filename = `el_independiente_${activeTab}.txt`;
+            
+            if (activeTab === 'article') {
+                textToDownload = `${currentData.article.title}\n\n${currentData.article.subtitle}\n\n${currentData.article.body.replace(/<br>/g, '\n')}`;
+            } else if (activeTab === 'reel') {
+                textToDownload = `${currentData.reel.hook}\n\n` + currentData.reel.script.map(s => `[${s.time}] Visual: ${s.visual} | Audio: ${s.audio}`).join('\n');
+            } else if (activeTab === 'podcast') {
+                textToDownload = `${currentData.podcast.title} (${currentData.podcast.duration})\n\n` + currentData.podcast.segments.map(seg => `${seg.title}: ${seg.text}`).join('\n\n');
+            } else if (activeTab === 'carousel') {
+                textToDownload = currentData.carousel.map(p => `Placa ${p.placa}: ${p.title}\n${p.desc}`).join('\n\n');
+            } else if (activeTab === 'newsletter') {
+                textToDownload = `Asunto: ${currentData.newsletter.subject}\n\n${currentData.newsletter.intro}\n\n` + currentData.newsletter.highlights.join('\n') + `\n\n${currentData.newsletter.conclusion}`;
+            }
+
+            const blob = new Blob([textToDownload], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("Archivo descargado correctamente");
+        }
+
+        // History Management
+        function saveToHistory(topic) {
+            const newItem = { topic: topic, date: new Date().toLocaleDateString(), data: currentData };
+            history.unshift(newItem);
+            if (history.length > 10) history.pop();
+            localStorage.setItem('ei_ai_history', JSON.stringify(history));
+        }
+
+        function openHistoryModal() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            if (history.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-500 py-4 text-center">No hay generaciones previas en el historial.</p>';
+            } else {
+                history.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = "p-3 border border-gray-200 hover:border-black transition cursor-pointer flex justify-between items-center text-xs";
+                    div.innerHTML = `<div><p class="font-medium text-black truncate max-w-xs">${item.topic}</p><span class="text-[10px] text-gray-400">${item.date}</span></div><button onclick="loadHistoryItem(${index})" class="px-2.5 py-1 bg-black text-white text-[10px]">Cargar</button>`;
+                    list.appendChild(div);
+                });
+            }
+            document.getElementById('history-modal').classList.remove('hidden');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('history-modal').classList.add('hidden');
+        }
+
+        function loadHistoryItem(index) {
+            currentData = history[index].data;
+            document.getElementById('topic-input').value = history[index].topic;
+            document.getElementById('empty-state').classList.add('hidden');
+            renderActiveTab();
+            closeHistoryModal();
+            showToast("Historial cargado correctamente");
+        }
+
+        // Toast notification helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>
