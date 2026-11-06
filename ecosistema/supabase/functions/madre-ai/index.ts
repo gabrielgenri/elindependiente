@@ -1,4 +1,4 @@
-// Madre V3 · Proxy de IA (Supabase Edge Function, Deno) bb
+// Madre V3 · Proxy de IA (Supabase Edge Function, Deno)
 // Las claves viven como secrets del servidor; el navegador nunca las ve.
 //
 // Secrets requeridos:
@@ -13,7 +13,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://gabrielgenri.github.io/elindependiente,http://localhost:5500,http://127.0.0.1:5500")
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://gabrielgenri.github.io,http://localhost:5500,http://127.0.0.1:5500")
   .split(",").map((origin) => origin.trim()).filter(Boolean);
 const corsHeaders = (origin: string | null) => ({
   ...(origin && ALLOWED_ORIGINS.includes(origin) ? { "Access-Control-Allow-Origin": origin } : {}),
@@ -93,7 +93,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405, origin);
   try {
-    if (!KEY) return json({ error: "Falta el secret GEMINI_API_KEY" }, 500, origin);
     const { action, ...p } = await req.json();
 
     // Cliente con el JWT del usuario (respeta RLS) y cliente admin para Storage
@@ -106,7 +105,17 @@ Deno.serve(async (req) => {
     const { data: authData, error: authError } = await admin.auth.getUser(token);
     if (authError || !authData.user) return json({ error: "Sesión inválida o vencida" }, 401, origin);
 
-    if (action !== "wp_draft") {
+    if (action === "health") {
+      const { error: dbError } = await admin.from("ia_usage")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", authData.user.id);
+      if (dbError) return json({ ok: false, function: "madre-ai", error: "No se pudo consultar ia_usage" }, 503, origin);
+      return json({ ok: true, function: "madre-ai", dbConnected: true, geminiConfigured: Boolean(KEY), model: MODEL }, 200, origin);
+    }
+
+    if (action !== "wp_draft" && !KEY) return json({ error: "Falta el secret GEMINI_API_KEY" }, 500, origin);
+
+    if (action !== "wp_draft" && action !== "health") {
       const since = new Date(Date.now() - 3_600_000).toISOString();
       const { count, error: usageError } = await admin.from("ia_usage")
         .select("id", { count: "exact", head: true })

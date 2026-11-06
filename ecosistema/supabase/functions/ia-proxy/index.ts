@@ -1,4 +1,4 @@
-// supabase/functions/ia-proxy/index.ts ss
+// supabase/functions/ia-proxy/index.ts
 // Proxy único de IA para todos los módulos de El Independiente 2030.
 // La API key de Gemini vive solo en el secreto GEMINI_API_KEY.
 //
@@ -71,10 +71,6 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") {
     return json({ error: "Método no permitido" }, 405, origin);
   }
-  if (!GEMINI_API_KEY) {
-    return json({ error: "El servicio de IA no está configurado" }, 502, origin);
-  }
-
   // --- 1) Autenticación ------------------------------------------
   const token = (req.headers.get("authorization") ?? "").replace(
     /^Bearer\s+/i,
@@ -94,6 +90,18 @@ Deno.serve(async (req: Request) => {
     body = await req.json();
   } catch {
     return json({ error: "El cuerpo debe ser JSON válido" }, 400, origin);
+  }
+
+  if (body.health === true) {
+    const { error: dbError } = await admin.from("ia_usage")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId);
+    if (dbError) return json({ ok: false, function: "ia-proxy", error: "No se pudo consultar ia_usage" }, 503, origin);
+    return json({ ok: true, function: "ia-proxy", dbConnected: true, geminiConfigured: Boolean(GEMINI_API_KEY), model: ALLOWED_MODELS[0] ?? null }, 200, origin);
+  }
+
+  if (!GEMINI_API_KEY) {
+    return json({ error: "El servicio de IA no está configurado" }, 502, origin);
   }
 
   const model = String(body.model ?? ALLOWED_MODELS[0]);

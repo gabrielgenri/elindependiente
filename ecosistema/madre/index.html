@@ -3,18 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Madre V3</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Madre V3 — Contenido Madre con IA</title>
+<link rel="stylesheet" href="../assets/tailwind.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-tailwind.config = { theme: { extend: {
-  fontFamily: { sans: ['Inter','sans-serif'], serif: ['Playfair Display','serif'] },
-  colors: { swiss: { 50:'#fafafa',100:'#f4f4f5',200:'#e4e4e7',300:'#d4d4d8',400:'#a1a1aa',500:'#71717a',600:'#52525b',700:'#3f3f46',800:'#27272a',900:'#18181b' } }
-}}}
-</script>
 <style>
   body{font-family:'Inter',sans-serif;background:#fafafa;color:#18181b}
   .font-serif{font-family:'Playfair Display',serif}
@@ -252,6 +246,8 @@ tailwind.config = { theme: { extend: {
         <button onclick="login()" class="flex-1 bg-black text-white text-sm py-2 rounded-xl">Ingresar</button>
         <button onclick="logout()" class="flex-1 border border-swiss-300 text-sm py-2 rounded-xl">Salir</button>
       </div>
+      <button onclick="testEdgeFunctions()" class="w-full border border-swiss-300 text-sm py-2 rounded-xl hover:bg-swiss-100">Probar Edge Functions</button>
+      <p id="edge-test-result" class="text-xs text-swiss-600 whitespace-pre-line" role="status" aria-live="polite"></p>
     </div>
   </div>
 </div>
@@ -346,7 +342,7 @@ function guardarCfg() {
   const url = $('cfg-url').value.trim().replace(/\/$/, ''), key = $('cfg-key').value.trim();
   if (!/^https:\/\/.+\.supabase\.co$/.test(url) || !key) return toast('Revisa la URL y la clave');
   localStorage.setItem('madre_sb_url', url); localStorage.setItem('madre_sb_key', key);
-  initSb(); $('login-box').classList.remove('hidden'); toast('Conectado. Ingresa con tu usuario.');
+  initSb(); $('login-box').classList.remove('hidden'); toast('Configuración guardada. Inicia sesión para probar la conexión.');
 }
 function initSb() {
   const url = localStorage.getItem('madre_sb_url'), key = localStorage.getItem('madre_sb_key');
@@ -364,6 +360,34 @@ async function login() {
   if (error) return toast('Error: ' + error.message);
   closeSettings(); toast('Sesión iniciada');
 }
+async function testEdgeFunctions() {
+  if (!sb) return toast('Guarda primero la URL y la clave pública de Supabase.');
+  const { data: auth } = await sb.auth.getSession();
+  if (!auth?.session) return toast('Inicia sesión antes de probar las funciones.');
+  const output = $('edge-test-result');
+  output.textContent = 'Probando funciones y acceso a base de datos…';
+  const checks = await Promise.allSettled([
+    sb.functions.invoke('madre-ai', { body: { action: 'health' } }),
+    sb.functions.invoke('ia-proxy', { body: { health: true } }),
+  ]);
+  const names = ['madre-ai', 'ia-proxy'];
+  const lines = await Promise.all(checks.map(async (check, i) => {
+    if (check.status === 'rejected') return `${names[i]}: ${check.reason?.message || 'sin respuesta (red o CORS)'}`;
+    const { data, error } = check.value;
+    if (error) {
+      let message = error.message || 'falló la llamada';
+      try { const body = await error.context?.json?.(); if (body?.error) message = body.error; } catch {}
+      if (message === 'Failed to send a request to the Edge Function') {
+        message = `sin respuesta desde ${window.location.origin} (revisa ALLOWED_ORIGINS y despliegue)`;
+      }
+      return `${names[i]}: ${message}`;
+    }
+    if (!data?.ok) return `${names[i]}: ${data?.error || 'respuesta inválida'}`;
+    const details = [data.dbConnected ? 'DB conectada' : 'DB sin acceso', data.geminiConfigured ? 'Gemini configurado' : 'falta GEMINI_API_KEY'];
+    return `${names[i]}: función accesible · ${details.join(' · ')}`;
+  }));
+  output.textContent = lines.join('\n');
+}
 async function logout() { await sb.auth.signOut(); toast('Sesión cerrada'); }
 
 function requireAuth() {
@@ -378,6 +402,9 @@ async function ai(action, payload = {}) {
   if (error) {
     let msg = error.message;
     try { const j = await error.context?.json?.(); if (j?.error) msg = j.error; } catch {}
+    if (msg === 'Failed to send a request to the Edge Function') {
+      msg = `No hubo respuesta de madre-ai desde ${window.location.origin}. Revisa que ese origen esté en ALLOWED_ORIGINS y que la función esté desplegada.`;
+    }
     throw new Error(msg);
   }
   if (data?.error) throw new Error(data.error);
