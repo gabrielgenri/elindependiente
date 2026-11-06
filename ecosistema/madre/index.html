@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madre V3 — Contenido Madre con IA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans: ['Inter','sans-serif'], serif: ['Playfair Display','serif'] },
+  colors: { swiss: { 50:'#fafafa',100:'#f4f4f5',200:'#e4e4e7',300:'#d4d4d8',400:'#a1a1aa',500:'#71717a',600:'#52525b',700:'#3f3f46',800:'#27272a',900:'#18181b' } }
+}}}
+</script>
+<style>
+  body{font-family:'Inter',sans-serif;background:#fafafa;color:#18181b}
+  .font-serif{font-family:'Playfair Display',serif}
+  .nav-btn.active{background:#000;color:#fff;border-color:#000}
+  .tab-btn.active{background:#000;color:#fff;border-color:#000}
+  .scorebar{height:6px;border-radius:9999px;background:#e4e4e7;overflow:hidden}
+  .scorebar>span{display:block;height:100%}
+  input,textarea,select{font-family:inherit}
+</style>
+</head>
+<body class="min-h-full antialiased selection:bg-black selection:text-white">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-swiss-200">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="w-2.5 h-2.5 bg-black rounded-full"></span>
+      <h1 class="font-serif font-bold text-lg tracking-tight">MADRE</h1>
+      <span class="text-[10px] font-mono uppercase tracking-widest bg-swiss-100 text-swiss-700 px-1.5 py-0.5 rounded">V3 · IA</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span id="auth-badge" class="hidden sm:inline text-[10px] font-mono text-swiss-500"></span>
+      <button onclick="openSettings()" class="text-xs border border-swiss-300 px-3 py-1.5 rounded-full hover:border-black">Conexión</button>
+    </div>
+  </div>
+  <nav class="max-w-5xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto" id="nav">
+    <button data-view="motor" class="nav-btn active text-xs font-medium border border-swiss-300 rounded-full px-3 py-1.5 whitespace-nowrap">Motor</button>
+    <button data-view="archivo" class="nav-btn text-xs font-medium border border-swiss-300 rounded-full px-3 py-1.5 whitespace-nowrap">Archivo Histórico</button>
+    <button data-view="transcribir" class="nav-btn text-xs font-medium border border-swiss-300 rounded-full px-3 py-1.5 whitespace-nowrap">Transcripción</button>
+    <button data-view="historial" class="nav-btn text-xs font-medium border border-swiss-300 rounded-full px-3 py-1.5 whitespace-nowrap">Historial</button>
+  </nav>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+<!-- ============ VISTA: MOTOR ============ -->
+<section id="view-motor" class="space-y-6">
+  <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+    <label class="block text-xs font-medium text-swiss-700">Titular, hecho, comunicado o tema</label>
+    <textarea id="tema" rows="3" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Ej: Anuncian ampliación del Parque Eólico Arauco..."></textarea>
+    <label class="block text-xs font-medium text-swiss-700 mt-3" for="departamento">Departamento de La Rioja</label>
+    <select id="departamento" class="w-full sm:max-w-md bg-white border border-swiss-300 rounded-xl p-2.5 text-sm">
+      <option>La Rioja (provincia)</option><option>Capital</option><option>Arauco</option><option>Castro Barros</option>
+      <option>Chamical</option><option>Chilecito</option><option>Coronel Felipe Varela</option><option>Famatina</option>
+      <option>General Ángel V. Peñaloza</option><option>General Belgrano</option><option>General Juan Facundo Quiroga</option>
+      <option>General Lamadrid</option><option>General Ocampo</option><option>General San Martín</option><option>Independencia</option>
+      <option>Rosario Vera Peñaloza</option><option>San Blas de los Sauces</option><option>Sanagasta</option><option>Vinchina</option>
+    </select>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+      <label class="flex items-center gap-2">Tono
+        <select id="tono" class="bg-swiss-50 border border-swiss-300 rounded-lg p-1.5">
+          <option value="informativo">Informativo</option><option value="analitico">Analítico</option>
+          <option value="cercano">Cercano / comunitario</option><option value="urgente">Urgente</option>
+        </select>
+      </label>
+      <label class="flex items-center gap-2"><input type="checkbox" id="opt-search" class="rounded"> Investigar con Google Search</label>
+      <label class="flex items-center gap-2"><input type="checkbox" id="opt-archivo" checked class="rounded"> Usar Archivo Histórico como contexto</label>
+    </div>
+    <div class="flex justify-end">
+      <button id="btn-generate" onclick="generar()" class="bg-black text-white text-sm font-medium px-6 py-2.5 rounded-xl hover:bg-swiss-800 disabled:opacity-50">Crear 6 formatos</button>
+    </div>
+  </div>
+
+  <div id="loading" class="hidden py-10 flex flex-col items-center gap-3">
+    <div class="w-7 h-7 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+    <p id="loading-text" class="text-xs font-mono text-swiss-600">Procesando…</p>
+  </div>
+
+  <div id="sources-box" class="hidden bg-swiss-100 border border-swiss-300 rounded-xl p-4">
+    <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-600 font-semibold mb-2">Fuentes consultadas</p>
+    <div id="sources-list" class="flex flex-wrap gap-2"></div>
+  </div>
+  <div id="context-box" class="hidden bg-white border border-swiss-200 rounded-xl p-4">
+    <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-600 font-semibold mb-2">Notas del archivo usadas como contexto</p>
+    <ul id="context-list" class="text-xs text-swiss-700 space-y-1 list-disc pl-4"></ul>
+  </div>
+
+  <div id="results" class="hidden space-y-6">
+    <div id="tabs" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+
+    <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 id="out-title" class="font-serif font-bold"></h3>
+        <div class="flex gap-2">
+          <button onclick="copiarActual()" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">Copiar</button>
+          <button onclick="descargarActual()" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">.TXT</button>
+        </div>
+      </div>
+      <div class="bg-swiss-50 rounded-xl p-4 border border-swiss-200 max-h-96 overflow-y-auto">
+        <pre id="out-text" class="text-sm whitespace-pre-wrap leading-relaxed font-sans"></pre>
+      </div>
+    </div>
+
+    <!-- PANEL IA: crítico / audio / placas / WP -->
+    <div class="grid md:grid-cols-2 gap-4">
+
+      <!-- Editor crítico -->
+      <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="font-serif font-bold text-base">Editor crítico (IA)</h4>
+          <button id="btn-critic" onclick="evaluar()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg hover:bg-swiss-800 disabled:opacity-50">Evaluar</button>
+        </div>
+        <p class="text-[11px] text-swiss-500">Segunda lectura automática. No reemplaza la revisión del editor humano.</p>
+        <div id="critic-out" class="space-y-3 text-xs"></div>
+      </div>
+
+      <!-- Audio -->
+      <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="font-serif font-bold text-base">Podcast en audio (TTS)</h4>
+          <button id="btn-tts" onclick="generarAudio()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg hover:bg-swiss-800 disabled:opacity-50">Generar audio</button>
+        </div>
+        <label class="flex items-center gap-2 text-xs">Voz
+          <select id="voz" class="bg-swiss-50 border border-swiss-300 rounded-lg p-1.5">
+            <option>Kore</option><option>Puck</option><option>Charon</option><option>Aoede</option><option>Fenrir</option>
+          </select>
+        </label>
+        <p class="text-[11px] text-swiss-500">Se guarda en Supabase Storage (bucket privado "podcasts").</p>
+        <div id="audio-out"></div>
+      </div>
+
+      <!-- Placas -->
+      <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+        <h4 class="font-serif font-bold text-base">Placas del carrusel → Canva / Figma</h4>
+        <p class="text-[11px] text-swiss-500">Exporta las 8 placas con su texto y prompt de imagen para Canva (Bulk Create) o Figma.</p>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="exportarCSV()" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">CSV para Canva</button>
+          <button onclick="exportarJSON()" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">JSON</button>
+          <button onclick="copiarPromptDiseno('canva')" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">Copiar prompt Canva</button>
+          <button onclick="copiarPromptDiseno('figma')" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">Copiar prompt Figma</button>
+        </div>
+      </div>
+
+      <!-- WordPress -->
+      <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+        <h4 class="font-serif font-bold text-base">Publicar en WordPress (borrador)</h4>
+        <label class="flex items-start gap-2 text-xs">
+          <input type="checkbox" id="chk-humano" class="mt-0.5 rounded">
+          <span>Un editor humano revisó este contenido y autoriza enviarlo como borrador.</span>
+        </label>
+        <button id="btn-wp" onclick="publicarWP()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg hover:bg-swiss-800 disabled:opacity-50">Enviar borrador</button>
+        <div id="wp-out" class="text-xs"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VISTA: ARCHIVO ============ -->
+<section id="view-archivo" class="hidden space-y-6">
+  <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+    <h2 class="font-serif font-bold text-xl">Archivo Histórico Inteligente</h2>
+    <p class="text-xs text-swiss-600">Busca notas por significado, no solo por palabras. Ej: "conflictos por el agua en el oeste riojano".</p>
+    <div class="flex gap-2">
+      <input id="q" class="flex-1 p-2.5 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Buscar por significado…" onkeydown="if(event.key==='Enter')buscar()">
+      <button onclick="buscar()" class="bg-black text-white text-sm px-5 rounded-xl hover:bg-swiss-800">Buscar</button>
+    </div>
+    <div id="search-out" class="space-y-2"></div>
+  </div>
+
+  <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+    <h3 class="font-serif font-bold text-base">Incorporar notas al archivo</h3>
+    <div class="grid sm:grid-cols-3 gap-2">
+      <input id="n-titulo" class="sm:col-span-3 p-2.5 text-sm rounded-xl border border-swiss-300" placeholder="Titular">
+      <input id="n-fecha" type="date" class="p-2.5 text-sm rounded-xl border border-swiss-300">
+      <input id="n-seccion" class="p-2.5 text-sm rounded-xl border border-swiss-300" placeholder="Sección">
+      <input id="n-url" class="p-2.5 text-sm rounded-xl border border-swiss-300" placeholder="URL (opcional)">
+      <textarea id="n-cuerpo" rows="4" class="sm:col-span-3 p-2.5 text-sm rounded-xl border border-swiss-300" placeholder="Cuerpo de la nota"></textarea>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <label class="text-xs text-swiss-600">Carga masiva (.json: [{titulo, cuerpo, fecha, seccion, url}])
+        <input type="file" id="n-file" accept=".json" class="block mt-1 text-xs">
+      </label>
+      <div class="flex gap-2">
+        <button onclick="importarJSON()" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-4 py-2 rounded-lg">Importar JSON</button>
+        <button onclick="agregarNota()" class="text-xs bg-black text-white px-4 py-2 rounded-lg hover:bg-swiss-800">Guardar y vectorizar</button>
+      </div>
+    </div>
+    <p id="n-status" class="text-xs font-mono text-swiss-500"></p>
+  </div>
+</section>
+
+<!-- ============ VISTA: TRANSCRIPCIÓN ============ -->
+<section id="view-transcribir" class="hidden space-y-6">
+  <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+    <h2 class="font-serif font-bold text-xl">Transcripción de entrevistas y audios ciudadanos</h2>
+    <p class="text-xs text-swiss-600">Sube un audio (mp3, wav, ogg, m4a, hasta ~15 MB). La transcripción es un borrador: verifica nombres, cifras y citas antes de usarla.</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <select id="t-origen" class="text-xs bg-swiss-50 border border-swiss-300 rounded-lg p-1.5">
+        <option value="entrevista">Entrevista de redacción</option>
+        <option value="reportero_ciudadano">Reportero ciudadano</option>
+      </select>
+      <input type="file" id="t-file" accept="audio/*" class="text-xs">
+      <button id="btn-trans" onclick="transcribir()" class="text-xs bg-black text-white px-4 py-2 rounded-lg hover:bg-swiss-800 disabled:opacity-50">Transcribir</button>
+    </div>
+    <div id="t-out" class="hidden space-y-2">
+      <textarea id="t-text" rows="12" class="w-full p-3 text-sm rounded-xl border border-swiss-300"></textarea>
+      <div class="flex gap-2 justify-end">
+        <button onclick="copy($('t-text').value,'Transcripción copiada')" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">Copiar</button>
+        <button onclick="usarComoTema()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg hover:bg-swiss-800">Usar como tema en el Motor</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VISTA: HISTORIAL ============ -->
+<section id="view-historial" class="hidden space-y-4">
+  <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+    <div>
+      <h2 class="font-serif font-bold text-xl">Historial de producciones</h2>
+      <p class="text-xs text-swiss-600">Guardadas en Supabase (últimas 30).</p>
+    </div>
+    <button onclick="cargarHistorial()" class="text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-1.5 rounded-lg">Actualizar</button>
+  </div>
+  <div id="hist-list" class="space-y-3"></div>
+</section>
+
+</main>
+
+<!-- MODAL CONEXIÓN -->
+<div id="settings" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl w-full max-w-md p-5 space-y-3 shadow-2xl">
+    <div class="flex items-center justify-between">
+      <h3 class="font-serif font-bold text-lg">Conexión a Supabase</h3>
+      <button onclick="closeSettings()" class="text-swiss-500 hover:text-black">✕</button>
+    </div>
+    <p class="text-[11px] text-swiss-500">Solo se guarda la URL y la clave pública (anon) en este dispositivo. Las claves de Gemini y WordPress viven como secrets en la Edge Function, nunca en el navegador.</p>
+    <input id="cfg-url" class="w-full p-2.5 text-sm rounded-xl border border-swiss-300 font-mono" placeholder="https://xxxx.supabase.co">
+    <input id="cfg-key" class="w-full p-2.5 text-sm rounded-xl border border-swiss-300 font-mono" placeholder="Clave anon / publishable">
+    <button onclick="guardarCfg()" class="w-full bg-black text-white text-sm py-2.5 rounded-xl hover:bg-swiss-800">Guardar y conectar</button>
+    <div id="login-box" class="hidden pt-3 border-t border-swiss-200 space-y-2">
+      <p class="text-xs font-medium">Acceso de la redacción</p>
+      <input id="login-email" type="email" class="w-full p-2.5 text-sm rounded-xl border border-swiss-300" placeholder="correo">
+      <input id="login-pass" type="password" class="w-full p-2.5 text-sm rounded-xl border border-swiss-300" placeholder="contraseña">
+      <div class="flex gap-2">
+        <button onclick="login()" class="flex-1 bg-black text-white text-sm py-2 rounded-xl">Ingresar</button>
+        <button onclick="logout()" class="flex-1 border border-swiss-300 text-sm py-2 rounded-xl">Salir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2.5 rounded-full shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-[60]"></div>
+
+<script>
+/* =========================================================
+   MADRE V3 — lógica
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let sb = null;          // cliente Supabase
+let session = null;
+let cur = null;         // producción actual: {id, tema, tono, data, evaluacion, audioUrl}
+let tabIdx = 0;
+const LOCAL_HISTORY_KEY = 'madre_v3_history';
+
+function guardarRespaldoLocal(p) {
+  if (!p) return;
+  try {
+    const raw = localStorage.getItem(LOCAL_HISTORY_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    const row = {
+      id: p.id, tema: p.tema, tono: p.tono, departamento: p.departamento || null,
+      formatos: p.formatos || p.data,
+      evaluacion: p.evaluacion || null,
+      estado: p.estado || 'borrador',
+      audio_path: p.audio_path || null,
+      created_at: p.created_at || new Date().toISOString()
+    };
+    const at = list.findIndex((x) => String(x.id) === String(row.id));
+    if (at >= 0) list[at] = { ...list[at], ...row };
+    else list.unshift(row);
+    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(list.slice(0, 30)));
+  } catch (e) { console.warn('No se pudo guardar el respaldo local:', e); }
+}
+
+const TABS = [
+  { key: 'articulo',   title: 'Artículo Web & SEO' },
+  { key: 'reel',       title: 'Guión de Reel (60s)' },
+  { key: 'podcast',    title: 'Episodio de Podcast' },
+  { key: 'carrusel',   title: 'Carrusel Instagram' },
+  { key: 'newsletter', title: 'Newsletter' },
+  { key: 'whatsapp',   title: 'WhatsApp Masivo' },
+];
+
+/* ---------- utilidades UI ---------- */
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg;
+  t.classList.remove('opacity-0'); t.classList.add('opacity-100');
+  setTimeout(() => { t.classList.remove('opacity-100'); t.classList.add('opacity-0'); }, 2800);
+}
+function loading(on, text) {
+  $('loading').classList.toggle('hidden', !on);
+  if (text) $('loading-text').textContent = text;
+}
+function copy(text, msg) {
+  (navigator.clipboard?.writeText(text) ?? Promise.reject()).then(() => toast(msg || 'Copiado'))
+    .catch(() => {
+      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand('copy'); toast(msg || 'Copiado'); } catch { toast('No se pudo copiar'); }
+      document.body.removeChild(ta);
+    });
+}
+function download(text, filename, mime = 'text/plain;charset=utf-8') {
+  const url = URL.createObjectURL(new Blob([text], { type: mime }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: filename });
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* ---------- navegación ---------- */
+document.querySelectorAll('#nav .nav-btn').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
+function switchView(v) {
+  ['motor', 'archivo', 'transcribir', 'historial'].forEach(n => $('view-' + n).classList.toggle('hidden', n !== v));
+  document.querySelectorAll('#nav .nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  if (v === 'historial') cargarHistorial();
+}
+
+/* ---------- conexión / auth ---------- */
+function openSettings() {
+  $('cfg-url').value = localStorage.getItem('madre_sb_url') || '';
+  $('cfg-key').value = localStorage.getItem('madre_sb_key') || '';
+  $('login-box').classList.toggle('hidden', !sb);
+  $('settings').classList.remove('hidden');
+}
+function closeSettings() { $('settings').classList.add('hidden'); }
+
+function guardarCfg() {
+  const url = $('cfg-url').value.trim().replace(/\/$/, ''), key = $('cfg-key').value.trim();
+  if (!/^https:\/\/.+\.supabase\.co$/.test(url) || !key) return toast('Revisa la URL y la clave');
+  localStorage.setItem('madre_sb_url', url); localStorage.setItem('madre_sb_key', key);
+  initSb(); $('login-box').classList.remove('hidden'); toast('Conectado. Ingresa con tu usuario.');
+}
+function initSb() {
+  const url = localStorage.getItem('madre_sb_url'), key = localStorage.getItem('madre_sb_key');
+  if (!url || !key) return;
+  sb = supabase.createClient(url, key);
+  sb.auth.getSession().then(({ data }) => setSession(data.session));
+  sb.auth.onAuthStateChange((_e, s) => setSession(s));
+}
+function setSession(s) {
+  session = s;
+  $('auth-badge').textContent = s ? s.user.email : 'sin sesión';
+}
+async function login() {
+  const { error } = await sb.auth.signInWithPassword({ email: $('login-email').value.trim(), password: $('login-pass').value });
+  if (error) return toast('Error: ' + error.message);
+  closeSettings(); toast('Sesión iniciada');
+}
+async function logout() { await sb.auth.signOut(); toast('Sesión cerrada'); }
+
+function requireAuth() {
+  if (!sb) { openSettings(); toast('Primero configura la conexión'); return false; }
+  if (!session) { openSettings(); toast('Inicia sesión'); return false; }
+  return true;
+}
+
+/* ---------- llamada al proxy ---------- */
+async function ai(action, payload = {}) {
+  const { data, error } = await sb.functions.invoke('madre-ai', { body: { action, ...payload } });
+  if (error) {
+    let msg = error.message;
+    try { const j = await error.context?.json?.(); if (j?.error) msg = j.error; } catch {}
+    throw new Error(msg);
+  }
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+
+/* ---------- MOTOR: generar ---------- */
+async function generar() {
+  if (!requireAuth()) return;
+  const tema = $('tema').value.trim();
+  if (!tema) return toast('Ingresa un titular o tema');
+  const tono = $('tono').value;
+  const departamento = $('departamento').value;
+  $('btn-generate').disabled = true;
+  $('results').classList.add('hidden'); $('sources-box').classList.add('hidden'); $('context-box').classList.add('hidden');
+  try {
+    let contexto = '';
+    if ($('opt-archivo').checked) {
+      loading(true, 'Buscando antecedentes en el Archivo Histórico…');
+      try {
+        const { results } = await ai('search', { query: `${tema}\nDepartamento: ${departamento}`, count: 3, min: 0.45 });
+        if (results?.length) {
+          contexto = results.map(r => `- ${r.titulo} (${r.fecha ?? 's/f'}): ${r.cuerpo.slice(0, 500)}`).join('\n');
+          $('context-list').innerHTML = results.map(r => `<li>${esc(r.titulo)} <span class="text-swiss-400">(${esc(r.fecha ?? 's/f')} · ${(r.similarity * 100).toFixed(0)}%)</span></li>`).join('');
+          $('context-box').classList.remove('hidden');
+        }
+      } catch (e) { console.warn('Archivo no disponible:', e.message); }
+    }
+    loading(true, 'Generando los 6 formatos…');
+    const { data, sources } = await ai('generate', { tema, tono, departamento, contexto, search: $('opt-search').checked });
+
+    const { data: row, error: saveError } = await sb.from('producciones').insert({ tema, tono, departamento, formatos: data }).select('id,created_at,estado').single();
+    if (saveError) throw saveError;
+    cur = { id: row?.id ?? null, tema, tono, departamento, data, evaluacion: null, audioUrl: null, created_at: row?.created_at, estado: row?.estado };
+    guardarRespaldoLocal(cur);
+    renderResultado(sources);
+    toast('Contenidos creados');
+  } catch (e) {
+    toast('Error: ' + e.message); console.error(e);
+  } finally {
+    loading(false); $('btn-generate').disabled = false;
+  }
+}
+
+function formatoTexto(key) {
+  const d = cur?.data; if (!d) return '';
+  switch (key) {
+    case 'articulo': {
+      const a = d.articulo || {};
+      return `TITULAR: ${a.titular}\nSLUG: ${a.slug}\nPALABRAS CLAVE: ${(a.palabras_clave || []).join(', ')}\nMETA DESCRIPCIÓN: ${a.meta_descripcion}\n\n${a.cuerpo}`;
+    }
+    case 'carrusel':
+      return (d.carrusel || []).map((p, i) => `PLACA ${i + 1}: ${p.titulo}\n${p.texto}\n[Imagen: ${p.prompt_imagen}]`).join('\n\n');
+    case 'newsletter':
+      return `ASUNTO: ${d.newsletter?.asunto}\n\n${d.newsletter?.cuerpo}`;
+    default:
+      return typeof d[key] === 'string' ? d[key] : JSON.stringify(d[key], null, 2);
+  }
+}
+
+function renderResultado(sources) {
+  // fuentes de Google Search
+  const srcs = (sources || []).filter(s => s.uri);
+  if (srcs.length) {
+    $('sources-list').innerHTML = srcs.map(s =>
+      `<a href="${esc(s.uri)}" target="_blank" rel="noopener noreferrer" class="text-[11px] bg-white border border-swiss-300 px-2.5 py-1 rounded-lg hover:border-black truncate max-w-xs">🔗 ${esc(s.title || s.uri)}</a>`).join('');
+    $('sources-box').classList.remove('hidden');
+  }
+  $('tabs').innerHTML = TABS.map((t, i) => `
+    <button data-i="${i}" class="tab-btn p-3 rounded-xl border border-swiss-300 bg-white text-xs font-medium text-left">
+      <span class="block text-[10px] font-mono opacity-60">Formato 0${i + 1}</span>${esc(t.title)}
+    </button>`).join('');
+  $('tabs').querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => setTab(+b.dataset.i)));
+  $('critic-out').innerHTML = ''; $('audio-out').innerHTML = ''; $('wp-out').innerHTML = ''; $('chk-humano').checked = false;
+  $('results').classList.remove('hidden');
+  setTab(0);
+  if (cur.evaluacion) renderCritic(cur.evaluacion);
+  $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function setTab(i) {
+  tabIdx = i;
+  $('tabs').querySelectorAll('.tab-btn').forEach((b, idx) => b.classList.toggle('active', idx === i));
+  $('out-title').textContent = TABS[i].title;
+  $('out-text').textContent = formatoTexto(TABS[i].key);
+}
+const copiarActual = () => copy(formatoTexto(TABS[tabIdx].key), 'Formato copiado');
+const descargarActual = () => download(formatoTexto(TABS[tabIdx].key), `madre_${TABS[tabIdx].key}.txt`);
+
+/* ---------- EDITOR CRÍTICO ---------- */
+async function evaluar() {
+  if (!cur) return;
+  $('btn-critic').disabled = true; $('critic-out').innerHTML = '<p class="text-swiss-500 font-mono">Evaluando…</p>';
+  try {
+    const { data } = await ai('critic', { paquete: cur.data });
+    cur.evaluacion = data;
+    if (cur.id) await sb.from('producciones').update({ evaluacion: data }).eq('id', cur.id);
+    guardarRespaldoLocal(cur);
+    renderCritic(data);
+  } catch (e) { $('critic-out').innerHTML = `<p class="text-swiss-700">Error: ${esc(e.message)}</p>`; }
+  finally { $('btn-critic').disabled = false; }
+}
+function scoreColor(n) { return n >= 8 ? '#3f3f46' : n >= 5 ? '#3f3f46' : '#3f3f46'; }
+function renderCritic(ev) {
+  const row = (label, o) => `
+    <div>
+      <div class="flex justify-between font-medium"><span>${label}</span><span>${esc(o?.puntaje)}/10</span></div>
+      <div class="scorebar mt-1"><span style="width:${(+o?.puntaje || 0) * 10}%;background:${scoreColor(+o?.puntaje)}"></span></div>
+      <p class="text-swiss-600 mt-1">${esc(o?.comentario)}</p>
+    </div>`;
+  const v = { publicable: ['Publicable tras revisión humana', 'bg-swiss-50 text-swiss-700 border-swiss-300'],
+              requiere_cambios: ['Requiere cambios', 'bg-swiss-50 text-swiss-700 border-swiss-300'],
+              no_publicar: ['No publicar sin resolver riesgos', 'bg-swiss-50 text-swiss-700 border-swiss-300'] }[ev.veredicto] || [ev.veredicto, 'bg-swiss-100 border-swiss-200'];
+  const list = (arr, title) => arr?.length ? `<div><p class="font-medium">${title}</p><ul class="list-disc pl-4 text-swiss-600 space-y-0.5">${arr.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+  $('critic-out').innerHTML = `
+    <span class="inline-block px-2.5 py-1 rounded-lg border font-medium ${v[1]}">${esc(v[0])}</span>
+    ${row('Sesgo y equilibrio', ev.sesgo)}${row('Claridad', ev.claridad)}${row('Riesgo legal', ev.riesgo_legal)}
+    ${list(ev.afirmaciones_a_verificar, 'Afirmaciones a verificar')}${list(ev.correcciones_sugeridas, 'Correcciones sugeridas')}`;
+}
+
+/* ---------- AUDIO (TTS) ---------- */
+async function generarAudio() {
+  if (!cur) return;
+  const text = cur.data.podcast; if (!text) return toast('No hay guion de podcast');
+  $('btn-tts').disabled = true; $('audio-out').innerHTML = '<p class="text-xs font-mono text-swiss-500">Generando audio…</p>';
+  try {
+    const { url, path } = await ai('tts', { text, voice: $('voz').value, produccionId: cur.id });
+    cur.audioUrl = url;
+    cur.audio_path = path;
+    guardarRespaldoLocal(cur);
+    $('audio-out').innerHTML = `<audio controls class="w-full" src="${esc(url)}"></audio>
+      <p class="text-[11px] text-swiss-500 mt-1">Guardado en Storage: <span class="font-mono">${esc(path)}</span> · el enlace expira en 1 h.</p>`;
+  } catch (e) { $('audio-out').innerHTML = `<p class="text-xs text-swiss-700">Error: ${esc(e.message)}</p>`; }
+  finally { $('btn-tts').disabled = false; }
+}
+
+/* ---------- PLACAS → Canva / Figma ---------- */
+function csvCell(v) { return '"' + String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"'; }
+function exportarCSV() {
+  if (!cur) return;
+  const rows = [['placa', 'titulo', 'texto', 'prompt_imagen']].concat(
+    (cur.data.carrusel || []).map((p, i) => [i + 1, p.titulo, p.texto, p.prompt_imagen]));
+  download('﻿' + rows.map(r => r.map(csvCell).join(',')).join('\n'), 'carrusel_canva.csv', 'text/csv;charset=utf-8');
+  toast('CSV listo: en Canva usa Apps → Bulk create');
+}
+const exportarJSON = () => cur && download(JSON.stringify(cur.data.carrusel, null, 2), 'carrusel.json', 'application/json');
+function copiarPromptDiseno(destino) {
+  if (!cur) return;
+  const placas = (cur.data.carrusel || []).map((p, i) => `Placa ${i + 1}: "${p.titulo}" — ${p.texto}. Imagen: ${p.prompt_imagen}`).join('\n');
+  const base = `Crea un carrusel de Instagram de 8 placas (1080x1350) para el diario El Independiente de La Rioja, estilo editorial sobrio, tipografía serif para títulos, alto contraste y espacio para el logo. Contenido:\n${placas}`;
+  copy(destino === 'canva' ? base : base + '\nOrganiza las placas como frames en una sola página de Figma, con auto layout y estilos de texto reutilizables.', 'Prompt copiado');
+}
+
+/* ---------- WORDPRESS (borrador) ---------- */
+function aHtml(texto) {
+  return String(texto || '').split(/\n{2,}/).map(p => `<p>${esc(p.trim()).replace(/\n/g, '<br>')}</p>`).join('\n');
+}
+async function publicarWP() {
+  if (!cur) return;
+  if (!$('chk-humano').checked) return toast('Confirma la revisión humana primero');
+  if (cur.evaluacion?.veredicto === 'no_publicar' && !confirm('El editor crítico marcó "no publicar". ¿Enviar igualmente como borrador?')) return;
+  const a = cur.data.articulo || {};
+  $('btn-wp').disabled = true; $('wp-out').textContent = 'Enviando…';
+  try {
+    const r = await ai('wp_draft', {
+      titulo: a.titular, slug: a.slug, excerpt: a.meta_descripcion,
+      contenido_html: aHtml(a.cuerpo), produccionId: cur.id,
+      revisadoHumano: $('chk-humano').checked,
+    });
+    cur.wp_post_id = r.id; cur.estado = 'en_revision'; guardarRespaldoLocal(cur);
+    $('wp-out').innerHTML = `<p class="text-swiss-700 font-medium">Borrador creado (ID ${esc(r.id)}).</p>
+      <a class="underline" target="_blank" rel="noopener noreferrer" href="${esc(r.edit_url)}">Abrir en WordPress</a>`;
+  } catch (e) { $('wp-out').innerHTML = `<p class="text-swiss-700">Error: ${esc(e.message)}</p>`; }
+  finally { $('btn-wp').disabled = false; }
+}
+
+/* ---------- ARCHIVO HISTÓRICO ---------- */
+async function buscar() {
+  if (!requireAuth()) return;
+  const q = $('q').value.trim(); if (!q) return;
+  $('search-out').innerHTML = '<p class="text-xs font-mono text-swiss-500">Buscando…</p>';
+  try {
+    const { results } = await ai('search', { query: q, count: 10, min: 0.3 });
+    $('search-out').innerHTML = results.length ? results.map(r => `
+      <div class="border border-swiss-200 rounded-xl p-3 bg-swiss-50">
+        <div class="flex justify-between gap-2">
+          <p class="font-medium text-sm">${esc(r.titulo)}</p>
+          <span class="text-[10px] font-mono text-swiss-500 whitespace-nowrap">${(r.similarity * 100).toFixed(0)}% afín</span>
+        </div>
+        <p class="text-[10px] font-mono text-swiss-400">${esc(r.fecha ?? 's/f')} · ${esc(r.seccion ?? '')}</p>
+        <p class="text-xs text-swiss-700 mt-1">${esc(r.cuerpo.slice(0, 260))}…</p>
+        ${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="text-[11px] underline">Ver nota</a>` : ''}
+      </div>`).join('') : '<p class="text-xs text-swiss-500">Sin resultados cercanos. Prueba con otras palabras o carga más notas.</p>';
+  } catch (e) { $('search-out').innerHTML = `<p class="text-xs text-swiss-700">Error: ${esc(e.message)}</p>`; }
+}
+
+async function insertarNotas(notas) {
+  const BATCH = 20; let ok = 0;
+  for (let i = 0; i < notas.length; i += BATCH) {
+    const lote = notas.slice(i, i + BATCH);
+    $('n-status').textContent = `Vectorizando ${Math.min(i + BATCH, notas.length)} de ${notas.length}…`;
+    const { embeddings } = await ai('embed', { texts: lote.map(n => `${n.titulo}\n${n.cuerpo}`), task: 'RETRIEVAL_DOCUMENT' });
+    const rows = lote.map((n, k) => ({
+      titulo: n.titulo, cuerpo: n.cuerpo, fecha: n.fecha || null, seccion: n.seccion || null, url: n.url || null,
+      embedding: JSON.stringify(embeddings[k]),
+    }));
+    const { error } = await sb.from('notas').insert(rows);
+    if (error) throw error;
+    ok += rows.length;
+  }
+  return ok;
+}
+async function agregarNota() {
+  if (!requireAuth()) return;
+  const n = { titulo: $('n-titulo').value.trim(), cuerpo: $('n-cuerpo').value.trim(), fecha: $('n-fecha').value, seccion: $('n-seccion').value.trim(), url: $('n-url').value.trim() };
+  if (!n.titulo || !n.cuerpo) return toast('Faltan titular y cuerpo');
+  try {
+    await insertarNotas([n]);
+    ['n-titulo', 'n-cuerpo', 'n-fecha', 'n-seccion', 'n-url'].forEach(id => $(id).value = '');
+    $('n-status').textContent = 'Nota guardada y vectorizada.'; toast('Nota incorporada al archivo');
+  } catch (e) { $('n-status').textContent = 'Error: ' + e.message; }
+}
+async function importarJSON() {
+  if (!requireAuth()) return;
+  const f = $('n-file').files[0]; if (!f) return toast('Elige un archivo .json');
+  try {
+    const arr = JSON.parse(await f.text());
+    const notas = (Array.isArray(arr) ? arr : []).filter(n => n.titulo && n.cuerpo);
+    if (!notas.length) return toast('El JSON no tiene notas válidas');
+    const ok = await insertarNotas(notas);
+    $('n-status').textContent = `${ok} notas importadas y vectorizadas.`; toast(`${ok} notas importadas`);
+  } catch (e) { $('n-status').textContent = 'Error: ' + e.message; }
+}
+
+/* ---------- TRANSCRIPCIÓN ---------- */
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1]);
+    r.onerror = rej; r.readAsDataURL(file);
+  });
+}
+async function transcribir() {
+  if (!requireAuth()) return;
+  const f = $('t-file').files[0]; if (!f) return toast('Elige un audio');
+  if (f.size > 15 * 1024 * 1024) return toast('El audio supera 15 MB. Divídelo o comprímelo.');
+  $('btn-trans').disabled = true; $('btn-trans').textContent = 'Transcribiendo…';
+  try {
+    // Copia del original en Storage (privado) como respaldo
+    const path = `${Date.now()}_${f.name.replace(/[^\w.\-]/g, '_')}`;
+    sb.storage.from('entrevistas').upload(path, f).catch(() => {});
+    const base64 = await fileToBase64(f);
+    const { texto } = await ai('transcribe', { base64, mimeType: f.type || 'audio/mpeg', archivo: path, origen: $('t-origen').value });
+    $('t-text').value = texto; $('t-out').classList.remove('hidden');
+    toast('Transcripción lista: revísala antes de usarla');
+  } catch (e) { toast('Error: ' + e.message); }
+  finally { $('btn-trans').disabled = false; $('btn-trans').textContent = 'Transcribir'; }
+}
+function usarComoTema() {
+  $('tema').value = $('t-text').value.slice(0, 4000);
+  switchView('motor'); toast('Transcripción cargada como tema');
+}
+
+/* ---------- HISTORIAL ---------- */
+let histCache = [];
+async function cargarHistorial() {
+  let data = [];
+  if (sb && session) {
+    const { data: remote, error } = await sb.from('producciones').select('id,tema,tono,departamento,formatos,evaluacion,estado,created_at').order('created_at', { ascending: false }).limit(30);
+    if (!error && remote) {
+      data = remote;
+      remote.forEach((r) => guardarRespaldoLocal(r));
+    } else {
+      $('hist-list').innerHTML = `<p class="text-xs text-swiss-700 p-4">No se pudo consultar Supabase; se muestra el respaldo local. ${esc(error?.message || '')}</p>`;
+      try { data = JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || '[]'); } catch { data = []; }
+    }
+  } else {
+    try { data = JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || '[]'); } catch { data = []; }
+  }
+  histCache = data;
+  $('hist-list').innerHTML = data.length ? data.map((r, i) => `
+    <div class="bg-white border border-swiss-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <span class="text-[10px] font-mono text-swiss-400">${new Date(r.created_at).toLocaleString('es-AR')} · ${esc(r.departamento || 'La Rioja')} · ${esc(r.estado)}</span>
+        <h4 class="font-serif font-bold text-sm mt-0.5">${esc(r.tema.length > 90 ? r.tema.slice(0, 87) + '…' : r.tema)}</h4>
+      </div>
+      <button onclick="restaurar(${i})" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg hover:bg-swiss-800">Cargar en Motor</button>
+    </div>`).join('') : '<p class="text-xs text-swiss-500 p-4">Aún no hay producciones guardadas.</p>';
+}
+function restaurar(i) {
+  const r = histCache[i]; if (!r) return;
+  cur = { id: r.id, tema: r.tema, tono: r.tono, departamento: r.departamento, data: r.formatos, evaluacion: r.evaluacion, audioUrl: null };
+  $('tema').value = r.tema; $('departamento').value = r.departamento || 'La Rioja (provincia)'; switchView('motor'); renderResultado([]);
+}
+
+/* ---------- init ---------- */
+// La URL y la clave publicable se configuran para el proyecto del equipo.
+// No se incluyen credenciales de otro entorno en el código del navegador.
+initSb();
+setTimeout(() => { if (!session) openSettings(); }, 800);
+</script>
+</body>
+</html>

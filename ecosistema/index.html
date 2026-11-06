@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Madre: motor editorial y biblioteca de conocimiento de El Independiente.">
+  <title>Madre · Redacción</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#18181b;background:#f4f4f5;font-synthesis:none;text-rendering:optimizeLegibility}
+    *{box-sizing:border-box}body{margin:0;min-height:100dvh}.shell{min-height:100dvh;display:flex;flex-direction:column}
+    header{background:#fff;border-bottom:1px solid #e4e4e7;padding:env(safe-area-inset-top) 16px 0;position:relative;z-index:2}
+    .bar{height:64px;max-width:1240px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}.mark{height:36px;width:36px;background:#111;color:#fff;display:grid;place-items:center;border-radius:10px;font-weight:700;font-family:'Playfair Display',serif;font-size:19px}
+    .brand-title{font:700 17px 'Playfair Display',serif;line-height:1.1}.brand-sub{font-size:10px;color:#71717a;margin-top:4px;letter-spacing:.09em;text-transform:uppercase}
+    nav{display:flex;align-items:center;gap:6px}.nav-btn{min-height:44px;border:1px solid transparent;border-radius:999px;background:transparent;padding:0 15px;font:600 13px Inter,sans-serif;color:#52525b;cursor:pointer;white-space:nowrap}
+    .nav-btn:hover{background:#f4f4f5}.nav-btn[aria-current="page"]{background:#111;color:#fff}.status{font-size:11px;color:#71717a;white-space:nowrap}
+    main{flex:1;min-height:0;padding:12px}.view{height:100%;min-height:calc(100dvh - 100px);max-width:1440px;margin:auto;display:none}.view.active{display:block}
+    iframe{display:block;border:0;border-radius:14px;width:100%;height:calc(100dvh - 100px);min-height:560px;background:#f4f4f5}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:640px){header{padding-left:12px;padding-right:12px}.bar{height:auto;min-height:60px;align-items:flex-start;flex-direction:column;justify-content:center;gap:8px;padding:10px 0}.status{display:none}nav{width:100%;overflow-x:auto;padding-bottom:8px}.nav-btn{min-height:42px;padding:0 13px;font-size:12px}main{padding:6px}.view{min-height:calc(100dvh - 124px)}iframe{height:calc(100dvh - 124px);min-height:480px;border-radius:10px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="bar">
+        <div class="brand" aria-label="El Independiente, ecosistema editorial Madre">
+          <div class="mark" aria-hidden="true">M</div>
+          <div><div class="brand-title">Madre</div><div class="brand-sub">Ecosistema de redacción · El Independiente</div></div>
+        </div>
+        <nav aria-label="Módulos de Madre">
+          <button class="nav-btn" type="button" data-target="motor" aria-current="page">Motor editorial</button>
+          <button class="nav-btn" type="button" data-target="biblioteca">Biblioteca riojana</button>
+        </nav>
+        <div class="status">Generación asistida · Revisión editorial humana</div>
+      </div>
+    </header>
+    <main>
+      <section id="view-motor" class="view active" aria-label="Motor editorial">
+        <iframe title="Motor de contenidos Madre" src="madre/" loading="eager" allow="clipboard-read; clipboard-write"></iframe>
+      </section>
+      <section id="view-biblioteca" class="view" aria-label="Biblioteca riojana" aria-hidden="true">
+        <iframe title="Biblioteca Riojana y La Rioja Explicada" src="about:blank" data-src="biblioteca/" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
+      </section>
+    </main>
+  </div>
+  <script>
+    const views = [...document.querySelectorAll('.view')];
+    const buttons = [...document.querySelectorAll('.nav-btn')];
+    function showModule(name) {
+      for (const view of views) {
+        const active = view.id === `view-${name}`;
+        view.classList.toggle('active', active);
+        view.setAttribute('aria-hidden', String(!active));
+        if (active) {
+          const frame = view.querySelector('iframe');
+          if (frame.dataset.src && frame.src.endsWith('about:blank')) frame.src = frame.dataset.src;
+        }
+      }
+      for (const button of buttons) {
+        if (button.dataset.target === name) button.setAttribute('aria-current', 'page');
+        else button.removeAttribute('aria-current');
+      }
+      history.replaceState(null, '', `#${name}`);
+    }
+    buttons.forEach((button) => button.addEventListener('click', () => showModule(button.dataset.target)));
+    const initial = location.hash.slice(1);
+    if (initial === 'biblioteca') showModule('biblioteca');
+  </script>
+</body>
+</html>

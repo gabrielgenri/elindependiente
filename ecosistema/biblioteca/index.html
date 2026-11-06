@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Riojana — La Rioja Explicada · El Independiente</title>
+    <meta name="description" content="Módulo 1 del Plan El Independiente 2030: fichas de contexto atemporales, verificables y enlazadas.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] },
+                colors: { swiss: {
+                    50:'#fafafa',100:'#f4f4f5',200:'#e4e4e7',300:'#d4d4d8',400:'#a1a1aa',
+                    500:'#71717a',600:'#52525b',700:'#3f3f46',800:'#27272a',900:'#18181b',950:'#09090b'
+                } }
+            } }
+        }
+    </script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background:#fafafa; color:#18181b; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        :focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+        textarea.field { line-height: 1.55; }
+    </style>
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-black selection:text-white">
+
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-swiss-200">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+            <span class="w-2.5 h-2.5 bg-black rounded-full inline-block shrink-0"></span>
+            <h1 class="text-lg font-serif font-bold tracking-tight">BIBLIOTECA RIOJANA</h1>
+            <span class="hidden sm:inline text-[10px] uppercase font-mono tracking-widest bg-swiss-100 text-swiss-700 px-1.5 py-0.5 rounded">Eje 1 · Editorial</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="user-badge" class="hidden text-[11px] font-mono text-swiss-500 truncate max-w-[9rem]"></span>
+            <button id="btn-logout" class="hidden text-xs font-medium text-swiss-700 hover:text-black px-2 py-2 min-h-[44px]">Salir</button>
+        </div>
+    </div>
+    <nav class="max-w-4xl mx-auto px-4 pb-2 flex gap-1" aria-label="Secciones">
+        <button data-view="editor" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Crear / Editar</button>
+        <button data-view="lista" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Biblioteca <span id="lista-count" class="font-mono opacity-60"></span></button>
+    </nav>
+</header>
+
+<main class="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- SIN CONFIGURAR -->
+    <section id="view-config" class="hidden">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-6 shadow-sm max-w-md mx-auto space-y-3">
+            <h2 class="font-serif font-bold text-2xl">Falta la conexión</h2>
+            <p class="text-sm text-swiss-600">Este módulo comparte los ajustes y la sesión con <strong>Madre</strong> (mismo dominio). Abrí Madre, cargá la URL y la <em>anon key</em> de Supabase en Ajustes, y volvé acá.</p>
+            <a href="../madre/" class="inline-flex items-center bg-black text-white text-sm font-medium rounded-xl px-5 py-3 min-h-[44px] hover:bg-swiss-800">Ir a Madre</a>
+        </div>
+    </section>
+
+    <!-- ACCESO -->
+    <section id="view-auth" class="hidden">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm max-w-md mx-auto space-y-4">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Acceso de redacción</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Ingresá a la Biblioteca</h2>
+            </div>
+            <div>
+                <label for="auth-email" class="block text-xs font-medium text-swiss-700 mb-1">Correo</label>
+                <input id="auth-email" type="email" autocomplete="email" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div>
+                <label for="auth-pass" class="block text-xs font-medium text-swiss-700 mb-1">Contraseña</label>
+                <input id="auth-pass" type="password" autocomplete="current-password" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <button id="btn-login" class="w-full bg-black text-white text-sm font-medium rounded-xl px-4 py-3 min-h-[44px] hover:bg-swiss-800">Ingresar</button>
+        </div>
+    </section>
+
+    <!-- EDITOR -->
+    <section id="view-editor" class="space-y-6">
+
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Hecho → ficha atemporal</span>
+                <button id="btn-new" class="text-xs font-medium text-swiss-700 hover:text-black underline underline-offset-4 min-h-[44px] px-1">Nueva ficha</button>
+            </div>
+
+            <div>
+                <label for="in-madre" class="block text-xs font-medium text-swiss-700 mb-1">Partir de una pieza de Madre (opcional)</label>
+                <div class="flex gap-2">
+                    <select id="in-madre" class="flex-1 min-w-0 text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]">
+                        <option value="">— Elegir pieza —</option>
+                    </select>
+                    <button id="btn-madre" class="bg-swiss-100 hover:bg-swiss-200 text-sm font-medium rounded-xl px-4 min-h-[44px]">Traer</button>
+                </div>
+            </div>
+
+            <div>
+                <label for="in-hecho" class="block text-xs font-medium text-swiss-700 mb-1">Tema o hecho a explicar</label>
+                <textarea id="in-hecho" rows="4" maxlength="8000" placeholder="Ej: Cómo funciona el Parque Eólico Arauco y qué lugar ocupa en la matriz energética de La Rioja" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label for="in-dep" class="block text-xs font-medium text-swiss-700 mb-1">Departamento</label>
+                    <select id="in-dep" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                </div>
+                <label class="flex items-center gap-2 text-xs font-medium text-swiss-700 cursor-pointer min-h-[44px] sm:mt-5">
+                    <input type="checkbox" id="in-search" checked class="rounded border-swiss-300 text-black focus:ring-black w-4 h-4">
+                    <span>Investigar con Google Search antes de redactar</span>
+                </label>
+            </div>
+
+            <button id="btn-generate" class="w-full sm:w-auto bg-black hover:bg-swiss-800 disabled:opacity-50 text-white font-medium text-sm px-6 py-3 rounded-xl min-h-[44px]">Crear ficha de contexto</button>
+        </div>
+
+        <div id="loading" class="hidden py-10 flex flex-col items-center gap-3" role="status">
+            <div class="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            <p id="loading-text" class="text-xs font-mono text-swiss-600"></p>
+        </div>
+
+        <div id="results" class="hidden space-y-6">
+
+            <div class="flex items-start sm:items-center justify-between gap-3 flex-wrap border-b border-swiss-200 pb-3">
+                <div class="min-w-0">
+                    <h2 id="res-title" class="font-serif font-bold text-lg truncate"></h2>
+                    <p id="save-state" class="text-[11px] font-mono text-swiss-500 mt-0.5"></p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button data-act="md" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">Markdown</button>
+                    <button data-act="html" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">HTML WordPress</button>
+                    <button data-act="jsonld" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">JSON-LD</button>
+                    <button data-act="json" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">JSON</button>
+                </div>
+            </div>
+
+            <!-- Clasificación y estado -->
+            <div class="bg-white border border-swiss-200 rounded-2xl p-4 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label for="f-cluster" class="block text-xs font-medium text-swiss-700 mb-1">Cluster temático</label>
+                        <select id="f-cluster" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                    </div>
+                    <div>
+                        <label for="f-tramo" class="block text-xs font-medium text-swiss-700 mb-1">Tramo del modelo 70-20-10</label>
+                        <select id="f-tramo" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                    </div>
+                    <div>
+                        <label for="f-dep" class="block text-xs font-medium text-swiss-700 mb-1">Departamento</label>
+                        <select id="f-dep" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-500">Estado editorial</p>
+                    <div id="estado-group" class="flex gap-1" role="group" aria-label="Estado de la ficha"></div>
+                </div>
+
+                <p id="verificar-warn" class="hidden text-xs bg-swiss-50 border border-swiss-300 text-swiss-900 rounded-lg p-3"></p>
+
+                <div>
+                    <p class="text-xs font-semibold text-swiss-800">Verificación humana antes de publicar</p>
+                    <ul id="checklist" class="mt-2 space-y-1"></ul>
+                    <p id="checklist-empty" class="hidden text-xs text-swiss-500">La IA no marcó datos puntuales. Revisá igualmente cada cifra, nombre y fecha.</p>
+                </div>
+            </div>
+
+            <div id="sources-box" class="hidden bg-swiss-100 border border-swiss-300 rounded-xl p-4 space-y-2">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-600 font-semibold">Fuentes consultadas (Google Search)</p>
+                <div id="sources-list" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Campos editables -->
+            <div id="ficha-form" class="space-y-4"></div>
+
+            <!-- Enlaces internos -->
+            <div class="bg-white border border-swiss-200 rounded-2xl p-4 space-y-2">
+                <p class="text-xs font-semibold text-swiss-800">Enlaces internos sugeridos</p>
+                <p class="text-[11px] text-swiss-500">Fichas del mismo cluster o con palabras clave en común. Se incluyen como "Ver también" en el HTML exportado.</p>
+                <ul id="related-list" class="space-y-1"></ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- LISTA -->
+    <section id="view-lista" class="hidden space-y-4">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-4">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">La Rioja Explicada</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Biblioteca de fichas</h2>
+                <p id="lista-mode" class="text-xs text-swiss-600 mt-1"></p>
+            </div>
+            <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <label for="q" class="sr-only">Buscar</label>
+                <input id="q" type="search" placeholder="Buscar en título, resumen y palabras clave" class="sm:col-span-2 w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+                <label for="flt-cluster" class="sr-only">Cluster</label>
+                <select id="flt-cluster" class="text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                <label for="flt-estado" class="sr-only">Estado</label>
+                <select id="flt-estado" class="text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]">
+                    <option value="">Todos los estados</option>
+                    <option value="borrador">Borrador</option>
+                    <option value="revisado">Revisado</option>
+                    <option value="publicado">Publicado</option>
+                </select>
+            </div>
+        </div>
+        <div id="lista" class="space-y-3"></div>
+    </section>
+
+</main>
+
+<footer class="text-center text-[10px] font-mono text-swiss-500 py-6">El Independiente 2030 · Módulo 1 · Biblioteca Riojana</footer>
+
+<div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2.5 rounded-full shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 max-w-[90vw] text-center"></div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   BIBLIOTECA RIOJANA · El Independiente 2030 · Módulo 1
+   Comparte ajustes y sesión con Madre (mismo dominio).
+   ============================================================ */
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
+const isHttp = (u) => /^https?:\/\//i.test(String(u || ''));
+
+// Claves compartidas con Madre
+const SHARED = { style: 'madre2_style', piezas: 'madre_v3_history' };
+// Claves propias
+const KEY = { fichas: 'bib_fichas', current: 'bib_current' };
+
+const DEFAULT_MODEL = 'gemini-3.8-flash';
+const BASE_URL_FICHAS = '/la-rioja-explicada/'; // Ajustar a la ruta real en WordPress
+
+const CLUSTERS = [
+    ['energia', 'Energía y transición'], ['vitivinicultura', 'Vitivinicultura'],
+    ['turismo', 'Turismo'], ['mineria', 'Minería'], ['produccion', 'Producción y economía'],
+    ['cultura', 'Cultura y tradiciones'], ['politica', 'Política pública y Estado'],
+    ['sociedad', 'Sociedad y servicios'], ['ambiente', 'Ambiente y territorio']
+];
+const TRAMOS = [
+    ['flujo', 'Flujo (noticia del día)'],
+    ['profundidad', 'Profundidad (análisis)'],
+    ['activo', 'Activo acumulativo (se actualiza)']
+];
+const DEPARTAMENTOS = [
+    'Capital', 'Arauco', 'Castro Barros', 'Chamical', 'Chilecito', 'Coronel Felipe Varela',
+    'Famatina', 'General Ángel V. Peñaloza', 'General Belgrano', 'General Juan Facundo Quiroga',
+    'General Lamadrid', 'General Ocampo', 'General San Martín', 'Independencia',
+    'Rosario Vera Peñaloza', 'San Blas de los Sauces', 'Sanagasta', 'Vinchina'
+];
+
+/* ---------- Schema JSON de la ficha ---------- */
+const STR = { type: 'STRING' };
+const ARR = (items) => ({ type: 'ARRAY', items });
+const ENUM = (values) => ({ type: 'STRING', enum: values });
+const OBJ = (props) => ({ type: 'OBJECT', properties: props, required: Object.keys(props) });
+
+const FICHA_SCHEMA = OBJ({
+    titulo: STR, slug: STR, resumen: STR, que_es: STR,
+    antecedentes: ARR(STR),
+    actores: ARR(OBJ({ nombre: STR, rol: STR })),
+    cifras: ARR(OBJ({ dato: STR, fuente: STR })),
+    cronologia: ARR(OBJ({ fecha: STR, hecho: STR })),
+    faq: ARR(OBJ({ pregunta: STR, respuesta: STR })),
+    glosario: ARR(OBJ({ termino: STR, definicion: STR })),
+    palabras_clave: ARR(STR),
+    cluster: ENUM(CLUSTERS.map((c) => c[0])),
+    tramo: ENUM(TRAMOS.map((t) => t[0])),
+    verificacion: ARR(STR)
+});
+
+/* ---------- Conversión estructura <-> texto editable ---------- */
+const lines = (s) => String(s || '').split('\n').map((x) => x.trim()).filter(Boolean);
+const toPairs = (s, a, b) => lines(s).map((l) => {
+    const i = l.indexOf('|');
+    return i < 0 ? { [a]: l, [b]: '' } : { [a]: l.slice(0, i).trim(), [b]: l.slice(i + 1).trim() };
+});
+const fromPairs = (arr, a, b) => (arr || []).map((o) => `${o[a] || ''} | ${o[b] || ''}`).join('\n');
+
+function parseFaq(s) {
+    return String(s || '').split(/\n\s*\n/).map((b) => {
+        const m = b.match(/^\s*P:\s*([\s\S]*?)\n\s*R:\s*([\s\S]*)$/);
+        return m ? { pregunta: m[1].trim(), respuesta: m[2].trim() } : null;
+    }).filter(Boolean);
+}
+const faqText = (arr) => (arr || []).map((f) => `P: ${f.pregunta}\nR: ${f.respuesta}`).join('\n\n');
+
+// Definición de los campos editables
+const FIELDS = [
+    { k: 'titulo', label: 'Título', type: 'text', get: (f) => f.titulo || '', set: (f, v) => { f.titulo = v; } },
+    { k: 'slug', label: 'Slug (URL)', type: 'text', get: (f) => f.slug || '', set: (f, v) => { f.slug = slugify(v); } },
+    { k: 'resumen', label: 'Resumen (2 a 3 oraciones)', type: 'area', rows: 3, get: (f) => f.resumen || '', set: (f, v) => { f.resumen = v; } },
+    { k: 'que_es', label: 'Qué es', type: 'area', rows: 7, get: (f) => f.que_es || '', set: (f, v) => { f.que_es = v; } },
+    { k: 'antecedentes', label: 'Antecedentes (uno por línea)', type: 'area', rows: 6, get: (f) => (f.antecedentes || []).join('\n'), set: (f, v) => { f.antecedentes = lines(v); } },
+    { k: 'actores', label: 'Actores involucrados (Nombre | rol)', type: 'area', rows: 5, get: (f) => fromPairs(f.actores, 'nombre', 'rol'), set: (f, v) => { f.actores = toPairs(v, 'nombre', 'rol'); } },
+    { k: 'cifras', label: 'Cifras clave (Dato | fuente)', type: 'area', rows: 6, get: (f) => fromPairs(f.cifras, 'dato', 'fuente'), set: (f, v) => { f.cifras = toPairs(v, 'dato', 'fuente'); } },
+    { k: 'cronologia', label: 'Cronología (Fecha | hecho)', type: 'area', rows: 7, get: (f) => fromPairs(f.cronologia, 'fecha', 'hecho'), set: (f, v) => { f.cronologia = toPairs(v, 'fecha', 'hecho'); } },
+    { k: 'faq', label: 'Preguntas frecuentes (bloques "P:" y "R:" separados por una línea en blanco)', type: 'area', rows: 10, get: (f) => faqText(f.faq), set: (f, v) => { f.faq = parseFaq(v); } },
+    { k: 'glosario', label: 'Glosario (Término | definición)', type: 'area', rows: 5, get: (f) => fromPairs(f.glosario, 'termino', 'definicion'), set: (f, v) => { f.glosario = toPairs(v, 'termino', 'definicion'); } },
+    { k: 'palabras_clave', label: 'Palabras clave (separadas por coma)', type: 'text', get: (f) => (f.palabras_clave || []).join(', '), set: (f, v) => { f.palabras_clave = v.split(',').map((x) => x.trim()).filter(Boolean); } }
+];
+
+const slugify = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+
+/* ---------- Estado ---------- */
+const state = { cfg: {}, sb: null, session: null, ficha: null, fichas: [], busy: false, saveTimer: null };
+
+const loadJSON = (k, fb) => { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } };
+const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sin espacio */ } };
+
+let toastTimer;
+function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.remove('opacity-0'); t.classList.add('opacity-100');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.classList.add('opacity-0'); t.classList.remove('opacity-100'); }, 3200);
+}
+
+/* ============================================================
+   Conexión y sesión (compartidas con Madre)
+   ============================================================ */
+function initSupabase() {
+    const { url, anon } = state.cfg;
+    state.sb = null;
+    if (url && anon && window.supabase) {
+        state.sb = window.supabase.createClient(url.replace(/\/+$/, ''), anon);
+        state.sb.auth.onAuthStateChange((_e, session) => { state.session = session; refreshChrome(); });
+    }
+}
+async function refreshSession() {
+    if (!state.sb) { state.session = null; return; }
+    const { data } = await state.sb.auth.getSession();
+    state.session = data?.session || null;
+}
+const canUseIA = () => !!state.sb && !!state.session;
+const needsLogin = () => !!state.sb && !state.session;
+const useRemote = () => !!state.sb && !!state.session;
+
+function refreshChrome() {
+    const email = state.session?.user?.email || '';
+    $('user-badge').textContent = email;
+    $('user-badge').classList.toggle('hidden', !email);
+    $('btn-logout').classList.toggle('hidden', !email);
+    $('lista-mode').textContent = useRemote()
+        ? 'Fichas compartidas del equipo (Supabase).'
+        : 'Fichas guardadas solo en este dispositivo (localStorage).';
+}
+
+async function login() {
+    if (!state.sb) return toast('Falta la conexión con Supabase.');
+    const email = $('auth-email').value.trim();
+    const password = $('auth-pass').value;
+    if (!email || !password) return toast('Completá correo y contraseña.');
+    const { error } = await state.sb.auth.signInWithPassword({ email, password });
+    if (error) return toast('No se pudo ingresar: ' + error.message);
+    await refreshSession();
+    $('auth-pass').value = '';
+    refreshChrome();
+    showView('editor');
+    await restoreCurrent();
+}
+async function logout() {
+    if (state.sb) await state.sb.auth.signOut();
+    state.session = null; state.ficha = null;
+    $('results').classList.add('hidden');
+    refreshChrome();
+    showView('editor');
+}
+
+/* ============================================================
+   IA (siempre a través del proxy)
+   ============================================================ */
+async function callIA({ prompt, system, schema = null, search = false, temperature = 0.5, modulo = 'biblioteca' }) {
+    if (!state.sb) throw new Error('Falta la conexión con Supabase.');
+    const { data } = await state.sb.auth.getSession();
+    const session = data?.session;
+    if (!session) throw new Error('Iniciá sesión para usar la IA.');
+    const res = await fetch(`${state.cfg.url.replace(/\/+$/, '')}/functions/v1/ia-proxy`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': state.cfg.anon
+        },
+        body: JSON.stringify({
+            model: state.cfg.model || DEFAULT_MODEL,
+            systemInstruction: system, prompt, schema, search, temperature, modulo
+        })
+    });
+    let body = {};
+    try { body = await res.json(); } catch { /* sin cuerpo */ }
+    if (!res.ok) throw new Error(body.error || `Error ${res.status} al llamar al proxy de IA`);
+    return body;
+}
+
+const styleGuide = () => (localStorage.getItem(SHARED.style) || '').trim();
+
+const SYS_INVESTIGACION = `Sos el investigador de la redacción de El Independiente, diario de La Rioja, Argentina.
+Buscá información verificable para armar una ficha de contexto atemporal sobre el tema indicado. Devolvé un informe en español de hasta 600 palabras con las secciones: CONTEXTO, DATOS DUROS (cada uno con su fuente y su fecha), ANTECEDENTES Y CRONOLOGÍA, ACTORES INVOLUCRADOS y NO CONFIRMADO. No inventes datos: si no encontrás algo, decilo.`;
+
+function sysFicha() {
+    const guia = styleGuide();
+    const clusters = CLUSTERS.map((c) => c[0]).join(', ');
+    return `Sos el redactor de "La Rioja Explicada", la biblioteca de conocimiento de El Independiente (La Rioja, Argentina). Escribís fichas de contexto atemporales, claras y rigurosas, en español rioplatense neutro.
+REGLAS INNEGOCIABLES:
+1. Usá únicamente datos presentes en el TEMA o en la INVESTIGACIÓN. Nunca inventes cifras, citas, cargos, nombres ni fechas.
+2. Cada cifra lleva su fuente en el campo "fuente". Si no hay fuente confiable, escribí exactamente [VERIFICAR] en "fuente".
+3. Cualquier dato dudoso va acompañado de la marca [VERIFICAR].
+4. Evitá referencias temporales relativas ("hoy", "ayer", "este año", "actualmente"): usá fechas absolutas, por ejemplo "a octubre de 2026".
+5. "slug": minúsculas con guiones, incluyendo la geolocalización si corresponde.
+6. "cluster" debe ser uno de: ${clusters}. "tramo": usá "activo" salvo que el tema sea claramente una noticia del día ("flujo") o un análisis coyuntural ("profundidad").
+7. Cantidades: antecedentes 4 a 6; actores 3 a 8; cifras 3 a 8; cronología 4 a 10; faq 4 a 6; glosario 3 a 6. "que_es" entre 120 y 200 palabras.
+8. En "verificacion" listá entre 3 y 8 datos puntuales que el periodista debe chequear antes de publicar.
+${guia ? `9. GUÍA DE ESTILO DEL DIARIO (obligatoria):\n${guia}\n` : ''}`;
+}
+
+function parseModelJSON(text) {
+    const clean = String(text).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    try { return JSON.parse(clean); } catch { throw new Error('La IA devolvió un formato inválido. Reintentá.'); }
+}
+
+/* ============================================================
+   Persistencia
+   ============================================================ */
+function toRow(p) {
+    return {
+        id: p.id, titulo: p.titulo, slug: p.slug, cluster: p.cluster, tramo: p.tramo,
+        departamento: p.departamento || null, resumen: p.resumen, estructura: p.estructura,
+        fuentes: p.fuentes, verificacion: p.verificacion, estado: p.estado,
+        pieza_id: p.pieza_id || null, relacionadas: p.relacionadas || []
+    };
+}
+
+function syncTop(p) {
+    const F = p.estructura;
+    p.titulo = F.titulo || p.titulo || '';
+    p.slug = slugify(F.slug || F.titulo || p.titulo) || ('ficha-' + p.id.slice(0, 6));
+    F.slug = p.slug;
+    p.resumen = F.resumen || '';
+}
+
+async function persist(p) {
+    syncTop(p);
+    p.updated_at = new Date().toISOString();
+    if (useRemote()) {
+        let { error } = await state.sb.from('biblioteca_fichas').upsert(toRow(p));
+        if (error && error.code === '23505') {          // slug duplicado
+            p.slug = `${p.slug}-${p.id.slice(0, 4)}`;
+            p.estructura.slug = p.slug;
+            ({ error } = await state.sb.from('biblioteca_fichas').upsert(toRow(p)));
+            if (!error) renderForm();
+        }
+        if (error) throw new Error(error.message);
+    } else {
+        const list = loadJSON(KEY.fichas, []);
+        const i = list.findIndex((x) => x.id === p.id);
+        if (i >= 0) list[i] = p; else list.unshift(p);
+        saveJSON(KEY.fichas, list.slice(0, 200));
+    }
+    localStorage.setItem(KEY.current, p.id);
+}
+
+async function listFichas() {
+    if (useRemote()) {
+        const { data, error } = await state.sb.from('biblioteca_fichas').select('*').order('updated_at', { ascending: false }).limit(500);
+        if (error) throw new Error(error.message);
+        return data || [];
+    }
+    return loadJSON(KEY.fichas, []);
+}
+
+async function removeFicha(id) {
+    if (useRemote()) {
+        const { error } = await state.sb.from('biblioteca_fichas').delete().eq('id', id);
+        if (error) throw new Error(error.message);
+    } else {
+        saveJSON(KEY.fichas, loadJSON(KEY.fichas, []).filter((x) => x.id !== id));
+    }
+    if (state.ficha?.id === id) { state.ficha = null; $('results').classList.add('hidden'); }
+}
+
+async function listPiezasMadre() {
+    if (useRemote()) {
+        const { data, error } = await state.sb.from('producciones').select('id,tema,departamento,formatos,created_at').order('created_at', { ascending: false }).limit(50);
+        if (error) throw new Error(error.message);
+        return (data || []).map((p) => ({
+            id: String(p.id),
+            titulo: p.formatos?.articulo?.titular || p.tema,
+            hecho: p.tema,
+            departamento: p.departamento || '',
+            formatos: p.formatos
+        }));
+    }
+    return loadJSON(SHARED.piezas, []).map((p) => ({
+        id: String(p.id),
+        titulo: p.formatos?.articulo?.titular || p.tema,
+        hecho: p.tema,
+        departamento: '',
+        formatos: p.formatos
+    }));
+}
+
+function setSaveState(msg) { $('save-state').textContent = msg; }
+function queueSave() {
+    if (!state.ficha) return;
+    setSaveState('Guardando…');
+    clearTimeout(state.saveTimer);
+    state.saveTimer = setTimeout(async () => {
+        try {
+            await persist(state.ficha);
+            setSaveState('Guardado ✓ ' + new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }));
+            $('res-title').textContent = state.ficha.titulo || 'Ficha sin título';
+            renderRelated();
+        } catch (e) {
+            setSaveState('Error al guardar');
+            toast('No se pudo guardar: ' + e.message);
+        }
+    }, 800);
+}
+
+async function restoreCurrent() {
+    const id = localStorage.getItem(KEY.current);
+    if (!id || state.ficha) return;
+    try {
+        const all = await listFichas();
+        state.fichas = all;
+        const f = all.find((x) => x.id === id);
+        if (f) openFicha(f);
+    } catch { /* se parte de cero */ }
+}
+
+/* ============================================================
+   Generación
+   ============================================================ */
+function setBusy(on, text = '') {
+    state.busy = on;
+    $('btn-generate').disabled = on;
+    $('loading').classList.toggle('hidden', !on);
+    $('loading-text').textContent = text;
+}
+
+let piezaOrigen = null; // id de la pieza de Madre elegida
+
+async function generar() {
+    if (state.busy) return;
+    const tema = $('in-hecho').value.trim();
+    if (!tema) return toast('Ingresá el tema o hecho a explicar.');
+    if (!canUseIA()) {
+        showView(needsLogin() ? 'auth' : 'config');
+        return toast('Iniciá sesión para usar la IA.');
+    }
+    const dep = $('in-dep').value;
+    const base = `TEMA:\n${tema}\n\nDEPARTAMENTO: ${dep || 'Toda la provincia'}`;
+
+    setBusy(true, 'Investigando el tema…');
+    try {
+        let informe = '';
+        let fuentes = [];
+        if ($('in-search').checked) {
+            const r = await callIA({ system: SYS_INVESTIGACION, prompt: base, search: true, temperature: 0.3, modulo: 'biblioteca-investigacion' });
+            informe = r.text; fuentes = r.sources || [];
+        }
+        setBusy(true, 'Redactando la ficha…');
+        const prompt = `${base}\n\nINVESTIGACIÓN:\n${informe || '(sin investigación: usá solo el tema)'}\n\nGenerá la ficha de contexto completa.`;
+        const r2 = await callIA({ system: sysFicha(), prompt, schema: FICHA_SCHEMA, temperature: 0.5, modulo: 'biblioteca' });
+        const F = parseModelJSON(r2.text);
+        const verificacion = (F.verificacion || []).map((t) => ({ texto: String(t), ok: false }));
+        delete F.verificacion;
+        F._investigacion = informe;
+
+        const now = new Date().toISOString();
+        const id = crypto.randomUUID();
+        const p = {
+            id, titulo: F.titulo || tema.slice(0, 120), slug: slugify(F.slug || F.titulo || tema),
+            cluster: CLUSTERS.some((c) => c[0] === F.cluster) ? F.cluster : 'sociedad',
+            tramo: TRAMOS.some((t) => t[0] === F.tramo) ? F.tramo : 'activo',
+            departamento: dep, resumen: F.resumen || '', estado: 'borrador',
+            estructura: F, fuentes, verificacion,
+            pieza_id: piezaOrigen, relacionadas: [], created_at: now, updated_at: now
+        };
+        state.ficha = p;
+        try { state.fichas = await listFichas(); } catch { state.fichas = []; }
+        openFicha(p);
+        queueSave();
+        toast('Ficha creada. Revisá, completá fuentes y verificá antes de publicar.');
+        $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+        toast(e.message || 'Error al generar.');
+    } finally {
+        setBusy(false);
+    }
+}
+
+/* ============================================================
+   Render del editor
+   ============================================================ */
+function openFicha(p) {
+    state.ficha = p;
+    localStorage.setItem(KEY.current, p.id);
+    $('res-title').textContent = p.titulo || 'Ficha sin título';
+    $('f-cluster').value = p.cluster;
+    $('f-tramo').value = p.tramo;
+    $('f-dep').value = p.departamento || '';
+    $('results').classList.remove('hidden');
+    setSaveState('');
+    renderEstado(); renderChecklist(); renderSources(); renderForm(); renderRelated(); updateVerificarWarn();
+}
+
+function renderForm() {
+    const F = state.ficha.estructura;
+    $('ficha-form').innerHTML = FIELDS.map((f) => `
+        <div class="bg-white border border-swiss-200 rounded-2xl p-4">
+            <label for="fld-${f.k}" class="block text-xs font-semibold text-swiss-800 mb-2">${esc(f.label)}</label>
+            ${f.type === 'text'
+                ? `<input id="fld-${f.k}" data-field="${f.k}" type="text" value="${esc(f.get(F))}" class="field w-full p-3 text-sm rounded-xl border border-swiss-200 bg-swiss-50 focus:outline-none focus:ring-2 focus:ring-black">`
+                : `<textarea id="fld-${f.k}" data-field="${f.k}" rows="${f.rows}" class="field w-full p-3 text-sm rounded-xl border border-swiss-200 bg-swiss-50 focus:outline-none focus:ring-2 focus:ring-black" spellcheck="true">${esc(f.get(F))}</textarea>`}
+        </div>`).join('');
+}
+
+function renderSources() {
+    const src = (state.ficha?.fuentes || []).filter((s) => isHttp(s.uri));
+    $('sources-box').classList.toggle('hidden', src.length === 0);
+    $('sources-list').innerHTML = src.map((s) => `
+        <a href="${esc(s.uri)}" target="_blank" rel="noopener noreferrer"
+           class="text-[11px] bg-white border border-swiss-300 text-swiss-800 px-2.5 py-1.5 rounded-lg hover:border-black truncate max-w-xs min-h-[32px] inline-flex items-center">
+            🔗 <span class="truncate ml-1">${esc(s.title || s.uri)}</span></a>`).join('');
+}
+
+function renderChecklist() {
+    const list = state.ficha?.verificacion || [];
+    $('checklist-empty').classList.toggle('hidden', list.length > 0);
+    $('checklist').innerHTML = list.map((v, i) => `
+        <li><label class="flex items-start gap-3 text-xs text-swiss-800 cursor-pointer py-2 min-h-[44px]">
+            <input type="checkbox" data-check="${i}" ${v.ok ? 'checked' : ''} class="mt-0.5 w-4 h-4 rounded border-swiss-300 text-black focus:ring-black shrink-0">
+            <span class="${v.ok ? 'line-through text-swiss-400' : ''}">${esc(v.texto)}</span></label></li>`).join('');
+}
+
+function renderEstado() {
+    const cur = state.ficha?.estado || 'borrador';
+    $('estado-group').innerHTML = [['borrador', 'Borrador'], ['revisado', 'Revisado'], ['publicado', 'Publicado']].map(([k, l]) => `
+        <button data-estado="${k}" aria-pressed="${k === cur}" class="text-xs font-medium px-3 py-2 rounded-full min-h-[44px] border ${k === cur ? 'bg-black text-white border-black' : 'bg-white text-swiss-700 border-swiss-300 hover:border-black'}">${l}</button>`).join('');
+}
+
+function countVerificar(F) {
+    const txt = JSON.stringify({ ...F, _investigacion: undefined });
+    return (txt.match(/\[VERIFICAR\]/gi) || []).length;
+}
+function updateVerificarWarn() {
+    const n = state.ficha ? countVerificar(state.ficha.estructura) : 0;
+    const w = $('verificar-warn');
+    w.classList.toggle('hidden', n === 0);
+    w.textContent = n ? `Quedan ${n} marca(s) [VERIFICAR] en el texto. Confirmá cada dato o eliminalo antes de pasar a Revisado.` : '';
+}
+
+function setEstado(nuevo) {
+    const p = state.ficha;
+    if (!p || p.estado === nuevo) return;
+    if (nuevo === 'revisado') {
+        if (p.verificacion.some((v) => !v.ok)) return toast('Completá la checklist de verificación antes de marcar como revisado.');
+        if (countVerificar(p.estructura) > 0) return toast('Todavía hay marcas [VERIFICAR] en el texto.');
+    }
+    if (nuevo === 'publicado' && p.estado !== 'revisado') return toast('Una ficha debe estar revisada antes de publicarse.');
+    p.estado = nuevo;
+    renderEstado();
+    queueSave();
+}
+
+/* ---------- Enlaces internos sugeridos ---------- */
+function sugeridas(p, todas) {
+    const kw = new Set((p.estructura.palabras_clave || []).map((x) => x.toLowerCase()));
+    return todas
+        .filter((x) => x.id !== p.id && x.slug)
+        .map((x) => {
+            let score = x.cluster === p.cluster ? 2 : 0;
+            for (const k of (x.estructura?.palabras_clave || [])) if (kw.has(String(k).toLowerCase())) score += 1;
+            return { x, score };
+        })
+        .filter((s) => s.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5)
+        .map((s) => s.x);
+}
+
+function renderRelated() {
+    const p = state.ficha;
+    if (!p) return;
+    const rel = sugeridas(p, state.fichas);
+    p.relacionadas = rel.map((r) => r.slug);
+    $('related-list').innerHTML = rel.length
+        ? rel.map((r) => `<li class="text-xs text-swiss-800 py-1">• ${esc(r.titulo)} <span class="font-mono text-swiss-400">/${esc(r.slug)}</span></li>`).join('')
+        : '<li class="text-xs text-swiss-500">Todavía no hay otras fichas relacionadas. Se irán sugiriendo a medida que crezca la biblioteca.</li>';
+}
+
+/* ============================================================
+   Exportaciones
+   ============================================================ */
+function download(name, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function copyText(text, ok) {
+    try { await navigator.clipboard.writeText(text); toast(ok); }
+    catch {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); toast(ok); } catch { toast('No se pudo copiar.'); }
+        ta.remove();
+    }
+}
+
+function toMarkdown(p) {
+    const F = p.estructura;
+    const sec = (t, body) => (body ? `\n## ${t}\n\n${body}\n` : '');
+    return `# ${F.titulo || p.titulo}\n\n> ${F.resumen || ''}\n` +
+        sec('Qué es', F.que_es) +
+        sec('Antecedentes', (F.antecedentes || []).map((a) => `- ${a}`).join('\n')) +
+        sec('Actores involucrados', (F.actores || []).map((a) => `- **${a.nombre}**: ${a.rol}`).join('\n')) +
+        sec('Cifras clave', (F.cifras || []).map((c) => `- ${c.dato} _(Fuente: ${c.fuente})_`).join('\n')) +
+        sec('Cronología', (F.cronologia || []).map((c) => `- **${c.fecha}**: ${c.hecho}`).join('\n')) +
+        sec('Preguntas frecuentes', (F.faq || []).map((q) => `### ${q.pregunta}\n\n${q.respuesta}`).join('\n\n')) +
+        sec('Glosario', (F.glosario || []).map((g) => `- **${g.termino}**: ${g.definicion}`).join('\n'));
+}
+
+function toHTML(p, relacionadas) {
+    const F = p.estructura;
+    const ul = (arr, fn) => (arr && arr.length ? `<ul>\n${arr.map((x) => `  <li>${fn(x)}</li>`).join('\n')}\n</ul>` : '');
+    const para = (s) => esc(s).split(/\n{2,}/).map((x) => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('\n');
+    const parts = [];
+    parts.push(`<h1>${esc(F.titulo || p.titulo)}</h1>`);
+    parts.push(`<p><strong>${esc(F.resumen)}</strong></p>`);
+    if (F.que_es) parts.push(`<h2>Qué es</h2>\n${para(F.que_es)}`);
+    if (F.antecedentes?.length) parts.push(`<h2>Antecedentes</h2>\n${ul(F.antecedentes, esc)}`);
+    if (F.actores?.length) parts.push(`<h2>Actores involucrados</h2>\n${ul(F.actores, (a) => `<strong>${esc(a.nombre)}</strong>: ${esc(a.rol)}`)}`);
+    if (F.cifras?.length) parts.push(`<h2>Cifras clave</h2>\n${ul(F.cifras, (c) => `${esc(c.dato)} <em>(Fuente: ${esc(c.fuente)})</em>`)}`);
+    if (F.cronologia?.length) parts.push(`<h2>Cronología</h2>\n${ul(F.cronologia, (c) => `<strong>${esc(c.fecha)}</strong>: ${esc(c.hecho)}`)}`);
+    if (F.faq?.length) parts.push(`<h2>Preguntas frecuentes</h2>\n${F.faq.map((q) => `<h3>${esc(q.pregunta)}</h3>\n<p>${esc(q.respuesta)}</p>`).join('\n')}`);
+    if (F.glosario?.length) parts.push(`<h2>Glosario</h2>\n${ul(F.glosario, (g) => `<strong>${esc(g.termino)}</strong>: ${esc(g.definicion)}`)}`);
+    if (relacionadas.length) parts.push(`<h2>Ver también</h2>\n${ul(relacionadas, (r) => `<a href="${esc(BASE_URL_FICHAS + r.slug + '/')}">${esc(r.titulo)}</a>`)}`);
+    return parts.join('\n\n');
+}
+
+function jsonLd(p) {
+    const F = p.estructura;
+    const graph = [{
+        '@type': 'Article',
+        headline: String(F.titulo || p.titulo).slice(0, 110),
+        description: F.resumen || '',
+        keywords: (F.palabras_clave || []).join(', '),
+        inLanguage: 'es-AR',
+        // Reemplazar por la fecha real al publicar en la web.
+        datePublished: p.created_at,
+        dateModified: p.updated_at,
+        author: { '@type': 'Organization', name: 'El Independiente' },
+        publisher: { '@type': 'Organization', name: 'El Independiente' }
+    }];
+    if (F.faq?.length) {
+        graph.push({
+            '@type': 'FAQPage',
+            mainEntity: F.faq.map((q) => ({
+                '@type': 'Question', name: q.pregunta,
+                acceptedAnswer: { '@type': 'Answer', text: q.respuesta }
+            }))
+        });
+    }
+    return { '@context': 'https://schema.org', '@graph': graph };
+}
+
+function handleAction(act) {
+    const p = state.ficha;
+    if (!p) return;
+    const base = p.slug || 'ficha';
+    const rel = sugeridas(p, state.fichas);
+    switch (act) {
+        case 'md': download(`${base}.md`, toMarkdown(p), 'text/markdown;charset=utf-8'); return toast('Markdown descargado.');
+        case 'html': return copyText(toHTML(p, rel), 'HTML copiado. Pegalo en el editor de WordPress (modo código).');
+        case 'jsonld': return copyText(`<script type="application/ld+json">\n${JSON.stringify(jsonLd(p), null, 2)}\n<\/script>`, 'JSON-LD copiado.');
+        case 'json': download(`${base}.json`, JSON.stringify(p, null, 2), 'application/json'); return toast('JSON descargado.');
+    }
+}
+
+/* ============================================================
+   Lista / biblioteca
+   ============================================================ */
+async function renderLista() {
+    const box = $('lista');
+    box.innerHTML = '<p class="text-xs font-mono text-swiss-500 p-4">Cargando…</p>';
+    try { state.fichas = await listFichas(); }
+    catch (e) { box.innerHTML = `<p class="text-sm text-swiss-700 p-4">${esc(e.message)}</p>`; return; }
+    const all = state.fichas;
+    $('lista-count').textContent = all.length ? `(${all.length})` : '';
+
+    // Contadores reales
+    const byEstado = (e) => all.filter((x) => x.estado === e).length;
+    $('stats').innerHTML = [
+        ['Fichas', all.length], ['Borradores', byEstado('borrador')],
+        ['Revisadas', byEstado('revisado')], ['Publicadas', byEstado('publicado')]
+    ].map(([l, n]) => `<div class="bg-swiss-50 border border-swiss-200 rounded-xl p-3">
+        <p class="text-[10px] font-mono uppercase text-swiss-500">${l}</p>
+        <p class="text-2xl font-serif font-bold mt-0.5">${n}</p></div>`).join('');
+
+    const q = $('q').value.trim().toLowerCase();
+    const fc = $('flt-cluster').value;
+    const fe = $('flt-estado').value;
+    const list = all.filter((x) => {
+        if (fc && x.cluster !== fc) return false;
+        if (fe && x.estado !== fe) return false;
+        if (q) {
+            const hay = `${x.titulo} ${x.resumen} ${(x.estructura?.palabras_clave || []).join(' ')}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+
+    if (!list.length) {
+        box.innerHTML = `<div class="bg-white border border-swiss-200 rounded-2xl p-8 text-center space-y-1">
+            <p class="text-swiss-500 text-xs font-mono">No hay fichas${(q || fc || fe) ? ' con esos filtros' : ' todavía'}.</p>
+            <p class="text-sm">Creá la primera desde "Crear / Editar".</p></div>`;
+        return;
+    }
+    const badge = { borrador: 'bg-swiss-100 text-swiss-700', revisado: 'bg-swiss-100 text-swiss-800', publicado: 'bg-swiss-100 text-swiss-800' };
+    const clusterName = Object.fromEntries(CLUSTERS);
+    box.innerHTML = list.map((p) => `
+        <div class="bg-white border border-swiss-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${badge[p.estado] || badge.borrador}">${esc(p.estado)}</span>
+                    <span class="text-[10px] font-mono text-swiss-500">${esc(clusterName[p.cluster] || p.cluster)}</span>
+                    ${p.departamento ? `<span class="text-[10px] text-swiss-500">${esc(p.departamento)}</span>` : ''}
+                </div>
+                <h3 class="font-serif font-bold text-sm mt-1">${esc(p.titulo || 'Sin título')}</h3>
+                <p class="text-xs text-swiss-600 mt-0.5 line-clamp-2">${esc(p.resumen)}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button data-h="open" data-id="${esc(p.id)}" class="text-xs bg-black text-white px-3 py-2 rounded-lg font-medium min-h-[44px] hover:bg-swiss-800">Abrir</button>
+                <button data-h="del" data-id="${esc(p.id)}" class="text-xs bg-swiss-50 text-swiss-700 px-3 py-2 rounded-lg font-medium min-h-[44px] hover:bg-swiss-100">Eliminar</button>
+            </div>
+        </div>`).join('');
+}
+
+async function listaAction(kind, id) {
+    try {
+        if (kind === 'open') {
+            const f = state.fichas.find((x) => x.id === id);
+            if (!f) return toast('No se encontró la ficha.');
+            openFicha(f);
+            showView('editor');
+        } else if (kind === 'del') {
+            if (!confirm('¿Eliminar esta ficha? No se puede deshacer.')) return;
+            await removeFicha(id);
+            toast('Ficha eliminada.');
+            renderLista();
+        }
+    } catch (e) { toast(e.message); }
+}
+
+/* ---------- Traer pieza de Madre ---------- */
+async function cargarPiezasMadre() {
+    try {
+        const piezas = await listPiezasMadre();
+        $('in-madre').innerHTML = '<option value="">— Elegir pieza —</option>' +
+            piezas.map((p) => `<option value="${esc(p.id)}">${esc((p.titulo || p.hecho || 'Sin título').slice(0, 80))}</option>`).join('');
+        $('in-madre').dataset.cache = JSON.stringify(piezas.map((p) => ({
+            id: p.id, titulo: p.titulo, hecho: p.hecho, departamento: p.departamento,
+            articulo: p.formatos?.articulo || ''
+        })));
+    } catch { /* sin acceso a piezas */ }
+}
+
+function traerDeMadre() {
+    const id = $('in-madre').value;
+    if (!id) return toast('Elegí una pieza de Madre.');
+    let cache = [];
+    try { cache = JSON.parse($('in-madre').dataset.cache || '[]'); } catch { /* vacío */ }
+    const p = cache.find((x) => x.id === id);
+    if (!p) return;
+    $('in-hecho').value = `Explicar el contexto atemporal de este hecho publicado:\n\n${p.titulo || ''}\n\n${p.hecho || ''}\n\n${String(p.articulo || '').slice(0, 3000)}`.trim();
+    if (p.departamento) $('in-dep').value = p.departamento;
+    piezaOrigen = p.id;
+    toast('Pieza cargada como base de la ficha.');
+}
+
+/* ============================================================
+   Navegación e inicio
+   ============================================================ */
+function showView(name) {
+    for (const v of ['config', 'auth', 'editor', 'lista']) $('view-' + v).classList.toggle('hidden', v !== name);
+    document.querySelectorAll('.nav-btn').forEach((b) => {
+        const on = b.dataset.view === name;
+        b.className = 'nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px] ' +
+            (on ? 'bg-black text-white' : 'text-swiss-700 hover:bg-swiss-100');
+    });
+    if (name === 'lista') renderLista();
+}
+
+function nuevaFicha() {
+    state.ficha = null; piezaOrigen = null;
+    localStorage.removeItem(KEY.current);
+    $('results').classList.add('hidden');
+    $('in-hecho').value = '';
+    $('in-hecho').focus();
+}
+
+function gate(target) {
+    if (!state.sb && !devKey()) return 'config';
+    if (needsLogin()) return 'auth';
+    return target;
+}
+
+async function init() {
+    $('in-dep').innerHTML = '<option value="">Toda la provincia</option>' + DEPARTAMENTOS.map((d) => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+    $('f-dep').innerHTML = $('in-dep').innerHTML;
+    $('f-cluster').innerHTML = CLUSTERS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
+    $('f-tramo').innerHTML = TRAMOS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
+    $('flt-cluster').innerHTML = '<option value="">Todos los clusters</option>' + CLUSTERS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
+
+    state.cfg = {
+        url: localStorage.getItem('madre_sb_url') || '',
+        anon: localStorage.getItem('madre_sb_key') || '',
+        model: 'gemini-3.8-flash'
+    };
+    initSupabase();
+    await refreshSession();
+    refreshChrome();
+
+    document.querySelectorAll('.nav-btn').forEach((b) => b.addEventListener('click', () => showView(gate(b.dataset.view))));
+    $('btn-login').addEventListener('click', login);
+    $('auth-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+    $('btn-logout').addEventListener('click', logout);
+    $('btn-generate').addEventListener('click', generar);
+    $('btn-new').addEventListener('click', nuevaFicha);
+    $('btn-madre').addEventListener('click', traerDeMadre);
+    $('in-madre').addEventListener('focus', cargarPiezasMadre, { once: true });
+    ['q', 'flt-cluster', 'flt-estado'].forEach((id) => $(id).addEventListener('input', renderLista));
+
+    $('f-cluster').addEventListener('change', () => { if (state.ficha) { state.ficha.cluster = $('f-cluster').value; queueSave(); } });
+    $('f-tramo').addEventListener('change', () => { if (state.ficha) { state.ficha.tramo = $('f-tramo').value; queueSave(); } });
+    $('f-dep').addEventListener('change', () => { if (state.ficha) { state.ficha.departamento = $('f-dep').value; queueSave(); } });
+
+    $('ficha-form').addEventListener('input', (e) => {
+        const k = e.target.dataset.field;
+        if (!k || !state.ficha) return;
+        const def = FIELDS.find((f) => f.k === k);
+        def.set(state.ficha.estructura, e.target.value);
+        if (k === 'titulo') state.ficha.titulo = state.ficha.estructura.titulo;
+        updateVerificarWarn();
+        queueSave();
+    });
+    $('estado-group').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-estado]');
+        if (b) setEstado(b.dataset.estado);
+    });
+    $('checklist').addEventListener('change', (e) => {
+        const i = e.target.dataset.check;
+        if (i === undefined || !state.ficha) return;
+        state.ficha.verificacion[Number(i)].ok = e.target.checked;
+        if (!e.target.checked && state.ficha.estado !== 'borrador') {
+            state.ficha.estado = 'borrador';
+            renderEstado();
+            toast('Volvió a borrador: hay datos sin verificar.');
+        }
+        renderChecklist();
+        queueSave();
+    });
+    document.querySelectorAll('.act').forEach((b) => b.addEventListener('click', () => handleAction(b.dataset.act)));
+    $('lista').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-h]');
+        if (b) listaAction(b.dataset.h, b.dataset.id);
+    });
+
+    const first = gate('editor');
+    showView(first);
+    if (first === 'editor') {
+        try { state.fichas = await listFichas(); $('lista-count').textContent = state.fichas.length ? `(${state.fichas.length})` : ''; } catch { /* sin sesión */ }
+        await restoreCurrent();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
