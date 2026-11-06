@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Diseño & Editor — El Independiente 2030</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .transition-all-custom { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-white text-black min-h-screen flex flex-col antialiased selection:bg-black selection:text-white">
+
+    <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleMenu()" class="p-2 border border-gray-300 hover:border-black rounded-none transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <div class="w-8 h-8 bg-black text-white font-serif font-bold text-base flex items-center justify-center">E</div>
+                <div>
+                    <h1 class="font-serif font-bold text-sm sm:text-base tracking-tight">EL INDEPENDIENTE 2030</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest hidden sm:block">Sistema de Diseño, Editor & Master Plan</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="switchMode('preview')" id="btn-mode-preview" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-black bg-black text-white transition">Previsualizar Web</button>
+                <button onclick="switchMode('editor')" id="btn-mode-editor" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-gray-300 hover:border-black bg-white text-black transition">Editor Visual</button>
+                <button onclick="switchMode('designsystem')" id="btn-mode-ds" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-gray-300 hover:border-black bg-white text-black transition hidden md:inline-block">Tokens UI</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Slide-out Menu Overlay -->
+    <div id="drawer-overlay" class="fixed inset-0 bg-black/40 z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
+    <div id="drawer" class="fixed top-0 left-0 bottom-0 w-80 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
+            <span class="font-serif font-bold text-base">Ejes Estratégicos</span>
+            <button onclick="toggleMenu()" class="p-1.5 text-gray-500 hover:text-black">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
+            <button onclick="navigateToAxis(1); toggleMenu();" class="w-full text-left p-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition text-xs font-semibold uppercase tracking-wider flex justify-between items-center">
+                <span>1. Rediseño Editorial (70-20-10)</span>
+                <span class="text-gray-400">→</span>
+            </button>
+            <button onclick="navigateToAxis(2); toggleMenu();" class="w-full text-left p-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition text-xs font-semibold uppercase tracking-wider flex justify-between items-center">
+                <span>2. Observatorios & Datos</span>
+                <span class="text-gray-400">→</span>
+            </button>
+            <button onclick="navigateToAxis(3); toggleMenu();" class="w-full text-left p-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition text-xs font-semibold uppercase tracking-wider flex justify-between items-center">
+                <span>3. Ecosistema Multimedia</span>
+                <span class="text-gray-400">→</span>
+            </button>
+            <button onclick="navigateToAxis(4); toggleMenu();" class="w-full text-left p-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition text-xs font-semibold uppercase tracking-wider flex justify-between items-center">
+                <span>4. Audiencias & Comunidad</span>
+                <span class="text-gray-400">→</span>
+            </button>
+            <button onclick="navigateToAxis(5); toggleMenu();" class="w-full text-left p-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition text-xs font-semibold uppercase tracking-wider flex justify-between items-center">
+                <span>5. Inteligencia Artificial</span>
+                <span class="text-gray-400">→</span>
+            </button>
+            <button onclick="navigateToAxis(6); toggleMenu();" class="w-full text-left p-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition text-xs font-semibold uppercase tracking-wider flex justify-between items-center">
+                <span>6. Plataforma UX & UI</span>
+                <span class="text-gray-400">→</span>
+            </button>
+            <button onclick="navigateToAxis(7); toggleMenu();" class="w-full text-left p-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition text-xs font-semibold uppercase tracking-wider flex justify-between items-center">
+                <span>7. Sostenibilidad & Negocios</span>
+                <span class="text-gray-400">→</span>
+            </button>
+        </div>
+        <div class="p-4 border-t border-gray-200 bg-gray-50 text-[11px] text-gray-500 text-center">
+            Diario El Independiente — La Rioja, Argentina
+        </div>
+    </div>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col space-y-8">
+
+        <!-- VIEW 1: PREVIEW (Interactive Live Master Plan) -->
+        <section id="view-preview" class="flex flex-col space-y-8">
+            
+            <!-- Hero Banner -->
+            <div class="border border-gray-200 bg-gray-50 p-6 sm:p-10 flex flex-col space-y-4">
+                <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Plan Maestro de Transformación Digital</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-black">El Independiente 2030</h2>
+                <p class="text-xs sm:text-sm text-gray-700 max-w-3xl leading-relaxed">
+                    Sistema unificado de transición digital, periodismo de datos, ecosistema transmedia y sostenibilidad financiera para la provincia de La Rioja.
+                </p>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <button onclick="navigateToAxis(1)" class="px-4 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 transition">Explorar Ejes</button>
+                    <button onclick="switchMode('editor')" class="px-4 py-2 border border-black bg-white text-black text-xs font-semibold uppercase tracking-wider hover:bg-gray-50 transition">Abrir Editor CMS</button>
+                </div>
+            </div>
+
+            <!-- Interactive Paradigm Comparator Component -->
+            <div class="border border-gray-200 bg-white p-6 sm:p-8 flex flex-col space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-200 gap-4">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Matriz de Evolución Estratégica</span>
+                        <h3 class="font-serif text-xl sm:text-2xl font-bold mt-1">Comparativa de Paradigmas</h3>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-gray-100 p-1 border border-gray-200">
+                        <button onclick="setParadigmTab('paradigm')" id="ptab-paradigm" class="px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-black text-white transition">Paradigma</button>
+                        <button onclick="setParadigmTab('revenue')" id="ptab-revenue" class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-600 hover:text-black transition">Ingresos</button>
+                        <button onclick="setParadigmTab('audience')" id="ptab-audience" class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-600 hover:text-black transition">Audiencia</button>
+                    </div>
+                </div>
+
+                <div id="paradigm-content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Dynamic comparator cards inserted via JS -->
+                </div>
+            </div>
+
+            <!-- Ejes Interactive Cards Grid -->
+            <div class="flex flex-col space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-serif text-xl font-bold">Los 7 Ejes Estratégicos del Master Plan</h3>
+                    <span class="text-xs text-gray-500">Haga clic en cualquier tarjeta para desplegar su profundidad</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="axes-grid">
+                    <!-- Dynamic Axis Cards -->
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- VIEW 2: VISUAL CMS EDITOR -->
+        <section id="view-editor" class="hidden flex flex-col space-y-6">
+            <div class="border border-gray-200 bg-white p-6 sm:p-8 flex flex-col space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-200 gap-4">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Editor Modular en Tiempo Real</span>
+                        <h2 class="font-serif text-2xl font-bold tracking-tight mt-1">Personalización de Módulos & Contenido</h2>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="resetEditorContent()" class="px-3.5 py-2 border border-gray-300 text-xs font-semibold uppercase tracking-wider hover:border-black transition">Restaurar Original</button>
+                        <button onclick="saveEditorContent()" class="px-4 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 transition">Guardar Cambios</button>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    Edite los títulos, subtítulos y descripciones principales de los módulos estratégicos de El Independiente 2030. Los cambios se sincronizarán inmediatamente con la previsualización web.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+                    <!-- Module Selector List -->
+                    <div class="border border-gray-200 bg-gray-50 p-4 flex flex-col space-y-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2">Seleccionar Módulo a Editar</span>
+                        <div id="editor-module-list" class="flex flex-col space-y-1.5">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Edit Form Panel -->
+                    <div class="lg:col-span-2 border border-gray-200 bg-gray-50 p-6 flex flex-col space-y-4">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Propiedades del Módulo</span>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Título del Módulo</label>
+                            <input type="text" id="edit-title" class="w-full p-3 text-sm border border-gray-300 bg-white focus:outline-none focus:border-black rounded-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Subtítulo / Categoría</label>
+                            <input type="text" id="edit-subtitle" class="w-full p-3 text-sm border border-gray-300 bg-white focus:outline-none focus:border-black rounded-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Descripción Detallada</label>
+                            <textarea id="edit-description" rows="5" class="w-full p-3 text-sm border border-gray-300 bg-white focus:outline-none focus:border-black rounded-none resize-none"></textarea>
+                        </div>
+                        <div class="flex justify-end pt-2">
+                            <button onclick="applyModuleEdits()" class="px-5 py-2.5 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 transition">Aplicar Cambios al Módulo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- VIEW 3: DESIGN SYSTEM TOKENS -->
+        <section id="view-designsystem" class="hidden flex flex-col space-y-6">
+            <div class="border border-gray-200 bg-white p-6 sm:p-8 flex flex-col space-y-6">
+                <div class="pb-4 border-b border-gray-200">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Guía de Estilo & Especificaciones UI</span>
+                    <h2 class="font-serif text-2xl font-bold tracking-tight mt-1">Tokens del Sistema de Diseño El Independiente</h2>
+                </div>
+
+                <!-- Palette -->
+                <div class="flex flex-col space-y-3">
+                    <h3 class="font-bold text-sm uppercase tracking-wider text-gray-700">1. Paleta Cromática Minimalista</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="border border-gray-200 p-4 bg-black text-white">
+                            <div class="text-xs font-mono font-bold">#000000</div>
+                            <div class="text-[11px] text-gray-400 mt-1">Negro Azabache (Principal)</div>
+                        </div>
+                        <div class="border border-gray-200 p-4 bg-white text-black">
+                            <div class="text-xs font-mono font-bold">#FFFFFF</div>
+                            <div class="text-[11px] text-gray-500 mt-1">Blanco Absoluto (Fondo)</div>
+                        </div>
+                        <div class="border border-gray-200 p-4 bg-gray-100 text-black">
+                            <div class="text-xs font-mono font-bold">#F3F4F6</div>
+                            <div class="text-[11px] text-gray-500 mt-1">Gris Neutro (Contenedor)</div>
+                        </div>
+                        <div class="border border-gray-200 p-4 bg-gray-200 text-black">
+                            <div class="text-xs font-mono font-bold">#E5E7EB</div>
+                            <div class="text-[11px] text-gray-500 mt-1">Gris Borde (Líneas finas 1px)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typography -->
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h3 class="font-bold text-sm uppercase tracking-wider text-gray-700">2. Jerarquía Tipográfica</h3>
+                    <div class="border border-gray-200 p-6 bg-gray-50 space-y-4">
+                        <div>
+                            <span class="text-[10px] font-mono text-gray-500 uppercase">Playfair Display — 32px Bold</span>
+                            <h4 class="font-serif text-2xl sm:text-3xl font-bold mt-1">Titulares de Cabecera y Ejes Estratégicos</h4>
+                        </div>
+                        <div class="pt-3 border-t border-gray-200">
+                            <span class="text-[10px] font-mono text-gray-500 uppercase">Inter — 14px Regular</span>
+                            <p class="text-sm text-gray-700 mt-1">Cuerpo de texto institucional, descripciones técnicas y análisis del plan maestro con legibilidad superior a 10px.</p>
+                        </div>
+                        <div class="pt-3 border-t border-gray-200">
+                            <span class="text-[10px] font-mono text-gray-500 uppercase">JetBrains Mono — 12px Medium</span>
+                            <p class="font-mono text-xs text-gray-600 mt-1">Métricas, slugs de URL, esquemas de datos y contadores de la consola de comando.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Component Rules -->
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h3 class="font-bold text-sm uppercase tracking-wider text-gray-700">3. Normas de Diseño UI</h3>
+                    <ul class="list-disc list-inside text-xs text-gray-700 space-y-1.5 font-sans">
+                        <li>Bordes estrictamente rectos (evitar radios de curvatura excesivos para mantener la sobriedad editorial).</li>
+                        <li>Líneas divisorias finas de 1 píxel (<code class="font-mono bg-gray-100 px-1 py-0.5">border-gray-200</code>).</li>
+                        <li>Transiciones fluidas en tarjetas y botones (<code class="font-mono bg-gray-100 px-1 py-0.5">transition</code> de 0.25s).</li>
+                        <li>Enfoque Mobile-First absoluto con adaptabilidad responsive en grillas de 1 a 3 columnas.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Axis Detail View -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4" onclick="closeModal(event)">
+        <div id="modal-box" class="bg-white border border-gray-300 max-w-2xl w-full p-6 sm:p-8 flex flex-col space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModalDirect()" class="absolute top-4 right-4 p-2 text-gray-500 hover:text-black">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div id="modal-content" class="flex flex-col space-y-4">
+                <!-- Injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-black text-white px-4 py-3 text-xs uppercase tracking-wider font-semibold shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2">
+        <span id="toast-msg">Mensaje</span>
+    </div>
+
+    <script>
+        // Master Data Structure for the 7 Axes
+        let masterAxes = [
+            {
+                id: 1,
+                title: "Rediseño Editorial y Arquitectura de Contenidos",
+                subtitle: "Matriz 70-20-10 & Biblioteca Riojana",
+                desc: "Modelo operativo que equilibra la cobertura diaria (70%), la profundización explicativa (20%) y los contenidos perennes evergreen (10%). Convierte al diario en un repositorio de consulta histórica y temática.",
+                details: "Incluye la creación de secciones como 'La Rioja Explicada' (Wikipedia periodística sobre Facundo Quiroga, Chacho Peñaloza, Cuesta de Miranda y Parque Solar Arauco), clústeres de contenido enlazados bidireccionalmente y automatización con Rank Math SEO."
+            },
+            {
+                id: 2,
+                title: "Periodismo de Datos y Observatorios Permanentes",
+                subtitle: "Centro de Análisis & Información Provincial",
+                desc: "Unidad permanente orientada a explicar procesos socioeconómicos en lugar de hechos aislados. Monitorea inflación, obra pública, agua, energía y demografía mediante Looker Studio y Datawrapper.",
+                details: "Comprende 6 observatorios especializados (Económico, Social, Territorial, Ambiental, Demográfico y Electoral) que transforman bases de datos públicas y universitarias en conocimiento accesible y tableros interactivos."
+            },
+            {
+                id: 3,
+                title: "Transformación Audiovisual y Ecosistema Multimedia",
+                subtitle: "De la Noticia Escrita al Contenido Madre",
+                desc: "Cada investigación periodística se convierte simultáneamente en artículo web, reel de 60s, podcast en Spotify, carrusel de 8 placas, newsletter y boletín de WhatsApp sin multiplicar la estructura.",
+                details: "Estructura de redacción multimedia unificada con DaVinci Resolve, Canva Pro y herramientas de IA para transcripción y fragmentación automática de clips destacados."
+            },
+            {
+                id: 4,
+                title: "Audiencias Propias, Newsletters y Membresías",
+                subtitle: "Migración de Tráfico Prestado a Comunidad",
+                desc: "Reducción de la dependencia de algoritmos externos mediante la construcción de bases propias: canales oficiales de WhatsApp, newsletters segmentados (Beehiiv) y membresías de pago (Club El Independiente).",
+                details: "Incorpora el programa de 'Reporteros Ciudadanos', foros de participación ciudadana ('La Rioja Opina') y beneficios comerciales exclusivos para miembros."
+            },
+            {
+                id: 5,
+                title: "Inteligencia Artificial para Redacción y Conocimiento",
+                subtitle: "Asistencia Avanzada sin Reemplazo Humano",
+                desc: "Integración de ChatGPT, Claude y Gemini en 5 niveles: transcripciones automáticas, análisis de presupuestos extensos, optimización SEO y la creación del 'Archivo Inteligente de La Rioja'.",
+                details: "Estricta línea roja institucional: la IA asiste y multiplica capacidades, pero toda pieza publicada pasa por curaduría y verificación humana rigurosa."
+            },
+            {
+                id: 6,
+                title: "Plataforma Tecnológica, UX y SEO Avanzado",
+                subtitle: "Infractructura Mobile-First de Alto Rendimiento",
+                desc: "Migración hacia una arquitectura optimizada sobre WordPress con tiempos de carga inferiores a 2 segundos mediante WP Rocket, Cloudflare y CDN, garantizando accesibilidad y diseño limpio.",
+                details: "Rediseño de portada basado en jerarquía visual (Bloque Hero, Lo Más Leído, Explicadores, Observatorios) y buscador inteligente basado en Elasticsearch."
+            },
+            {
+                id: 7,
+                title: "Sostenibilidad Financiera y Nuevos Ingresos",
+                subtitle: "Pirámide de Monetización Diversificada",
+                desc: "Estrategia económica que reduce la dependencia publicitaria estatal/comercial integrando membresías, eventos presenciales (Foro de Desarrollo), academia de formación y servicios de conocimiento.",
+                details: "Meta estratégica: ninguna fuente de ingresos individual debe representar más del 50% de la facturación total del ecosistema."
+            }
+        ];
+
+        // Paradigm comparator data
+        let paradigmData = {
+            paradigm: {
+                title: "Modelo Tradicional vs Plataforma 2030",
+                traditional: { label: "Modelo Tradicional de Papel", desc: "Ciclo efímero de la noticia (4 horas), esfuerzo diario repetitivo, dependencia total del tráfico externo de redes sociales y buscadores.", impact: "Tráfico volátil / Activo acumulado cero" },
+                future: { label: "Ecosistema El Independiente 2030", desc: "Contenido perenne Evergreen (10%), profundización explicativa (20%), biblioteca digital permanente y comunidad propia vinculada.", impact: "Tráfico orgánico constante + Autonomía" }
+            },
+            revenue: {
+                title: "Modelo de Ingresos Financieros",
+                traditional: { label: "Monocultivo Publicitario", desc: "Dependencia exclusiva de banners estáticos y publicidad institucional sujeta a coyunturas políticas y volatilidad algorítmica.", impact: "Alta vulnerabilidad financiera" },
+                future: { label: "Pirámide Diversificada", desc: "Membresías del Club El Independiente, eventos corporativos, Academia de Formación, servicios de observatorios y patrocinios temáticos.", impact: "Ingresos recurrentes y previsibles" }
+            },
+            audience: {
+                title: "Relación con la Audiencia",
+                traditional: { label: "Audiencia Prestada", desc: "Lectores ocasionales que llegan por un clic en Facebook o Google y cuya relación pertenece enteramente a las plataformas tecnológicas.", impact: "Cero retención y relación indirecta" },
+                future: { label: "Audiencia Propia y Comunidad", desc: "Lectores registrados en newsletters diarios, canales de WhatsApp y miembros activos que participan en debates y eventos del medio.", impact: "Comunidad leal, identificable y duradera" }
+            }
+        };
+
+        let currentParadigmTab = 'paradigm';
+        let selectedEditorIndex = 0;
+
+        window.onload = function() {
+            renderAxesGrid();
+            renderParadigmContent();
+            renderEditorModuleList();
+            loadEditorForm(0);
+        };
+
+        // Navigation between modes
+        function switchMode(mode) {
+            document.getElementById('view-preview').classList.add('hidden');
+            document.getElementById('view-editor').classList.add('hidden');
+            document.getElementById('view-designsystem').classList.add('hidden');
+
+            document.getElementById('btn-mode-preview').className = "px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-gray-300 hover:border-black bg-white text-black transition";
+            document.getElementById('btn-mode-editor').className = "px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-gray-300 hover:border-black bg-white text-black transition";
+            document.getElementById('btn-mode-ds').className = "px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-gray-300 hover:border-black bg-white text-black transition hidden md:inline-block";
+
+            if (mode === 'preview') {
+                document.getElementById('view-preview').classList.remove('hidden');
+                document.getElementById('btn-mode-preview').className = "px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-black bg-black text-white transition";
+            } else if (mode === 'editor') {
+                document.getElementById('view-editor').classList.remove('hidden');
+                document.getElementById('btn-mode-editor').className = "px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-black bg-black text-white transition";
+            } else if (mode === 'designsystem') {
+                document.getElementById('view-designsystem').classList.remove('hidden');
+                document.getElementById('btn-mode-ds').className = "px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider border border-black bg-black text-white transition hidden md:inline-block";
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toggle mobile/drawer menu
+        function toggleMenu() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            if (drawer.classList.contains('-translate-x-full')) {
+                drawer.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                drawer.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Render Axes Grid in Preview
+        function renderAxesGrid() {
+            const grid = document.getElementById('axes-grid');
+            grid.innerHTML = '';
+            masterAxes.forEach((axis, index) => {
+                const card = document.createElement('div');
+                card.className = "border border-gray-200 bg-white p-6 flex flex-col justify-between space-y-4 hover:border-black transition-all-custom cursor-pointer";
+                card.onclick = () => openAxisModal(index);
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-mono font-bold uppercase tracking-wider bg-gray-100 px-2 py-0.5 text-gray-700">Eje 0${axis.id}</span>
+                            <span class="text-xs text-gray-400">Ver detalle →</span>
+                        </div>
+                        <h4 class="font-serif font-bold text-lg text-black mb-1">${axis.title}</h4>
+                        <p class="text-xs font-semibold text-gray-600 mb-2">${axis.subtitle}</p>
+                        <p class="text-xs text-gray-700 leading-relaxed">${axis.desc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                        <span>Plan Estratégico 2030</span>
+                        <span class="font-bold text-black uppercase">Activo</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Paradigm tab switcher
+        function setParadigmTab(tab) {
+            currentParadigmTab = tab;
+            document.getElementById('ptab-paradigm').className = "px-3 py-1 text-xs font-semibold uppercase tracking-wider " + (tab === 'paradigm' ? "bg-black text-white" : "text-gray-600 hover:text-black");
+            document.getElementById('ptab-revenue').className = "px-3 py-1 text-xs font-semibold uppercase tracking-wider " + (tab === 'revenue' ? "bg-black text-white" : "text-gray-600 hover:text-black");
+            document.getElementById('ptab-audience').className = "px-3 py-1 text-xs font-semibold uppercase tracking-wider " + (tab === 'audience' ? "bg-black text-white" : "text-gray-600 hover:text-black");
+            renderParadigmContent();
+        }
+
+        function renderParadigmContent() {
+            const container = document.getElementById('paradigm-content');
+            const data = paradigmData[currentParadigmTab];
+            container.innerHTML = `
+                <div class="border border-gray-200 bg-gray-50 p-6 flex flex-col justify-between space-y-4">
+                    <div>
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-gray-500 font-bold">Enfoque Heredado</span>
+                        <h4 class="font-serif font-bold text-lg mt-1 mb-2 text-gray-900">${data.traditional.label}</h4>
+                        <p class="text-xs text-gray-700 leading-relaxed">${data.traditional.desc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-gray-200 text-[11px] font-mono text-gray-600">
+                        <strong>Impacto:</strong> ${data.traditional.impact}
+                    </div>
+                </div>
+                <div class="border border-black bg-black text-white p-6 flex flex-col justify-between space-y-4">
+                    <div>
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-gray-400 font-bold">Estrategia 2030</span>
+                        <h4 class="font-serif font-bold text-lg mt-1 mb-2 text-white">${data.future.label}</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">${data.future.desc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-gray-800 text-[11px] font-mono text-gray-300">
+                        <strong>Impacto:</strong> ${data.future.impact}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal for Axis Detail
+        function openAxisModal(index) {
+            const axis = masterAxes[index];
+            const content = document.getElementById('modal-content');
+            content.innerHTML = `
+                <span class="text-[10px] font-mono uppercase tracking-wider text-gray-500 font-bold">Eje Estratégico 0${axis.id} de 07</span>
+                <h3 class="font-serif text-2xl font-bold text-black">${axis.title}</h3>
+                <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">${axis.subtitle}</p>
+                <div class="space-y-3 pt-2 text-xs text-gray-800 leading-relaxed">
+                    <p class="font-medium">${axis.desc}</p>
+                    <div class="p-4 bg-gray-50 border border-gray-200 text-gray-700">
+                        <strong class="block text-black mb-1 uppercase text-[10px] tracking-wider">Desglose Operativo:</strong>
+                        ${axis.details}
+                    </div>
+                </div>
+                <div class="pt-4 flex justify-end">
+                    <button onclick="closeModalDirect()" class="px-5 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 transition">Cerrar Detalle</button>
+                </div>
+            `;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'modal-overlay') {
+                closeModalDirect();
+            }
+        }
+
+        function closeModalDirect() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        function navigateToAxis(id) {
+            switchMode('preview');
+            const index = id - 1;
+            if (index >= 0 && index < masterAxes.length) {
+                openAxisModal(index);
+            }
+        }
+
+        // CMS Editor Functions
+        function renderEditorModuleList() {
+            const list = document.getElementById('editor-module-list');
+            list.innerHTML = '';
+            masterAxes.forEach((axis, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-2.5 text-xs font-semibold uppercase tracking-wider border " + (selectedEditorIndex === index ? "border-black bg-black text-white" : "border-gray-200 bg-white text-black hover:border-black");
+                btn.onclick = () => {
+                    selectedEditorIndex = index;
+                    renderEditorModuleList();
+                    loadEditorForm(index);
+                };
+                btn.innerText = `Eje 0${axis.id}: ${axis.title.substring(0, 25)}...`;
+                list.appendChild(btn);
+            });
+        }
+
+        function loadEditorForm(index) {
+            const axis = masterAxes[index];
+            document.getElementById('edit-title').value = axis.title;
+            document.getElementById('edit-subtitle').value = axis.subtitle;
+            document.getElementById('edit-description').value = axis.desc;
+        }
+
+        function applyModuleEdits() {
+            const axis = masterAxes[selectedEditorIndex];
+            axis.title = document.getElementById('edit-title').value.trim();
+            axis.subtitle = document.getElementById('edit-subtitle').value.trim();
+            axis.desc = document.getElementById('edit-description').value.trim();
+            
+            renderAxesGrid();
+            renderEditorModuleList();
+            showToast("Módulo actualizado en tiempo real");
+        }
+
+        function saveEditorContent() {
+            localStorage.setItem('el_independiente_master_axes', JSON.stringify(masterAxes));
+            showToast("Cambios guardados exitosamente en almacenamiento local");
+        }
+
+        function resetEditorContent() {
+            localStorage.removeItem('el_independiente_master_axes');
+            location.reload();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>
