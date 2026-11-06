@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio V5</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Hugging Face Transformers.js CDN (v4) -->
+    <script type="module">
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2';
+        // Deshabilitar la búsqueda de modelos locales por defecto para cargar desde CDN
+        env.allowLocalModels = false;
+        window.HuggingFaceTransformers = { pipeline };
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header Principal -->
+    <header class="w-full bg-white border-b border-slate-100 py-5 px-4 sm:px-8 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-100 text-indigo-600 rounded-2xl p-3 shadow-sm">
+                    <i data-lucide="cpu" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Audio</h1>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Transcripción</p>
+                </div>
+            </div>
+            <!-- Selector de Idioma -->
+            <div class="flex items-center space-x-2">
+                <label for="language-select" class="text-xs font-medium text-slate-600 hidden sm:inline">Idioma Micrófono:</label>
+                <select id="language-select" aria-label="Idioma de reconocimiento" class="bg-slate-100 border border-slate-200 text-slate-700 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="es-ES">Español (España)</option>
+                    <option value="es-AR">Español (Argentina)</option>
+                    <option value="es-MX">Español (México)</option>
+                    <option value="es-CO">Español (Colombia)</option>
+                    <option value="es-CL">Español (Chile)</option>
+                    <option value="es-US">Español (EE.UU.)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal SPA -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
+        
+        <!-- Pestañas de Navegación (Modos) -->
+        <nav aria-label="Modalidades de operación" class="bg-slate-100 rounded-xl p-1 max-w-md mx-auto flex space-x-1 shadow-inner">
+            <button id="tab-file" onclick="switchTab('file')" role="tab" aria-selected="true" class="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 bg-white text-indigo-600 shadow-sm">
+                <i data-lucide="file-audio" class="w-4 h-4"></i>
+                <span>Cargar Archivo</span>
+            </button>
+            <button id="tab-mic" onclick="switchTab('mic')" role="tab" aria-selected="false" class="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900">
+                <i data-lucide="mic" class="w-4 h-4"></i>
+                <span>Grabar Micrófono</span>
+            </button>
+        </nav>
+
+        <!-- Tarjeta Contenedora Principal -->
+        <section class="bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/60 p-6 sm:p-8 space-y-6">
+            
+            <!-- VISTA A: CARGAR ARCHIVO CON WHISPER CLIENT-SIDE -->
+            <div id="view-file" class="space-y-6">
+                <div id="drop-zone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/30 rounded-2xl p-8 text-center cursor-pointer transition-all duration-200">
+                    <input type="file" id="audio-file-input" accept="audio/*,.mp3,.wav,.ogg,.m4a,.webm,.aac,.flac,.opus" class="hidden">
+                    <div class="flex flex-col items-center justify-center space-y-3">
+                        <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full">
+                            <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-base font-semibold text-slate-700">Arrastra tu archivo de audio aquí o <span class="text-indigo-600 underline">examina</span></p>
+                            <p class="text-xs text-slate-400 mt-1">Soporta: MP3, WAV, OGG, M4A, WEBM, FLAC (Decodificación PCM Web Audio a 16kHz)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reproductor y Panel de Procesamiento ML -->
+                <div id="file-player-container" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3 truncate">
+                            <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                                <i data-lucide="music" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 id="file-name-display" class="text-sm font-semibold text-slate-800 truncate max-w-xs sm:max-w-md">audio.mp3</h3>
+                                <p id="file-info-display" class="text-xs text-slate-500">0.0 MB • 0:00</p>
+                            </div>
+                        </div>
+                        <button onclick="removeLoadedFile()" class="text-slate-400 hover:text-rose-600 transition-colors" title="Eliminar archivo">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <audio id="audio-player" class="w-full" controls></audio>
+
+                    <!-- Estado del Modelo ML & Barra de Progreso -->
+                    <div class="space-y-2 pt-2 border-t border-slate-200">
+                        <div class="flex justify-between items-center text-xs text-slate-600 font-medium">
+                            <span id="ml-status-text" class="flex items-center space-x-1.5">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-600"></i>
+                                <span>Listo para procesar</span>
+                            </span>
+                            <span id="transcribe-progress-text" class="font-mono">0%</span>
+                        </div>
+                        <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div id="transcribe-progress-bar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button id="btn-start-file-transcription" onclick="transcribeFileWithWhisper()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            <span>Transcribir</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA B: GRABAR MICRÓFONO (WEB SPEECH + MEDIARECORDER) -->
+            <div id="view-mic" class="hidden space-y-6 text-center py-4">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <button id="btn-record" onclick="toggleMicrophoneRecording()" aria-label="Iniciar o detener grabación de micrófono" class="w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-indigo-600/30 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                        <i data-lucide="mic" class="w-8 h-8"></i>
+                    </button>
+                    <div class="space-y-1">
+                        <p id="mic-status-label" class="text-sm font-semibold text-slate-700">Pulsa para iniciar la grabación y transcripción en vivo</p>
+                        <p id="mic-timer" class="text-xs font-mono text-slate-400">00:00</p>
+                    </div>
+                </div>
+
+                <!-- Reproductor de Audio Grabado -->
+                <div id="recorded-audio-container" class="hidden max-w-md mx-auto bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                    <p class="text-xs font-medium text-slate-600">Audio Grabado Disponible:</p>
+                    <audio id="recorded-player" class="w-full" controls></audio>
+                    <a id="download-recording-link" class="inline-flex items-center space-x-2 text-xs font-medium text-indigo-600 hover:underline">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Descargar archivo de audio (.webm)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ÁREA DE TRANSCRIPCIÓN (COMPARTIDA) -->
+            <div class="space-y-3 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between">
+                    <label for="transcript-textarea" class="text-sm font-semibold text-slate-700 flex items-center space-x-2">
+                        <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
+                        <span>Texto Transcrito</span>
+                    </label>
+                    <div class="text-xs text-slate-400 space-x-3">
+                        <span id="word-count">0 palabras</span>
+                        <span>•</span>
+                        <span id="char-count">0 caracteres</span>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <textarea id="transcript-textarea" aria-label="Texto Transcrito" rows="8" placeholder="El texto transcrito aparecerá aquí. En modo archivo se procesará de forma precisa vía Whisper ML. En modo micrófono se transcribirá en tiempo real..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-700 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-y custom-scrollbar"></textarea>
+                </div>
+
+                <!-- Botones de Acción Rápida -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <div class="flex space-x-2">
+                        <button onclick="copyTranscript()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium py-2 px-3.5 rounded-lg transition-all flex items-center space-x-1.5">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copiar texto</span>
+                        </button>
+                        <button onclick="clearTranscript()" class="bg-slate-100 hover:bg-slate-200 text-rose-600 text-xs font-medium py-2 px-3.5 rounded-lg transition-all flex items-center space-x-1.5">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>Limpiar</span>
+                        </button>
+                    </div>
+                    <button onclick="downloadTranscriptTxt()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium py-2 px-4 rounded-lg shadow-sm transition-all flex items-center space-x-1.5">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Descargar Transcripción (.txt)</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Nota de Transparencia Técnica V5 -->
+        <aside aria-label="Aviso de Privacidad y Arquitectura" class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-900 space-y-1.5">
+            <h4 class="font-semibold flex items-center space-x-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600"></i>
+                <span>Arquitectura Técnica Definitiva (Audio V5)</span>
+            </h4>
+            <p><strong>Modo Archivo:</strong> Utiliza Web Audio API para decodificar binarios, downmix a mono y remuestreo a 16 kHz, procesado localmente en el navegador con Transformers.js + Whisper (ONNX via WebGPU/WASM).<br>
+            <strong>Modo Micrófono:</strong> Utiliza Web Speech API nativa para streaming directo del hardware física de voz en tiempo real.</p>
+        </aside>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-xs text-slate-400 border-t border-slate-100 bg-white">
+        <p>Audio V5 • SPA Autocontenida • WebGPU/WASM ML Client-Side • WCAG 2.2 AA</p>
+    </footer>
+
+    <!-- Contenedor Toast de Notificaciones -->
+    <div id="toast-container" aria-live="polite" role="status" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2"></div>
+
+    <!-- Lógica JavaScript Principal -->
+    <script>
+        // --- 1. CONFIGURACIÓN Y ESTADO GLOBAL ---
+        let currentTab = localStorage.getItem('audio_v5_tab') || 'file';
+        let selectedLanguage = localStorage.getItem('audio_v5_lang') || 'es-ES';
+        
+        let recognition = null;
+        let isRecognizing = false;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recordingTimerInterval = null;
+        let recordingSeconds = 0;
+        
+        let currentAudioFile = null;
+        let audioObjectURL = null;
+        let recordedAudioObjectURL = null;
+
+        let whisperPipeline = null;
+        let isProcessingML = false;
+
+        // Referencias DOM
+        const tabFileBtn = document.getElementById('tab-file');
+        const tabMicBtn = document.getElementById('tab-mic');
+        const viewFile = document.getElementById('view-file');
+        const viewMic = document.getElementById('view-mic');
+        const languageSelect = document.getElementById('language-select');
+        const transcriptTextarea = document.getElementById('transcript-textarea');
+        const wordCountSpan = document.getElementById('word-count');
+        const charCountSpan = document.getElementById('char-count');
+        
+        // Inicialización al cargar el DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initTabs();
+            initLanguage();
+            initDragAndDrop();
+            initSpeechRecognition();
+            initTextareaListener();
+            requestInitialMicrophonePermission();
+        });
+
+        // --- 2. GESTIÓN DE PESTAÑAS (SPA Pura) ---
+        function switchTab(tab) {
+            currentTab = tab;
+            localStorage.setItem('audio_v5_tab', tab);
+            
+            if (tab === 'file') {
+                tabFileBtn.className = "flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 bg-white text-indigo-600 shadow-sm";
+                tabFileBtn.setAttribute('aria-selected', 'true');
+                tabMicBtn.className = "flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900";
+                tabMicBtn.setAttribute('aria-selected', 'false');
+                
+                viewFile.classList.remove('hidden');
+                viewMic.classList.add('hidden');
+            } else {
+                tabMicBtn.className = "flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 bg-white text-indigo-600 shadow-sm";
+                tabMicBtn.setAttribute('aria-selected', 'true');
+                tabFileBtn.className = "flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900";
+                tabFileBtn.setAttribute('aria-selected', 'false');
+                
+                viewMic.classList.remove('hidden');
+                viewFile.classList.add('hidden');
+            }
+        }
+
+        function initTabs() {
+            switchTab(currentTab);
+        }
+
+        function initLanguage() {
+            languageSelect.value = selectedLanguage;
+            languageSelect.addEventListener('change', (e) => {
+                selectedLanguage = e.target.value;
+                localStorage.setItem('audio_v5_lang', selectedLanguage);
+                if (recognition) {
+                    recognition.lang = selectedLanguage;
+                }
+                showToast("Idioma de micrófono cambiado a " + selectedLanguage, "info");
+            });
+        }
+
+        // --- 3. PERMISOS Y GESTIÓN DE MICRÓFONO ---
+        async function requestInitialMicrophonePermission() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (err) {
+                    console.warn("Permiso de micrófono inicial no concedido:", err);
+                }
+            }
+        }
+
+        // --- 4. MODALIDAD MICRÓFONO: WEB SPEECH API & MEDIARECORDER ---
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast("Tu navegador no soporta Web Speech API para vivo.", "warning");
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            recognition.lang = selectedLanguage;
+
+            let finalBuffer = "";
+
+            recognition.onresult = (event) => {
+                let interim = "";
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalBuffer += event.results[i][0].transcript + " ";
+                    } else {
+                        interim += event.results[i][0].transcript;
+                    }
+                }
+                transcriptTextarea.value = finalBuffer + interim;
+                updateCounters();
+                autoScrollTextarea();
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Error SpeechRecognition:", event.error);
+                if (event.error === 'not-allowed') {
+                    showToast("Acceso al micrófono denegado.", "error");
+                }
+            };
+
+            recognition.onend = () => {
+                if (isRecognizing) {
+                    try { recognition.start(); } catch(e) {}
+                }
+            };
+        }
+
+        async function toggleMicrophoneRecording() {
+            const btnRecord = document.getElementById('btn-record');
+            const micStatusLabel = document.getElementById('mic-status-label');
+
+            if (!isRecognizing) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    recordedChunks = [];
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) recordedChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        if (recordedAudioObjectURL) URL.revokeObjectURL(recordedAudioObjectURL);
+                        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        recordedAudioObjectURL = URL.createObjectURL(blob);
+                        
+                        const recordedPlayer = document.getElementById('recorded-player');
+                        recordedPlayer.src = recordedAudioObjectURL;
+                        
+                        const downloadLink = document.getElementById('download-recording-link');
+                        downloadLink.href = recordedAudioObjectURL;
+                        downloadLink.download = `audio_grabado_${new Date().toISOString().slice(0,10)}.webm`;
+                        
+                        document.getElementById('recorded-audio-container').classList.remove('hidden');
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    if (recognition) {
+                        recognition.lang = selectedLanguage;
+                        recognition.start();
+                    }
+
+                    isRecognizing = true;
+                    btnRecord.className = "w-20 h-20 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-rose-600/30 animate-pulse transition-all duration-300";
+                    micStatusLabel.textContent = "Grabando y transcribiendo en vivo...";
+                    startTimer();
+                    showToast("Grabación iniciada", "success");
+
+                } catch (err) {
+                    showToast("Error de micrófono: " + err.message, "error");
+                }
+            } else {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                if (recognition) {
+                    recognition.stop();
+                }
+
+                isRecognizing = false;
+                btnRecord.className = "w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-indigo-600/30 transition-all duration-300";
+                micStatusLabel.textContent = "Pulsa para iniciar la grabación y transcripción en vivo";
+                stopTimer();
+                showToast("Grabación finalizada", "success");
+            }
+        }
+
+        // --- 5. MODALIDAD ARCHIVO: WEBAUDIO DECODING + WHISPER ML CLIENT-SIDE ---
+        function initDragAndDrop() {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('audio-file-input');
+
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-indigo-400', 'bg-indigo-50/60');
+            });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-indigo-400', 'bg-indigo-50/60');
+            });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-indigo-400', 'bg-indigo-50/60');
+                if (e.dataTransfer.files.length > 0) {
+                    handleAudioFile(e.dataTransfer.files[0]);
+                }
+            });
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleAudioFile(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleAudioFile(file) {
+            const maxSize = 250 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showToast("El archivo excede los 250 MB.", "error");
+                return;
+            }
+
+            if (audioObjectURL) URL.revokeObjectURL(audioObjectURL);
+            currentAudioFile = file;
+            audioObjectURL = URL.createObjectURL(file);
+
+            document.getElementById('file-name-display').textContent = file.name;
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+            document.getElementById('file-info-display').textContent = sizeMb;
+
+            const audioPlayer = document.getElementById('audio-player');
+            audioPlayer.src = audioObjectURL;
+
+            document.getElementById('file-player-container').classList.remove('hidden');
+            showToast("Archivo cargado y listo para decodificación PCM", "success");
+        }
+
+        function removeLoadedFile() {
+            if (audioObjectURL) URL.revokeObjectURL(audioObjectURL);
+            currentAudioFile = null;
+            audioObjectURL = null;
+            document.getElementById('audio-player').pause();
+            document.getElementById('file-player-container').classList.add('hidden');
+            document.getElementById('audio-file-input').value = "";
+            showToast("Archivo removido", "info");
+        }
+
+        // Decodificación PCM a 16 kHz Mono vía Web Audio API
+        async function getAudioBuffer16k(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const decodedBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            
+            // Downmix mono & Resample exacto a 16000 Hz mediante OfflineAudioContext
+            const offlineCtx = new OfflineAudioContext(1, Math.ceil(decodedBuffer.duration * 16000), 16000);
+            const source = offlineCtx.createBufferSource();
+            source.buffer = decodedBuffer;
+            source.connect(offlineCtx.destination);
+            source.start(0);
+
+            const resampledBuffer = await offlineCtx.startRendering();
+            audioCtx.close();
+            return resampledBuffer.getChannelData(0); // Regresa Float32Array a 16kHz
+        }
+
+        // Inferencia ML con Transformers.js + Whisper
+        async function transcribeFileWithWhisper() {
+            if (!currentAudioFile || isProcessingML) return;
+            
+            isProcessingML = true;
+            const btn = document.getElementById('btn-start-file-transcription');
+            const statusText = document.getElementById('ml-status-text');
+            const progressBar = document.getElementById('transcribe-progress-bar');
+            const progressText = document.getElementById('transcribe-progress-text');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                // 1. Decodificar PCM a 16kHz
+                statusText.textContent = "1/3 Decodificando audio PCM a 16.000 Hz...";
+                progressBar.style.width = "25%";
+                progressText.textContent = "25%";
+                
+                const pcmData = await getAudioBuffer16k(currentAudioFile);
+
+                // 2. Cargar Pipeline Transformers.js si no existe
+                if (!whisperPipeline) {
+                    statusText.textContent = "2/3 Cargando modelo Whisper (ONNX / WASM)...";
+                    progressBar.style.width = "50%";
+                    progressText.textContent = "50%";
+
+                    if (!window.HuggingFaceTransformers) {
+                        throw new Error("Biblioteca @huggingface/transformers no cargada vía CDN.");
+                    }
+                    const { pipeline } = window.HuggingFaceTransformers;
+                    whisperPipeline = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny');
+                }
+
+                // 3. Inferencia de Transcripción
+                statusText.textContent = "3/3 Ejecutando inferencia ML en el cliente...";
+                progressBar.style.width = "85%";
+                progressText.textContent = "85%";
+
+                const output = await whisperPipeline(pcmData, {
+                    language: 'spanish',
+                    task: 'transcribe'
+                });
+
+                // 4. Mostrar Resultado
+                const resultText = output.text || output[0]?.text || "";
+                transcriptTextarea.value = resultText;
+                updateCounters();
+                autoScrollTextarea();
+
+                progressBar.style.width = "100%";
+                progressText.textContent = "100%";
+                statusText.textContent = "Transcripción ML completada con éxito.";
+                showToast("Transcripción por Whisper completada", "success");
+
+            } catch (err) {
+                console.error("Error en Transcripción ML:", err);
+                statusText.textContent = "Error en procesamiento ML local.";
+                showToast("Falló la inferencia local: " + err.message, "error");
+            } finally {
+                isProcessingML = false;
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // --- 6. UTILIDADES DE TEXTO Y ACCIONES ---
+        function initTextareaListener() {
+            transcriptTextarea.addEventListener('input', updateCounters);
+        }
+
+        function updateCounters() {
+            const text = transcriptTextarea.value.trim();
+            const words = text === "" ? 0 : text.split(/\s+/).length;
+            const chars = text.length;
+
+            wordCountSpan.textContent = `${words} palabra${words === 1 ? '' : 's'}`;
+            charCountSpan.textContent = `${chars} carácter${chars === 1 ? '' : 'es'}`;
+        }
+
+        function autoScrollTextarea() {
+            transcriptTextarea.scrollTop = transcriptTextarea.scrollHeight;
+        }
+
+        function copyTranscript() {
+            const text = transcriptTextarea.value;
+            if (!text) {
+                showToast("No hay texto para copiar", "warning");
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Texto copiado al portapapeles", "success");
+            }).catch(() => {
+                transcriptTextarea.select();
+                document.execCommand('copy');
+                showToast("Texto copiado (fallback)", "success");
+            });
+        }
+
+        function clearTranscript() {
+            transcriptTextarea.value = "";
+            updateCounters();
+            showToast("Texto limpiado", "info");
+        }
+
+        function downloadTranscriptTxt() {
+            const text = transcriptTextarea.value;
+            if (!text) {
+                showToast("No hay texto para descargar", "warning");
+                return;
+            }
+
+            const dateStr = new Date().toISOString().slice(0, 10);
+            const fileName = currentAudioFile ? `transcripcion_${currentAudioFile.name.replace(/\.[^/.]+$/, "")}_${dateStr}.txt` : `transcripcion_microfono_${dateStr}.txt`;
+
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast("Transcripción descargada (.txt)", "success");
+        }
+
+        // --- 7. CRONÓMETRO Y TOASTS ---
+        function startTimer() {
+            recordingSeconds = 0;
+            const timerLabel = document.getElementById('mic-timer');
+            recordingTimerInterval = setInterval(() => {
+                recordingSeconds++;
+                const mins = Math.floor(recordingSeconds / 60).toString().padStart(2, '0');
+                const secs = (recordingSeconds % 60).toString().padStart(2, '0');
+                timerLabel.textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(recordingTimerInterval);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let textColor = "text-emerald-400";
+            if (type === 'error') textColor = "text-rose-400";
+            if (type === 'warning') textColor = "text-amber-400";
+            if (type === 'info') textColor = "text-indigo-400";
+
+            toast.className = "bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 text-xs sm:text-sm border border-slate-800";
+            toast.innerHTML = `
+                <i data-lucide="${type === 'error' ? 'alert-circle' : type === 'warning' ? 'alert-triangle' : 'check-circle'}" class="w-4 h-4 ${textColor}"></i>
+                <span class="flex-grow">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // --- 8. ATAJOS DE TECLADO ---
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                downloadTranscriptTxt();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (currentTab === 'mic') {
+                    toggleMicrophoneRecording();
+                } else if (currentAudioFile) {
+                    transcribeFileWithWhisper();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
