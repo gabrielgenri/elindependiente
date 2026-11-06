@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MADRE — Motor de Transformación de Contenidos IA</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f9f9f9; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    </style>
+</head>
+<body class="bg-white text-black min-h-screen flex flex-col antialiased selection:bg-black selection:text-white">
+
+    <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-black text-white font-serif font-bold text-lg flex items-center justify-center rounded-none">M</div>
+                <div>
+                    <h1 class="font-serif font-bold text-lg sm:text-xl tracking-tight">MADRE</h1>
+                    <p class="text-[11px] text-gray-500 uppercase tracking-widest hidden sm:block">Motor de Transformación de Contenido IA</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="switchView('engine')" id="btn-engine" class="px-3 py-1.5 text-xs sm:text-sm font-medium border border-black bg-black text-white rounded-none transition">Generador IA</button>
+                <button onclick="switchView('observatory')" id="btn-observatory" class="px-3 py-1.5 text-xs sm:text-sm font-medium border border-gray-300 text-black hover:border-black rounded-none transition">Observatorios & SEO</button>
+                <button onclick="switchView('library')" id="btn-library" class="px-3 py-1.5 text-xs sm:text-sm font-medium border border-gray-300 text-black hover:border-black rounded-none transition">Historial (<span id="saved-count">0</span>)</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col space-y-8">
+
+        <!-- VIEW 1: ENGINE -->
+        <section id="view-engine" class="flex flex-col space-y-6">
+            
+            <!-- Hero Instruction Card -->
+            <div class="border border-gray-200 bg-gray-50 p-6 sm:p-8">
+                <span class="text-[11px] uppercase tracking-widest font-semibold text-gray-500">Ecosistema IA Generativo</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight mt-1 mb-2">Transformación Simultánea Multiformato</h2>
+                <p class="text-xs sm:text-sm text-gray-600 max-w-3xl leading-relaxed">
+                    Ingrese cualquier hecho, titular o tema original. El Motor Madre sintetizará y generará al instante 6 formatos independientes listos para su distribución y SEO.
+                </p>
+
+                <!-- Input Workspace -->
+                <div class="mt-6 flex flex-col space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">Tema, Titular o Hecho base</label>
+                        <textarea id="raw-topic" rows="3" class="w-full p-4 text-sm border border-gray-300 bg-white focus:outline-none focus:border-black rounded-none resize-none font-sans" placeholder="Ej. El Gobierno Provincial anuncia la expansión del parque solar en Arauco con una inversión histórica de 45 millones de dólares..."></textarea>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs font-medium text-gray-500">Sugerencias rápidas:</span>
+                            <button onclick="fillTopic(1)" class="text-xs underline text-gray-700 hover:text-black">Parque Solar Arauco</button>
+                            <button onclick="fillTopic(2)" class="text-xs underline text-gray-700 hover:text-black">Cuesta de Miranda</button>
+                            <button onclick="fillTopic(3)" class="text-xs underline text-gray-700 hover:text-black">Federalismo Histórico</button>
+                        </div>
+                        <button onclick="generateContent()" id="generate-btn" class="px-6 py-3 bg-black text-white text-xs font-semibold uppercase tracking-widest hover:bg-gray-800 transition flex items-center space-x-2">
+                            <span>Generar 6 Formatos IA</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner State -->
+            <div id="loading-state" class="hidden py-16 text-center border border-gray-200 bg-white">
+                <div class="inline-block w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-700">Sintetizando contenidos en 6 formatos con IA...</p>
+            </div>
+
+            <!-- Results Section (Tabs for 6 Formats) -->
+            <div id="results-section" class="hidden flex flex-col space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-200 pb-2 overflow-x-auto">
+                    <div class="flex space-x-2 min-w-max">
+                        <button onclick="switchTab('article')" id="tab-article" class="tab-btn px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-black text-black">1. Artículo Web</button>
+                        <button onclick="switchTab('reel')" id="tab-reel" class="tab-btn px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black">2. Reel (60s)</button>
+                        <button onclick="switchTab('podcast')" id="tab-podcast" class="tab-btn px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black">3. Podcast</button>
+                        <button onclick="switchTab('carousel')" id="tab-carousel" class="tab-btn px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black">4. Carrusel (8 Placas)</button>
+                        <button onclick="switchTab('newsletter')" id="tab-newsletter" class="tab-btn px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black">5. Newsletter</button>
+                        <button onclick="switchTab('whatsapp')" id="tab-whatsapp" class="tab-btn px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black">6. WhatsApp</button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyCurrentContent()" class="px-3 py-1.5 text-xs font-medium border border-gray-300 hover:border-black bg-white transition flex items-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                            <span>Copiar</span>
+                        </button>
+                        <button onclick="downloadCurrentTxt()" class="px-3 py-1.5 text-xs font-medium border border-gray-300 hover:border-black bg-white transition flex items-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <span>Descargar .txt</span>
+                        </button>
+                        <button onclick="saveCurrentToLibrary()" class="px-3 py-1.5 text-xs font-medium bg-black text-white hover:bg-gray-800 transition">Guardar</button>
+                    </div>
+                </div>
+
+                <!-- Content Panel Viewport -->
+                <div class="border border-gray-200 bg-gray-50 p-6 sm:p-8 min-h-[400px] flex flex-col">
+                    <div id="content-container" class="flex-1 font-sans text-sm text-gray-800 leading-relaxed space-y-4">
+                        <!-- Content rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- VIEW 2: OBSERVATORIES & SEO -->
+        <section id="view-observatory" class="hidden flex flex-col space-y-6">
+            <div class="border border-gray-200 bg-white p-6 sm:p-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-200 gap-4">
+                    <div>
+                        <span class="text-[11px] uppercase tracking-widest font-semibold text-gray-500">Observatorio de Datos & Taxonomía</span>
+                        <h2 class="font-serif text-2xl font-bold tracking-tight mt-1">Metadatos SEO y Observatorios Permanentes</h2>
+                    </div>
+                    <button onclick="exportObservatoryReport()" class="px-4 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800">Exportar Telemetría</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div class="border border-gray-200 p-5 bg-gray-50">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Observatorio Económico</span>
+                        <h3 class="font-bold text-lg mt-1 mb-2">Inflación & Inversión Regional</h3>
+                        <p class="text-xs text-gray-600 mb-4">Monitoreo de datos macroeconómicos y energéticos en los llanos y cordillera.</p>
+                        <div class="text-2xl font-serif font-bold">45 M USD</div>
+                        <p class="text-[11px] text-gray-500 mt-0.5">Inversión Energética Registrada</p>
+                    </div>
+                    <div class="border border-gray-200 p-5 bg-gray-50">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Observatorio Territorial</span>
+                        <h3 class="font-bold text-lg mt-1 mb-2">Infraestructura & Agua</h3>
+                        <p class="text-xs text-gray-600 mb-4">Mapeo satelital y acueductos departamentales en La Rioja.</p>
+                        <div class="text-2xl font-serif font-bold">18 Departamentos</div>
+                        <p class="text-[11px] text-gray-500 mt-0.5">Cobertura Activa de Obras</p>
+                    </div>
+                    <div class="border border-gray-200 p-5 bg-gray-50">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Observatorio de Audiencias</span>
+                        <h3 class="font-bold text-lg mt-1 mb-2">Transmedia & Engagement</h3>
+                        <p class="text-xs text-gray-600 mb-4">Métricas de retención y distribución en ecosistema Madre.</p>
+                        <div class="text-2xl font-serif font-bold">+74%</div>
+                        <p class="text-[11px] text-gray-500 mt-0.5">Conversión a Audiencia Propia</p>
+                    </div>
+                </div>
+
+                <!-- SEO Tags Generator Box -->
+                <div class="mt-8 border border-gray-200 p-6 bg-gray-50">
+                    <h3 class="font-bold text-base mb-3">Generador Automático de Schema JSON-LD & Tags</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Palabras Clave SEO (Tags)</label>
+                            <input type="text" readonly value="La Rioja, Parque Solar Arauco, Energías Limpias, Desarrollo Productivo, Ecosistema Madre" class="w-full px-3 py-2 text-xs font-mono border border-gray-300 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Slug URL Sugerido</label>
+                            <input type="text" readonly value="/la-rioja/expansion-solar-arauco-inversion-2026" class="w-full px-3 py-2 text-xs font-mono border border-gray-300 bg-white">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: LIBRARY / SAVED ITEMS -->
+        <section id="view-library" class="hidden flex flex-col space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-200 gap-4">
+                <div>
+                    <span class="text-[11px] uppercase tracking-widest font-semibold text-gray-500">Archivo de Contenidos</span>
+                    <h2 class="font-serif text-2xl font-bold tracking-tight mt-1">Historial de Producciones Madre Guardadas</h2>
+                </div>
+                <button onclick="clearLibrary()" class="text-xs text-red-600 hover:text-red-800 font-medium">Vaciar Historial</button>
+            </div>
+
+            <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic cards -->
+            </div>
+            <div id="library-empty" class="hidden py-16 text-center border border-dashed border-gray-300 bg-gray-50">
+                <p class="text-sm text-gray-500">No hay contenidos guardados en el archivo todavía.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-black text-white px-4 py-3 text-sm shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2">
+        <span id="toast-msg">Mensaje</span>
+    </div>
+
+    <script>
+        // State and data structures
+        let currentFormats = {};
+        let activeTab = 'article';
+        let savedLibrary = JSON.parse(localStorage.getItem('madre_content_library') || '[]');
+
+        window.onload = function() {
+            updateLibraryCount();
+        };
+
+        function switchView(view) {
+            document.getElementById('view-engine').classList.add('hidden');
+            document.getElementById('view-observatory').classList.add('hidden');
+            document.getElementById('view-library').classList.add('hidden');
+
+            document.getElementById('btn-engine').className = "px-3 py-1.5 text-xs sm:text-sm font-medium border border-gray-300 text-black hover:border-black rounded-none transition";
+            document.getElementById('btn-observatory').className = "px-3 py-1.5 text-xs sm:text-sm font-medium border border-gray-300 text-black hover:border-black rounded-none transition";
+            document.getElementById('btn-library').className = "px-3 py-1.5 text-xs sm:text-sm font-medium border border-gray-300 text-black hover:border-black rounded-none transition";
+
+            if (view === 'engine') {
+                document.getElementById('view-engine').classList.remove('hidden');
+                document.getElementById('btn-engine').className = "px-3 py-1.5 text-xs sm:text-sm font-medium border border-black bg-black text-white rounded-none transition";
+            } else if (view === 'observatory') {
+                document.getElementById('view-observatory').classList.remove('hidden');
+                document.getElementById('btn-observatory').className = "px-3 py-1.5 text-xs sm:text-sm font-medium border border-black bg-black text-white rounded-none transition";
+            } else if (view === 'library') {
+                document.getElementById('view-library').classList.remove('hidden');
+                document.getElementById('btn-library').className = "px-3 py-1.5 text-xs sm:text-sm font-medium border border-black bg-black text-white rounded-none transition";
+                renderLibrary();
+            }
+        }
+
+        function fillTopic(type) {
+            const topics = {
+                1: "El Gobierno Provincial anuncia la expansión histórica del Parque Solar Arauco con una inyección de 45 millones de dólares para triplicar la generación de energía limpia en la región.",
+                2: "Operativo especial de mantenimiento vial y turístico en la emblemática Cuesta de Miranda, consolidando el corredor productivo y paisajístico del oeste riojano.",
+                3: "Conmemoración del legado federal de los caudillos riojanos Facundo Quiroga y Chacho Peñaloza en la construcción de la soberanía institucional argentina."
+            };
+            document.getElementById('raw-topic').value = topics[type];
+            showToast("Tema de ejemplo cargado");
+        }
+
+        async function generateContent() {
+            const rawTopic = document.getElementById('raw-topic').value.trim();
+            if (!rawTopic) {
+                showToast("Por favor ingresa un tema o hecho base");
+                return;
+            }
+
+            document.getElementById('loading-state').classList.remove('hidden');
+            document.getElementById('results-section').classList.add('hidden');
+
+            setTimeout(() => {
+                // Simulate AI generation of 5 formats + whatsapp
+                currentFormats = {
+                    article: `[ARTÍCULO WEB PERIODÍSTICO]\n\nTITULAR: Expansión histórica: La Rioja consolida su liderazgo en transición energética con nueva inversión en Arauco\n\nBAJADA: Con una inyección de 45 millones de dólares, el Parque Solar Arauco ampliará su capacidad operativa. La medida fortalece la soberanía energética provincial y genera nuevos puestos de trabajo técnicos.\n\nCUERPO:\nLa Provincia de La Rioja dio un paso decisivo hacia la consolidación de su matriz energética sustentable. Mediante un acuerdo estratégico, se confirmó la expansión del Parque Solar Arauco, un hito que posiciona al territorio provincial a la vanguardia nacional en energías renovables.\n\n"Este desarrollo no solo representa energía limpia, sino autonomía productiva y trabajo genuino para los riojanos", señalaron desde el observatorio económico provincial. El proyecto contempla la instalación de paneles de última generación y la optimización de líneas de alta tensión hacia los departamentos del oeste.\n\nCONTEXTO Y DATOS:\n- Inversión inicial: 45 M USD.\n- Impacto ambiental: Reducción estimada de 120,000 toneladas de CO2 anuales.\n- Empleo directo: Más de 250 puestos técnicos especializados durante la fase constructiva.`,
+                    reel: `[GUIÓN DE REEL - 60 SEGUNDOS]\n\n[00:00 - 00:05] (Placa Gancho / Visual de paneles solares bajo el sol riojano)\nLocutor/a: "¡Atención! La Rioja acaba de dar un golpe sobre la mesa en energía limpia."\n\n[00:05 - 00:20] (Tomas aéreas del Parque Solar Arauco / Gráficos en pantalla)\nLocutor/a: "Se aprobó una inversión histórica de 45 millones de dólares para expandir el Parque Solar Arauco. ¿Qué significa esto? Triplicar nuestra capacidad de generación eléctrica."\n\n[00:20 - 00:40] (Entrevista rápida / Datos en pantalla)\nLocutor/a: "Mientras el país discute tarifas, La Rioja produce su propia energía, generando cientos de puestos de trabajo y autonomía federal."\n\n[00:40 - 01:00] (Llamado a la acción)\nLocutor/a: "Leé el informe completo y todos los datos en nuestra plataforma web. ¡Comentá qué te parece esta transformación!"`,
+                    podcast: `[EPISODIO DE PODCAST - 10 MINUTOS]\n\nNOMBRE DEL EPISODIO: La Revolución Solar de La Rioja\n\n[INTRO]\nConductor/a: "Hola, bienvenidos a 'Primera Hora', el podcast diario de nuestro ecosistema informativo. Hoy analizamos en profundidad la expansión del Parque Solar Arauco y qué significa para el futuro económico de la provincia."\n\n[DESARROLLO]\n- Entrevista central con especialistas en energía renovable.\n- Análisis de costos, tarifas y soberanía energética.\n- El rol de La Rioja en el mapa federal de energías limpias.\n\n[CIERRE]\nConductor/a: "Gracias por acompañarnos. Suscribite a nuestro newsletter y visitá nuestro observatorio de datos para acceder a los informes completos."`,
+                    carousel: `[CARRUSEL DE 8 PLACAS - INSTAGRAM]\n\nPLACA 1 (Portada):\n[ TÍTULO ] La Revolución Solar de La Rioja en 5 Claves.\n\nPLACA 2:\n[ HECHO ] Se anunció una inversión histórica de 45 millones de dólares en el Parque Solar Arauco.\n\nPLACA 3:\n[ IMPACTO ] Triplicará la capacidad de generación de energía limpia en la provincia.\n\nPLACA 4:\n[ AMBIENTE ] Reducción proyectada de 120,000 toneladas de CO2 al año.\n\nPLACA 5:\n[ EMPLEO ] Creación de más de 250 puestos de trabajo técnico especializado.\n\nPLACA 6:\n[ ANÁLISIS ] Cómo la autonomía energética transforma la economía regional.\n\nPLACA 7:\n[ OBSERVATORIO ] Mirá todos los datos e informes en nuestro Centro de Datos Públicos.\n\nPLACA 8 (CTA):\n[ COMPARTIR ] Guardá este post y dejanos tu opinión en los comentarios.`,
+                    newsletter: `[NEWSLETTER - PRIMERA HORA]\n\nASUNTO: ☀️ La Rioja acelera su futuro energético: Inversión histórica en Arauco\n\nBUEN DÍA,\n\nHoy destacamos la noticia más importante de la semana para la provincia. El anuncio de la expansión del Parque Solar Arauco marca un antes y un después en nuestra autonomía productiva.\n\nLO QUE TENÉS QUE SABER HOY:\n1. Inversión de 45 millones de dólares.\n2. Creación de empleo técnico local.\n3. Impacto ambiental directo.\n\nExplorá el artículo completo, el análisis de nuestros observatorios y el podcast del día en nuestra plataforma digital.\n\n— El equipo editorial.`,
+                    whatsapp: `[MENSAJE DE DIFUSIÓN - WHATSAPP]\n\n☀️ ¡Atención comunidad de El Independiente!\n\nLa Rioja consolida su liderazgo en energía limpia con una inversión histórica de 45 millones de dólares en el Parque Solar Arauco.\n\n📈 ¿Qué impacto tendrá en nuestra economía y empleo? Te lo contamos en 60 segundos.\n\n👉 Leé el informe completo y escuchá el podcast acá: [Enlace a la plataforma]`
+                };
+
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('results-section').classList.remove('hidden');
+                switchTab('article');
+                showToast("¡6 formatos generados con éxito!");
+            }, 1000);
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabs = ['article', 'reel', 'podcast', 'carousel', 'newsletter', 'whatsapp'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = "tab-btn px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-black text-black";
+                } else {
+                    btn.className = "tab-btn px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black border-b-2 border-transparent";
+                }
+            });
+
+            const content = currentFormats[tab] || "Genera contenido para visualizar los formatos.";
+            document.getElementById('content-container').innerHTML = `<pre class="whitespace-pre-wrap font-sans text-sm">${escapeHtml(content)}</pre>`;
+        }
+
+        function copyCurrentContent() {
+            const text = currentFormats[activeTab] || "";
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast("Formato copiado al portapapeles");
+        }
+
+        function downloadCurrentTxt() {
+            const text = currentFormats[activeTab] || "";
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `madre_${activeTab}_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("Archivo .txt descargado");
+        }
+
+        function saveCurrentToLibrary() {
+            const topic = document.getElementById('raw-topic').value.trim();
+            const newItem = {
+                id: 'item_' + Date.now(),
+                topic: topic.substring(0, 60) + '...',
+                formats: currentFormats,
+                date: new Date().toLocaleDateString()
+            };
+            savedLibrary.push(newItem);
+            localStorage.setItem('madre_content_library', JSON.stringify(savedLibrary));
+            updateLibraryCount();
+            showToast("Producción guardada en el archivo");
+        }
+
+        function updateLibraryCount() {
+            document.getElementById('saved-count').innerText = savedLibrary.length;
+        }
+
+        function renderLibrary() {
+            const grid = document.getElementById('library-grid');
+            const empty = document.getElementById('library-empty');
+            grid.innerHTML = '';
+
+            if (savedLibrary.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            savedLibrary.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "border border-gray-200 bg-white p-5 flex flex-col justify-between space-y-4 hover:border-black transition";
+                card.innerHTML = `
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider bg-gray-100 px-2 py-1 text-gray-700">6 Formatos Madre</span>
+                        <h3 class="font-serif font-bold text-base mt-2 mb-1">${item.topic}</h3>
+                        <p class="text-[11px] text-gray-400">Generado el ${item.date}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <button onclick="loadSavedItem('${item.id}')" class="text-xs font-semibold uppercase tracking-wider text-black hover:underline">Ver Formatos</button>
+                        <button onclick="deleteSavedItem('${item.id}')" class="text-xs text-red-600 hover:text-red-800">Eliminar</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function loadSavedItem(id) {
+            const item = savedLibrary.find(i => i.id === id);
+            if (item) {
+                currentFormats = item.formats;
+                document.getElementById('raw-topic').value = item.topic;
+                switchView('engine');
+                document.getElementById('results-section').classList.remove('hidden');
+                switchTab('article');
+                showToast("Producción cargada desde el archivo");
+            }
+        }
+
+        function deleteSavedItem(id) {
+            savedLibrary = savedLibrary.filter(i => i.id !== id);
+            localStorage.setItem('madre_content_library', JSON.stringify(savedLibrary));
+            updateLibraryCount();
+            renderLibrary();
+            showToast("Elemento eliminado");
+        }
+
+        function clearLibrary() {
+            savedLibrary = [];
+            localStorage.removeItem('madre_content_library');
+            updateLibraryCount();
+            renderLibrary();
+            showToast("Historial vaciado");
+        }
+
+        function exportObservatoryReport() {
+            showToast("Reporte de observatorios exportado exitosamente");
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>
