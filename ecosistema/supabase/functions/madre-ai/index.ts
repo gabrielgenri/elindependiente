@@ -13,7 +13,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://gabrielgenri.github.io,http://localhost:5500,http://127.0.0.1:5500")
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://gabrielgenri.github.io/elindependiente/ecosistema/,http://localhost:5500,http://127.0.0.1:5500")
   .split(",").map((origin) => origin.trim()).filter(Boolean);
 const corsHeaders = (origin: string | null) => ({
   ...(origin && ALLOWED_ORIGINS.includes(origin) ? { "Access-Control-Allow-Origin": origin } : {}),
