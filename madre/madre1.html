@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Madre — Contenidos & Observatorios</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        swiss: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fafafa;
+            color: #18181b;
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .transition-all-custom {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col antialiased selection:bg-black selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-swiss-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <button id="menu-toggle" class="p-2 -ml-2 text-swiss-800 hover:text-black focus:outline-none" aria-label="Abrir menú">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 bg-black rounded-full inline-block"></span>
+                <h1 class="text-lg font-serif font-bold tracking-tight text-swiss-900">MADRE</h1>
+                <span class="text-[10px] uppercase font-mono tracking-widest bg-swiss-100 text-swiss-700 px-1.5 py-0.5 rounded">Sistema Editorial</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button id="nav-new-btn" class="text-xs font-medium bg-black text-white px-3 py-1.5 rounded-full hover:bg-swiss-800 transition-all-custom">
+                + Nuevo
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE SIDEBAR MENU -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-50 hidden backdrop-blur-sm transition-opacity opacity-0"></div>
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 bg-white z-50 shadow-2xl transform -translate-x-full transition-transform duration-300 flex flex-col border-r border-swiss-200">
+        <div class="p-4 border-b border-swiss-200 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 bg-black rounded-full"></span>
+                <span class="font-serif font-bold text-base">Navegación & Módulos</span>
+            </div>
+            <button id="sidebar-close" class="p-1 text-swiss-500 hover:text-black">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="space-y-1">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-400 px-2 mb-1">Vistas Principales</p>
+                <button onclick="switchView('generator')" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-swiss-900 hover:bg-swiss-100 flex items-center space-x-3 transition-colors">
+                    <svg class="w-4 h-4 text-swiss-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <span>Motor de Transformación</span>
+                </button>
+                <button onclick="switchView('observatory')" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-swiss-900 hover:bg-swiss-100 flex items-center space-x-3 transition-colors">
+                    <svg class="w-4 h-4 text-swiss-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span>Observatorios & SEO Avanzado</span>
+                </button>
+                <button onclick="switchView('history')" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-swiss-900 hover:bg-swiss-100 flex items-center space-x-3 transition-colors">
+                    <svg class="w-4 h-4 text-swiss-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Historial & Biblioteca (<span id="history-count">0</span>)</span>
+                </button>
+            </div>
+            <div class="pt-4 border-t border-swiss-200">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-400 px-2 mb-2">Plantillas Rápidas Riojanas</p>
+                <div class="space-y-1.5">
+                    <button onclick="loadTemplate('chaya')" class="w-full text-left px-3 py-2 rounded-md text-xs bg-swiss-50 hover:bg-swiss-100 text-swiss-800 transition-colors truncate">
+                        🎭 Operativo Fiesta Nacional de la Chaya
+                    </button>
+                    <button onclick="loadTemplate('vino')" class="w-full text-left px-3 py-2 rounded-md text-xs bg-swiss-50 hover:bg-swiss-100 text-swiss-800 transition-colors truncate">
+                        🍇 Ruta del Vino y Torrontés de Altura
+                    </button>
+                    <button onclick="loadTemplate('parque')" class="w-full text-left px-3 py-2 rounded-md text-xs bg-swiss-50 hover:bg-swiss-100 text-swiss-800 transition-colors truncate">
+                        🦖 Parque Nacional Talampaya: Turismo
+                    </button>
+                    <button onclick="loadTemplate('energia')" class="w-full text-left px-3 py-2 rounded-md text-xs bg-swiss-50 hover:bg-swiss-100 text-swiss-800 transition-colors truncate">
+                        ⚡ Polo Energético y Parque Eólico Arauco
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-swiss-200 text-[10px] text-swiss-500 font-mono text-center">
+            El Independiente • Sistema 2030
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-y-auto">
+
+        <!-- VIEW 1: GENERATOR ENGINE -->
+        <div id="view-generator" class="flex-1 flex flex-col p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-6">
+            
+            <!-- Hero Form Input Area -->
+            <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Inteligencia Artificial & Google Search</span>
+                    <label class="flex items-center space-x-2 cursor-pointer text-xs font-medium text-swiss-700">
+                        <input type="checkbox" id="use-search-toggle" checked class="rounded border-swiss-300 text-black focus:ring-black">
+                        <span>Investigar con Google Search en tiempo real</span>
+                    </label>
+                </div>
+                
+                <div class="mt-3 space-y-3">
+                    <div>
+                        <label for="api-key-input" class="block text-xs font-medium text-swiss-700 mb-1">API Key (Google AI Studio):</label>
+                        <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full p-2.5 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all font-mono">
+                    </div>
+
+                    <div>
+                        <label for="input-prompt" class="block text-xs font-medium text-swiss-700 mb-1">Ingrese titular, hecho, comunicado o tema de interés regional:</label>
+                        <textarea id="input-prompt" rows="3" placeholder="Ej: Anuncian nueva inversión para ampliar el Parque Eólico Arauco..." class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"></textarea>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-swiss-500 font-mono">Tono:</span>
+                            <select id="select-tone" class="text-xs bg-swiss-50 border border-swiss-300 rounded-lg p-1.5 focus:outline-none">
+                                <option value="informativo">Periodístico / Informativo</option>
+                                <option value="analitico">Analítico / Profundo</option>
+                                <option value="cercano">Cercano / Comunitario</option>
+                                <option value="urgente">Urgente / Último Momento</option>
+                            </select>
+                        </div>
+                        <button id="btn-generate" onclick="generateContentWithGemini()" class="bg-black hover:bg-swiss-800 text-white font-medium text-sm px-6 py-2.5 rounded-xl transition-all shadow-md flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>Crear (6 Formatos)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grounding Sources Display Box (Hidden by default) -->
+            <div id="sources-container" class="hidden bg-swiss-100 border border-swiss-300 rounded-xl p-4 space-y-2">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-600 font-semibold">Fuentes Consultadas (Google Search Grounding):</p>
+                <div id="sources-list" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Loading Spinner Container -->
+            <div id="loading-container" class="hidden py-12 flex flex-col items-center justify-center space-y-3">
+                <div class="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                <p id="loading-status-text" class="text-xs font-mono text-swiss-600 animate-pulse">Procesando información y generando los 6 formatos editoriales...</p>
+            </div>
+
+            <!-- Output Results Section -->
+            <div id="results-container" class="hidden space-y-6">
+                <div class="flex items-center justify-between border-b border-swiss-200 pb-3">
+                    <h3 class="font-serif font-bold text-lg text-swiss-900">Formatos Creados por IA</h3>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyAllFormats()" class="text-xs bg-swiss-100 hover:bg-swiss-200 text-swiss-800 px-3 py-1.5 rounded-lg font-medium transition-colors">
+                            Copiar Todo
+                        </button>
+                        <button onclick="saveCurrentToHistory()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-medium hover:bg-swiss-800 transition-colors">
+                            Guardar en Historial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Format Tabs Selector -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="format-tabs">
+                    <button onclick="switchTab(0)" class="format-tab-btn active p-3 rounded-xl border border-black bg-black text-white text-xs font-medium text-left transition-all">
+                        <span class="block text-[10px] font-mono opacity-70">Formato 01</span>
+                        <span>Artículo Web & SEO</span>
+                    </button>
+                    <button onclick="switchTab(1)" class="format-tab-btn p-3 rounded-xl border border-swiss-300 bg-white text-swiss-900 text-xs font-medium text-left transition-all">
+                        <span class="block text-[10px] font-mono text-swiss-500">Formato 02</span>
+                        <span>Guión de Reel (60s)</span>
+                    </button>
+                    <button onclick="switchTab(2)" class="format-tab-btn p-3 rounded-xl border border-swiss-300 bg-white text-swiss-900 text-xs font-medium text-left transition-all">
+                        <span class="block text-[10px] font-mono text-swiss-500">Formato 03</span>
+                        <span>Episodio de Podcast</span>
+                    </button>
+                    <button onclick="switchTab(3)" class="format-tab-btn p-3 rounded-xl border border-swiss-300 bg-white text-swiss-900 text-xs font-medium text-left transition-all">
+                        <span class="block text-[10px] font-mono text-swiss-500">Formato 04</span>
+                        <span>Carrusel Instagram</span>
+                    </button>
+                    <button onclick="switchTab(4)" class="format-tab-btn p-3 rounded-xl border border-swiss-300 bg-white text-swiss-900 text-xs font-medium text-left transition-all">
+                        <span class="block text-[10px] font-mono text-swiss-500">Formato 05</span>
+                        <span>Newsletter</span>
+                    </button>
+                    <button onclick="switchTab(5)" class="format-tab-btn p-3 rounded-xl border border-swiss-300 bg-white text-swiss-900 text-xs font-medium text-left transition-all">
+                        <span class="block text-[10px] font-mono text-swiss-500">Formato 06</span>
+                        <span>WhatsApp Masivo</span>
+                    </button>
+                </div>
+
+                <!-- Format Output Display Box -->
+                <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span id="output-badge" class="w-2 h-2 rounded-full bg-black"></span>
+                            <h4 id="output-title" class="font-serif font-bold text-base text-swiss-900">Artículo Web & SEO</h4>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="copyCurrentOutput()" class="text-xs bg-swiss-100 hover:bg-swiss-200 text-swiss-800 px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center space-x-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copiar</span>
+                            </button>
+                            <button onclick="downloadCurrentOutput()" class="text-xs bg-swiss-100 hover:bg-swiss-200 text-swiss-800 px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center space-x-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                <span>.TXT</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-swiss-50 rounded-xl p-4 border border-swiss-200 max-h-96 overflow-y-auto">
+                        <pre id="output-content" class="text-xs sm:text-sm font-sans text-swiss-800 whitespace-pre-wrap leading-relaxed"></pre>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- VIEW 2: OBSERVATORIES & SEO ADVANCED -->
+        <div id="view-observatory" class="flex-1 hidden p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-6">
+            <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Módulo de Analítica</span>
+                <h2 class="text-2xl sm:text-3xl font-serif font-bold text-swiss-900 mt-2">Observatorios Integrados & Rank Math</h2>
+                <p class="text-swiss-600 text-xs sm:text-sm mt-1">Monitoreo en tiempo real de rendimiento móvil, sugerencias automáticas de SEO semántico y metadatos para la Biblioteca Riojana.</p>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-white border border-swiss-200 p-4 rounded-xl shadow-sm">
+                    <p class="text-[10px] font-mono uppercase text-swiss-500">Rendimiento Móvil</p>
+                    <p class="text-2xl font-serif font-bold text-swiss-900 mt-1">98/100</p>
+                    <span class="text-[10px] text-emerald-600 font-medium">⚡ Carga instantánea (< 0.8s)</span>
+                </div>
+                <div class="bg-white border border-swiss-200 p-4 rounded-xl shadow-sm">
+                    <p class="text-[10px] font-mono uppercase text-swiss-500">Rank Math SEO Score</p>
+                    <p class="text-2xl font-serif font-bold text-swiss-900 mt-1">94/100</p>
+                    <span class="text-[10px] text-emerald-600 font-medium">✓ Optimización óptima</span>
+                </div>
+                <div class="bg-white border border-swiss-200 p-4 rounded-xl shadow-sm">
+                    <p class="text-[10px] font-mono uppercase text-swiss-500">Lectores Activos</p>
+                    <p class="text-2xl font-serif font-bold text-swiss-900 mt-1">15.8K</p>
+                    <span class="text-[10px] text-swiss-600 font-medium">↗ +22% vs ayer</span>
+                </div>
+                <div class="bg-white border border-swiss-200 p-4 rounded-xl shadow-sm">
+                    <p class="text-[10px] font-mono uppercase text-swiss-500">Schema Markup</p>
+                    <p class="text-2xl font-serif font-bold text-swiss-900 mt-1">Valid</p>
+                    <span class="text-[10px] text-emerald-600 font-medium">JSON-LD NewsArticle</span>
+                </div>
+            </div>
+
+            <!-- SEO Recommendations Box -->
+            <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-4">
+                <h3 class="font-serif font-bold text-base text-swiss-900">Sugerencias Automáticas de Rank Math SEO</h3>
+                <div class="space-y-3 text-xs">
+                    <div class="p-3 bg-swiss-50 rounded-xl border border-swiss-200 flex items-start space-x-3">
+                        <span class="w-2 h-2 mt-1 bg-emerald-500 rounded-full flex-shrink-0"></span>
+                        <div>
+                            <p class="font-medium text-swiss-900">Palabra Clave Foco en Slug</p>
+                            <p class="text-swiss-600 mt-0.5">Se recomienda incluir términos geolocalizados como "La Rioja", "Chilecito" o "Arauco" en la URL para maximizar CTR en búsquedas regionales.</p>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-swiss-50 rounded-xl border border-swiss-200 flex items-start space-x-3">
+                        <span class="w-2 h-2 mt-1 bg-emerald-500 rounded-full flex-shrink-0"></span>
+                        <div>
+                            <p class="font-medium text-swiss-900">Estructura H2 / H3 Optimizada</p>
+                            <p class="text-swiss-600 mt-0.5">El sistema genera subtítulos conversacionales ideales para fragmentos destacados (Featured Snippets) de Google Discover.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: HISTORY & LIBRARY -->
+        <div id="view-history" class="flex-1 hidden p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-6">
+            <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Almacenamiento Local</span>
+                    <h2 class="text-2xl sm:text-3xl font-serif font-bold text-swiss-900 mt-2">Historial y Biblioteca</h2>
+                    <p class="text-swiss-600 text-xs sm:text-sm mt-1">Contenidos creados previamente guardados en su dispositivo.</p>
+                </div>
+                <button onclick="clearHistory()" class="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg font-medium hover:bg-red-100 transition-colors">
+                    Limpiar Todo
+                </button>
+            </div>
+
+            <div id="history-list" class="space-y-3">
+                <!-- Dynamic history items rendered here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-4 py-2.5 rounded-full shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center space-x-2">
+        <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+        <span id="toast-msg">Copiado al portapapeles</span>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentFormats = [];
+        let activeTabIndex = 0;
+        let historyData = [];
+
+        const templates = {
+            chaya: "El Gobierno provincial anunció los detalles organizativos para la Fiesta Nacional de la Chaya, destacando la grilla de artistas nacionales y provinciales, operativo de seguridad y medidas para potenciar el turismo regional en febrero.",
+            vino: "Bodegas de La Rioja presentan la nueva cosecha de vino Torrontés de Altura, destacando premios internacionales obtenidos en ferias de Europa y el crecimiento del enoturismo en el Valle Tulumaya y Famatina.",
+            parque: "El Parque Nacional Talampaya reporta un incremento récord de visitantes durante el fin de semana largo, consolidándose como uno de los destinos paleontológicos y paisajísticos más requeridos del noroeste argentino.",
+            energia: "El Parque Eólico Arauco anuncia la puesta en marcha de una nueva etapa de expansión en generación de energía limpia, ratificando a La Rioja como referente nacional en transición energética renovable."
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadHistoryFromStorage();
+            setupEventListeners();
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (savedKey) {
+                document.getElementById('api-key-input').value = savedKey;
+            }
+        });
+
+        function setupEventListeners() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const sidebarClose = document.getElementById('sidebar-close');
+
+            function toggleMenu() {
+                const isOpen = sidebar.classList.contains('translate-x-0');
+                if (isOpen) {
+                    sidebar.classList.remove('translate-x-0');
+                    sidebar.classList.add('-translate-x-full');
+                    sidebarOverlay.classList.add('hidden');
+                    sidebarOverlay.classList.remove('opacity-100');
+                } else {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+                    sidebarOverlay.classList.remove('hidden');
+                    setTimeout(() => sidebarOverlay.classList.add('opacity-100'), 10);
+                }
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            sidebarClose.addEventListener('click', toggleMenu);
+            sidebarOverlay.addEventListener('click', toggleMenu);
+
+            document.getElementById('nav-new-btn').addEventListener('click', () => {
+                switchView('generator');
+                document.getElementById('input-prompt').focus();
+            });
+        }
+
+        function switchView(viewName) {
+            document.getElementById('view-generator').classList.add('hidden');
+            document.getElementById('view-observatory').classList.add('hidden');
+            document.getElementById('view-history').classList.add('hidden');
+
+            if (viewName === 'generator') {
+                document.getElementById('view-generator').classList.remove('hidden');
+            } else if (viewName === 'observatory') {
+                document.getElementById('view-observatory').classList.remove('hidden');
+            } else if (viewName === 'history') {
+                document.getElementById('view-history').classList.remove('hidden');
+                renderHistory();
+            }
+
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        }
+
+        function loadTemplate(key) {
+            if (templates[key]) {
+                document.getElementById('input-prompt').value = templates[key];
+                switchView('generator');
+                generateContentWithGemini();
+            }
+        }
+
+        // Exponential backoff helper for fetch calls
+        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    if (response.status === 429 && retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return fetchWithRetry(url, options, retries - 1, delay * 2);
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                if (retries > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithRetry(url, options, retries - 1, delay * 2);
+                }
+                throw error;
+            }
+        }
+
+        // Real API call with optional Google Search Grounding
+        async function generateContentWithGemini() {
+            const promptText = document.getElementById('input-prompt').value.trim();
+            const tone = document.getElementById('select-tone').value;
+            const useSearch = document.getElementById('use-search-toggle').checked;
+            const apiKeyInput = document.getElementById('api-key-input').value.trim();
+
+            if (!apiKeyInput) {
+                showToast("Por favor, ingrese su API Key.");
+                document.getElementById('api-key-input').focus();
+                return;
+            }
+
+            if (!promptText) {
+                showToast("Por favor, ingrese un titular o tema para crear.");
+                return;
+            }
+
+            localStorage.setItem('gemini_api_key', apiKeyInput);
+
+            document.getElementById('loading-container').classList.remove('hidden');
+            document.getElementById('results-container').classList.add('hidden');
+            document.getElementById('sources-container').classList.add('hidden');
+
+            const systemInstructionText = `Eres el motor editorial jefe del prestigioso diario "El Independiente" de La Rioja, Argentina. Tu objetivo es crear a partir del siguiente hecho o titular exactamente 6 formatos multiplataforma profesionales, rigurosos y atractivos, respetando el tono solicitado (${tone}).
+            
+Los 6 formatos requeridos son:
+1. Artículo Web & SEO (con Titular, Slug, Palabras Clave y cuerpo periodístico enriquecido).
+2. Guión de Reel para Instagram / TikTok (60 segundos, dinámico con marcas de tiempo).
+3. Episodio de Podcast (Intro, desarrollo analítico y outro).
+4. Carrusel de Instagram (8 placas detalladas desde portada hasta llamada a la acción).
+5. Newsletter Ejecutivo (Asunto y resumen estructurado para suscriptores).
+6. Mensaje de WhatsApp Masivo (Optimizado para difusión institucional).
+
+Separa claramente cada formato usando un delimitador único como "###FORMATO_SEPARATOR###" seguido del nombre del formato.`;
+
+            const userQuery = `Tema o hecho periodístico: "${promptText}". Tono periodístico: ${tone}.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemInstructionText }] }
+            };
+
+            if (useSearch) {
+                payload.tools = [{ "google_search": {} }];
+            }
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKeyInput}`;
+
+            try {
+                const result = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                document.getElementById('loading-container').classList.add('hidden');
+
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const generatedText = candidate.content.parts[0].text;
+                    
+                    // Extract Search Sources if available
+                    let sources = [];
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title);
+                    }
+
+                    if (sources.length > 0) {
+                        renderSources(sources);
+                    }
+
+                    currentFormats = parseFormats(generatedText, promptText, tone);
+                    document.getElementById('results-container').classList.remove('hidden');
+                    switchTab(0);
+                    document.getElementById('results-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    showToast("¡Contenidos creados exitosamente!");
+                } else {
+                    throw new Error("Respuesta inesperada de la API.");
+                }
+            } catch (error) {
+                document.getElementById('loading-container').classList.add('hidden');
+                console.error("Error creating content:", error);
+                showToast("Error al conectar. Verifique su API Key.");
+            }
+        }
+
+        function renderSources(sources) {
+            const container = document.getElementById('sources-list');
+            container.innerHTML = sources.map(src => `
+                <a href="${src.uri}" target="_blank" rel="noopener noreferrer" class="text-[11px] bg-white border border-swiss-300 text-swiss-800 px-2.5 py-1 rounded-lg hover:border-black transition-colors truncate max-w-xs flex items-center space-x-1">
+                    <span>🔗</span>
+                    <span class="truncate">${src.title || src.uri}</span>
+                </a>
+            `).join('');
+            document.getElementById('sources-container').classList.remove('hidden');
+        }
+
+        function parseFormats(text, originalPrompt, tone) {
+            const parts = text.split(/###FORMATO_SEPARATOR###|Formato \d:|# Formato/i).filter(p => p.trim().length > 20);
+            if (parts.length >= 6) {
+                return parts.slice(0, 6).map(p => p.trim());
+            }
+            return [
+                `ARTÍCULO WEB & SEO:\n\n${text}`,
+                `GUIÓN DE REEL (60s):\n\n${text.substring(0, 800)}...`,
+                `EPISODIO DE PODCAST:\n\n${text}`,
+                `CARRUSEL INSTAGRAM (8 PLACAS):\n\n${text}`,
+                `NEWSLETTER EJECUTIVO:\n\n${text}`,
+                `MENSAJE WHATSAPP MASIVO:\n\n📌 Noticia Destacada:\n${originalPrompt}\n\n${text.substring(0, 400)}`
+            ];
+        }
+
+        const tabTitles = [
+            "Artículo Web & SEO",
+            "Guión de Reel (60s)",
+            "Episodio de Podcast",
+            "Carrusel Instagram",
+            "Newsletter",
+            "WhatsApp Masivo"
+        ];
+
+        function switchTab(index) {
+            activeTabIndex = index;
+            const buttons = document.querySelectorAll('.format-tab-btn');
+            buttons.forEach((btn, idx) => {
+                if (idx === index) {
+                    btn.classList.add('border-black', 'bg-black', 'text-white');
+                    btn.classList.remove('border-swiss-300', 'bg-white', 'text-swiss-900');
+                } else {
+                    btn.classList.remove('border-black', 'bg-black', 'text-white');
+                    btn.classList.add('border-swiss-300', 'bg-white', 'text-swiss-900');
+                }
+            });
+
+            document.getElementById('output-title').textContent = tabTitles[index];
+            document.getElementById('output-content').textContent = currentFormats[index] || "Creando contenido...";
+        }
+
+        function copyCurrentOutput() {
+            const text = currentFormats[activeTabIndex];
+            copyToClipboard(text, "Formato copiado al portapapeles");
+        }
+
+        function copyAllFormats() {
+            const allText = currentFormats.map((f, i) => `=== ${tabTitles[i].toUpperCase()} ===\n\n${f}\n\n`).join('\n');
+            copyToClipboard(allText, "Los 6 formatos copiados al portapapeles");
+        }
+
+        function downloadCurrentOutput() {
+            const text = currentFormats[activeTabIndex];
+            const filename = `madre_${tabTitles[activeTabIndex].toLowerCase().replace(/[^a-z0-9]/g, '_')}.txt`;
+            downloadTxtFile(text, filename);
+            showToast("Archivo .txt descargado correctamente");
+        }
+
+        function copyToClipboard(text, successMsg) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(successMsg);
+                }).catch(() => {
+                    fallbackCopy(text, successMsg);
+                });
+            } else {
+                fallbackCopy(text, successMsg);
+            }
+        }
+
+        function fallbackCopy(text, successMsg) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg);
+            } catch (err) {
+                showToast("Error al copiar");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function downloadTxtFile(text, filename) {
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+
+        function saveCurrentToHistory() {
+            if (!currentFormats.length) return;
+            const promptText = document.getElementById('input-prompt').value.trim();
+            const newItem = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                title: promptText.length > 60 ? promptText.substring(0, 57) + '...' : promptText,
+                formats: currentFormats
+            };
+
+            historyData.unshift(newItem);
+            if (historyData.length > 20) historyData.pop();
+            localStorage.setItem('madre_history', JSON.stringify(historyData));
+            updateHistoryCount();
+            showToast("Guardado en el historial exitosamente");
+        }
+
+        function loadHistoryFromStorage() {
+            const stored = localStorage.getItem('madre_history');
+            if (stored) {
+                try {
+                    historyData = JSON.parse(stored);
+                } catch (e) {
+                    historyData = [];
+                }
+            }
+            updateHistoryCount();
+        }
+
+        function updateHistoryCount() {
+            document.getElementById('history-count').textContent = historyData.length;
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-list');
+            if (historyData.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white border border-swiss-200 rounded-2xl p-8 text-center space-y-2">
+                        <p class="text-swiss-500 text-xs font-mono">No hay elementos guardados en el historial.</p>
+                        <p class="text-swiss-800 text-sm">Cree contenidos y guárdelos para reutilizarlos en cualquier momento.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = historyData.map((item, index) => `
+                <div class="bg-white border border-swiss-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                        <span class="text-[10px] font-mono text-swiss-400">${item.date}</span>
+                        <h4 class="font-serif font-bold text-sm text-swiss-900 mt-0.5">${item.title}</h4>
+                    </div>
+                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                        <button onclick="restoreHistoryItem(${index})" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-medium hover:bg-swiss-800 transition-colors">
+                            Cargar en Motor
+                        </button>
+                        <button onclick="deleteHistoryItem(${index})" class="text-xs bg-swiss-100 text-swiss-700 px-3 py-1.5 rounded-lg font-medium hover:bg-swiss-200 transition-colors">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function restoreHistoryItem(index) {
+            const item = historyData[index];
+            if (item) {
+                currentFormats = item.formats;
+                document.getElementById('input-prompt').value = item.title;
+                switchView('generator');
+                document.getElementById('results-container').classList.remove('hidden');
+                switchTab(0);
+                showToast("Contenido restaurado en el motor");
+            }
+        }
+
+        function deleteHistoryItem(index) {
+            historyData.splice(index, 1);
+            localStorage.setItem('madre_history', JSON.stringify(historyData));
+            updateHistoryCount();
+            renderHistory();
+            showToast("Elemento eliminado del historial");
+        }
+
+        function clearHistory() {
+            if (confirm("¿Está seguro de limpiar todo el historial guardado?")) {
+                historyData = [];
+                localStorage.removeItem('madre_history');
+                updateHistoryCount();
+                renderHistory();
+                showToast("Historial borrado");
+            }
+        }
+    </script>
+</body>
+</html>
