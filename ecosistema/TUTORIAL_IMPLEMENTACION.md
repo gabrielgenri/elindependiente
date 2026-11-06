@@ -48,7 +48,7 @@ supabase secrets set GEMINI_API_KEY=TU_CLAVE_GEMINI
 supabase secrets set GEMINI_MODEL=gemini-3.8-flash
 supabase secrets set GEMINI_TTS_MODEL=gemini-3.8-flash-tts
 supabase secrets set ALLOWED_MODELS=gemini-3.8-flash
-supabase secrets set ALLOWED_ORIGINS="https://TU_USUARIO.github.io,http://localhost:5500,http://127.0.0.1:5500"
+supabase secrets set ALLOWED_ORIGINS="https://gabrielgenri.github.io,http://localhost:5500,http://127.0.0.1:5500"
 ```
 
 Para habilitar WordPress, añade los tres secretos siguientes. Usa una cuenta editorial de permisos limitados y una contraseña de aplicación:
@@ -74,6 +74,15 @@ Las dos funciones mantienen `verify_jwt = true`. `madre-ai` atiende las acciones
 
 ## 5. Publicar el frontend
 
+Antes de publicar, compila el CSS de Tailwind desde la carpeta `MODULOS/madre-ecosistema`:
+
+```powershell
+npm install
+npm run build:css
+```
+
+El comando genera `assets/tailwind.css`, que cargan Madre y Biblioteca. Durante el desarrollo puedes usar `npm run watch:css` para recompilar al guardar cambios de clases o estilos.
+
 Publica el contenido completo de `MODULOS/madre-ecosistema` como una carpeta estática en un único origen. Para GitHub Pages, puedes copiarla a una carpeta `madre-ecosistema/` en la raíz del sitio. Las rutas relativas del shell cargan `madre/` y `biblioteca/` sin una configuración de bundler.
 
 Para probar en local, ejecuta desde la raíz de esta carpeta:
@@ -90,7 +99,10 @@ Visita `http://localhost:5500`. Incluye ese origen en `ALLOWED_ORIGINS` si vas a
 2. En Madre, pulsa **Conexión**.
 3. Ingresa la URL de Supabase y la clave `publishable` (o la clave pública `anon` existente). Se guardan en `localStorage` de ese navegador para compartir la sesión entre módulos.
 4. Inicia sesión con una cuenta creada en el panel de Supabase.
-5. Abre Biblioteca desde la navegación superior. Usa la misma sesión y configuración.
+5. En **Conexión**, pulsa **Probar Edge Functions**. La comprobación valida que `madre-ai` y `ia-proxy` estén desplegadas, que la sesión llegue y que puedan leer `ia_usage`; también informa si falta `GEMINI_API_KEY`. No consume una llamada a Gemini.
+6. Abre Biblioteca desde la navegación superior. Usa la misma sesión y configuración.
+
+Si aparece `Origen no permitido` o el preflight falla sin `Access-Control-Allow-Origin`, el secreto `ALLOWED_ORIGINS` del proyecto debe contener el origen exacto del frontend. Para este sitio, actualízalo con `supabase secrets set ALLOWED_ORIGINS="https://gabrielgenri.github.io,http://localhost:5500,http://127.0.0.1:5500"` y vuelve a probar; el cambio de secreto se aplica sin volver a desplegar las funciones. Sirve la app por HTTP (por ejemplo `http://localhost:5500`, no como archivo `file://`). Un `401` indica que falta una sesión válida; un `404` suele indicar que la función aún no se desplegó; un mensaje que menciona `ia_usage` indica que faltan las migraciones.
 
 No uses la `service_role`, la secret key de Supabase ni la clave de Gemini en este formulario.
 
@@ -133,3 +145,4 @@ El esquema usa `gemini-embedding-001` con vectores de 768 dimensiones. Si cambia
 - [Columnas vectoriales y pgvector](https://supabase.com/docs/guides/ai/vector-columns)
 - [Modelos de Gemini](https://ai.google.dev/gemini-api/docs/models)
 - [Síntesis de voz de Gemini](https://ai.google.dev/gemini-api/docs/speech-generation)
+
