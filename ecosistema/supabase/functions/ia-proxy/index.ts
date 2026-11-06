@@ -1,4 +1,4 @@
-// supabase/functions/ia-proxy/index.ts
+// supabase/functions/ia-proxy/index.ts ss
 // Proxy único de IA para todos los módulos de El Independiente 2030.
 // La API key de Gemini vive solo en el secreto GEMINI_API_KEY.
 //
