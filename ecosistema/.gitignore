@@ -1,6 +1,0 @@
-.env
-.env.*
-!.env.example
-node_modules/
-supabase/functions/.env
-supabase/.temp/
