@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca riojana · El Independiente</title>
+    <meta name="description" content="Fichas explicativas atemporales de El Independiente, relacionadas con las producciones de Madre.">
+    <meta name="theme-color" content="#111111">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-black selection:text-white">
+
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-swiss-200">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+            <a href="../" class="text-xs text-swiss-500 hover:text-black min-h-[44px] inline-flex items-center pr-1" aria-label="Volver al ecosistema">←</a>
+            <span class="w-2.5 h-2.5 bg-black rounded-full inline-block shrink-0"></span>
+            <h1 class="text-lg font-serif font-bold tracking-tight truncate">Biblioteca riojana</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="user-badge" class="hidden text-[11px] font-mono text-swiss-500 truncate max-w-[10rem]"></span>
+            <button id="btn-logout" class="hidden text-xs font-medium text-swiss-700 hover:text-black px-2 py-2 min-h-[44px]">Salir</button>
+            <button id="btn-nueva" class="text-xs font-medium bg-black text-white px-4 py-2 rounded-full min-h-[44px] hover:bg-swiss-800">+ Nueva ficha</button>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- ACCESO -->
+    <section id="view-auth" class="hidden">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm max-w-md mx-auto space-y-4">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Acceso de redacción</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Ingresá a la Biblioteca</h2>
+                <p class="text-xs text-swiss-600 mt-1">Comparte sesión con Madre: si ya ingresaste allí, recargá esta página.</p>
+            </div>
+            <div>
+                <label for="auth-email" class="block text-xs font-medium text-swiss-700 mb-1">Correo</label>
+                <input id="auth-email" type="email" autocomplete="email" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div>
+                <label for="auth-pass" class="block text-xs font-medium text-swiss-700 mb-1">Contraseña</label>
+                <input id="auth-pass" type="password" autocomplete="current-password" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button id="btn-login" class="flex-1 bg-black text-white text-sm font-medium rounded-xl px-4 py-3 min-h-[44px] hover:bg-swiss-800">Ingresar</button>
+                <button id="btn-magic" class="flex-1 bg-swiss-100 text-swiss-900 text-sm font-medium rounded-xl px-4 py-3 min-h-[44px] hover:bg-swiss-200">Enviarme un enlace</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- LISTA -->
+    <section id="view-lista" class="space-y-4">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm space-y-3">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Memoria y contexto</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Fichas <span id="f-count" class="font-sans text-sm font-normal text-swiss-500"></span></h2>
+                <p id="mode-banner" class="text-xs text-swiss-600 mt-1"></p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="sm:col-span-2">
+                    <label for="f-buscar" class="sr-only">Buscar fichas</label>
+                    <input id="f-buscar" type="search" placeholder="Buscar por título, categoría o departamento" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+                </div>
+                <div>
+                    <label for="f-estado" class="sr-only">Filtrar por estado</label>
+                    <select id="f-estado" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]">
+                        <option value="">Todos los estados</option>
+                        <option value="borrador">Borrador</option>
+                        <option value="revisado">Revisado</option>
+                        <option value="publicado">Publicado</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="fichas-list" class="space-y-3"></div>
+    </section>
+
+    <!-- EDITOR -->
+    <section id="view-editor" class="hidden space-y-6">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <button id="btn-volver" class="text-xs font-medium text-swiss-700 hover:text-black underline underline-offset-4 min-h-[44px]">← Volver a las fichas</button>
+            <p id="save-state" class="text-[11px] font-mono text-swiss-500"></p>
+        </div>
+
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div>
+                <label for="ed-titulo" class="block text-xs font-medium text-swiss-700 mb-1">Título</label>
+                <input id="ed-titulo" type="text" maxlength="200" class="w-full p-3 text-base font-serif font-bold rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label for="ed-categoria" class="block text-xs font-medium text-swiss-700 mb-1">Categoría</label>
+                    <select id="ed-categoria" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                </div>
+                <div>
+                    <label for="ed-dep" class="block text-xs font-medium text-swiss-700 mb-1">Departamento</label>
+                    <select id="ed-dep" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-swiss-200 bg-swiss-50 p-3 space-y-2">
+                <p class="text-xs font-medium text-swiss-800">Borrador asistido (opcional)</p>
+                <p class="text-[11px] text-swiss-500">Redacta un primer borrador a partir del título, la categoría y el departamento. Siempre requiere verificación humana.</p>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <label class="flex items-center gap-2 text-xs font-medium text-swiss-700 cursor-pointer min-h-[44px]">
+                        <input type="checkbox" id="ia-search" checked class="rounded border-swiss-300 text-black focus:ring-black w-4 h-4">
+                        <span>Investigar con Google Search</span>
+                    </label>
+                    <button id="btn-ia" class="sm:ml-auto text-xs font-medium bg-black text-white hover:bg-swiss-800 disabled:opacity-40 rounded-lg px-4 py-2 min-h-[44px]">Redactar borrador con IA</button>
+                </div>
+            </div>
+
+            <div>
+                <label for="ed-resumen" class="block text-xs font-medium text-swiss-700 mb-1">Resumen (bajada)</label>
+                <textarea id="ed-resumen" rows="2" maxlength="600" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            </div>
+            <div>
+                <label for="ed-contenido" class="block text-xs font-medium text-swiss-700 mb-1">Contenido (atemporal: sin “hoy”, “este año” ni “recientemente”)</label>
+                <textarea id="ed-contenido" class="editor-area w-full p-3 text-sm leading-relaxed rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black" spellcheck="true"></textarea>
+            </div>
+            <div>
+                <label for="ed-fuentes" class="block text-xs font-medium text-swiss-700 mb-1">Fuentes y referencias (una por línea)</label>
+                <textarea id="ed-fuentes" rows="3" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            </div>
+        </div>
+
+        <!-- Estado y checklist -->
+        <div class="bg-white border border-swiss-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-500">Estado editorial</p>
+                <div id="estado-group" class="flex gap-1" role="group" aria-label="Estado de la ficha"></div>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-swiss-800">Verificación humana antes de publicar</p>
+                <ul id="checklist" class="mt-2 space-y-1"></ul>
+                <div class="flex gap-2 mt-2">
+                    <label for="chk-nuevo" class="sr-only">Nuevo punto de verificación</label>
+                    <input id="chk-nuevo" type="text" maxlength="200" placeholder="Agregar punto a verificar" class="flex-1 p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+                    <button id="btn-chk-add" class="text-xs font-medium bg-swiss-100 hover:bg-swiss-200 px-4 rounded-xl min-h-[44px]">Agregar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Producciones relacionadas -->
+        <div class="bg-white border border-swiss-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <p class="text-xs font-semibold text-swiss-800">Producciones relacionadas <span id="rel-count" class="font-mono font-normal text-swiss-500"></span></p>
+            </div>
+            <label for="rel-buscar" class="sr-only">Buscar producciones</label>
+            <input id="rel-buscar" type="search" placeholder="Buscar producciones de Madre" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            <ul id="rel-list" class="max-h-64 overflow-y-auto space-y-1"></ul>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex items-center gap-2 flex-wrap">
+            <button data-act="export-txt" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">.TXT</button>
+            <button data-act="export-doc" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">Word (.doc)</button>
+            <button data-act="export-json" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">JSON</button>
+            <button data-act="delete" class="act sm:ml-auto text-xs bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-lg font-medium min-h-[44px]">Eliminar ficha</button>
+        </div>
+    </section>
+
+    <div id="loading" class="hidden py-10 flex flex-col items-center gap-3" role="status">
+        <div class="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+        <p id="loading-text" class="text-xs font-mono text-swiss-600"></p>
+    </div>
+</main>
+
+<footer class="text-center text-[10px] font-mono text-swiss-500 py-6">Generación asistida · Revisión editorial humana</footer>
+
+<div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2.5 rounded-full shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 max-w-[90vw] text-center"></div>
+
+<script type="module" src="../assets/js/biblioteca/app.js"></script>
+</body>
+</html>

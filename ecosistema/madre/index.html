@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madre — Contenido Madre · El Independiente</title>
+    <meta name="description" content="Módulo 3 del Plan El Independiente 2030: de un hecho a seis formatos, con investigación verificable y revisión humana.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-black selection:text-white">
+
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-swiss-200">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+            <a href="../" class="text-xs text-swiss-500 hover:text-black min-h-[44px] inline-flex items-center pr-1" aria-label="Volver al ecosistema">←</a>
+            <span class="w-2.5 h-2.5 bg-black rounded-full inline-block shrink-0"></span>
+            <h1 class="text-lg font-serif font-bold tracking-tight">MADRE <span class="font-sans text-xs font-medium text-swiss-500">v2.1</span></h1>
+            <span class="hidden sm:inline text-[10px] uppercase font-mono tracking-widest bg-swiss-100 text-swiss-700 px-1.5 py-0.5 rounded">Eje 3 · Transmedia</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="user-badge" class="hidden text-[11px] font-mono text-swiss-500 truncate max-w-[12rem]"></span>
+            <button id="btn-logout" class="hidden text-xs font-medium text-swiss-700 hover:text-black px-2 py-2 min-h-[44px]">Salir</button>
+        </div>
+    </div>
+    <nav class="max-w-4xl mx-auto px-4 pb-2 flex gap-1" aria-label="Secciones">
+        <button data-view="motor" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Motor</button>
+        <button data-view="historial" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Historial <span id="hist-count" class="font-mono opacity-60"></span></button>
+        <button data-view="ajustes" class="nav-btn text-xs font-medium px-3 py-2 rounded-full min-h-[44px]">Ajustes</button>
+    </nav>
+</header>
+
+<main class="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- ACCESO -->
+    <section id="view-auth" class="hidden">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm max-w-md mx-auto space-y-4">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Acceso de redacción</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Ingresá a Madre</h2>
+                <p class="text-xs text-swiss-600 mt-1">La IA solo está disponible para usuarios autenticados del equipo editorial.</p>
+            </div>
+            <div>
+                <label for="auth-email" class="block text-xs font-medium text-swiss-700 mb-1">Correo</label>
+                <input id="auth-email" type="email" autocomplete="email" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div>
+                <label for="auth-pass" class="block text-xs font-medium text-swiss-700 mb-1">Contraseña</label>
+                <input id="auth-pass" type="password" autocomplete="current-password" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button id="btn-login" class="flex-1 bg-black text-white text-sm font-medium rounded-xl px-4 py-3 min-h-[44px] hover:bg-swiss-800">Ingresar</button>
+                <button id="btn-magic" class="flex-1 bg-swiss-100 text-swiss-900 text-sm font-medium rounded-xl px-4 py-3 min-h-[44px] hover:bg-swiss-200">Enviarme un enlace</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOTOR -->
+    <section id="view-motor" class="space-y-6">
+
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Hecho → 6 formatos</span>
+                <button id="btn-new" class="text-xs font-medium text-swiss-700 hover:text-black underline underline-offset-4 min-h-[44px] px-1">Nueva pieza</button>
+            </div>
+
+            <div>
+                <label for="in-hecho" class="block text-xs font-medium text-swiss-700 mb-1">Titular, hecho, comunicado o tema de interés regional</label>
+                <textarea id="in-hecho" rows="5" maxlength="20000" placeholder="Ej: Anuncian la ampliación del Parque Eólico Arauco con una nueva etapa de generación…" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            </div>
+
+            <!-- Transcripción de audio -->
+            <div class="rounded-xl border border-swiss-200 bg-swiss-50 p-3 space-y-2">
+                <p class="text-xs font-medium text-swiss-800">Transcribir un audio (opcional)</p>
+                <p class="text-[11px] text-swiss-500">MP3, M4A, WAV, OGG, WEBM, AAC o FLAC, hasta 12 MB. El texto se agrega al hecho para que lo revises antes de generar.</p>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <label for="in-audio" class="inline-flex items-center justify-center text-xs font-medium bg-white border border-swiss-300 hover:border-black rounded-lg px-3 py-2 min-h-[44px] cursor-pointer">Elegir audio</label>
+                    <input id="in-audio" type="file" accept="audio/*" class="sr-only">
+                    <span id="audio-name" class="text-[11px] font-mono text-swiss-500 truncate"></span>
+                    <button id="btn-transcribir" disabled class="sm:ml-auto text-xs font-medium bg-black text-white hover:bg-swiss-800 disabled:opacity-40 disabled:hover:bg-black rounded-lg px-4 py-2 min-h-[44px]">Transcribir</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label for="in-tono" class="block text-xs font-medium text-swiss-700 mb-1">Tono</label>
+                    <select id="in-tono" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]">
+                        <option value="informativo">Periodístico / informativo</option>
+                        <option value="analítico">Analítico / profundo</option>
+                        <option value="cercano">Cercano / comunitario</option>
+                        <option value="urgente">Urgente / último momento</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="in-dep" class="block text-xs font-medium text-swiss-700 mb-1">Departamento</label>
+                    <select id="in-dep" class="w-full text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]"></select>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <label class="flex items-center gap-2 text-xs font-medium text-swiss-700 cursor-pointer min-h-[44px]">
+                        <input type="checkbox" id="in-search" checked class="rounded border-swiss-300 text-black focus:ring-black w-4 h-4">
+                        <span>Investigar con Google Search antes de redactar</span>
+                    </label>
+                    <p class="text-[11px] font-mono text-swiss-500">Guía de estilo editorial v1.0 aplicada</p>
+                </div>
+                <button id="btn-generate" class="bg-black hover:bg-swiss-800 disabled:opacity-50 text-white font-medium text-sm px-6 py-3 rounded-xl min-h-[44px] flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>Crear los 6 formatos</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden py-10 flex flex-col items-center gap-3" role="status">
+            <div class="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            <p id="loading-text" class="text-xs font-mono text-swiss-600"></p>
+        </div>
+
+        <div id="results" class="hidden space-y-6">
+
+            <div class="flex items-start sm:items-center justify-between gap-3 flex-wrap border-b border-swiss-200 pb-3">
+                <div class="min-w-0">
+                    <h2 id="res-title" class="font-serif font-bold text-lg truncate"></h2>
+                    <p id="save-state" class="text-[11px] font-mono text-swiss-500 mt-0.5"></p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button data-act="export-all-txt" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">TXT completo</button>
+                    <button data-act="export-doc" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">Word (.doc)</button>
+                    <button data-act="export-json" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">JSON</button>
+                </div>
+            </div>
+
+            <div class="bg-white border border-swiss-200 rounded-2xl p-4 space-y-3">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-500">Estado editorial</p>
+                    <div id="estado-group" class="flex gap-1" role="group" aria-label="Estado de la pieza"></div>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-swiss-800">Verificación humana antes de publicar</p>
+                    <ul id="checklist" class="mt-2 space-y-1"></ul>
+                    <p id="checklist-empty" class="hidden text-xs text-swiss-500">La IA no marcó datos puntuales a verificar. Revisá igualmente cada cifra y nombre.</p>
+                </div>
+                <div class="border-t border-swiss-200 pt-3 space-y-2">
+                    <p class="text-xs font-semibold text-swiss-800">WordPress</p>
+                    <div id="wp-box" class="flex flex-col sm:flex-row sm:items-center gap-2"></div>
+                </div>
+            </div>
+
+            <div id="sources-box" class="hidden bg-swiss-100 border border-swiss-300 rounded-xl p-4 space-y-2">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-swiss-600 font-semibold">Fuentes consultadas (Google Search)</p>
+                <div id="sources-list" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div id="tabs" class="tab-scroll flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Formatos"></div>
+
+            <div class="bg-white border border-swiss-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <h3 id="ed-title" class="font-serif font-bold text-base"></h3>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="ed-count" class="text-[11px] font-mono text-swiss-500"></span>
+                        <button data-act="copy" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">Copiar</button>
+                        <button data-act="export-txt" class="act text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">.TXT</button>
+                        <button id="btn-jsonld" data-act="jsonld" class="act hidden text-xs bg-swiss-100 hover:bg-swiss-200 px-3 py-2 rounded-lg font-medium min-h-[44px]">JSON-LD</button>
+                        <button data-act="regen" class="act text-xs bg-black text-white hover:bg-swiss-800 px-3 py-2 rounded-lg font-medium min-h-[44px]">Regenerar este</button>
+                    </div>
+                </div>
+                <label for="editor" class="sr-only">Contenido editable del formato</label>
+                <textarea id="editor" class="editor-area w-full p-3 text-sm leading-relaxed rounded-xl border border-swiss-200 bg-swiss-50 focus:outline-none focus:ring-2 focus:ring-black" spellcheck="true"></textarea>
+            </div>
+        </div>
+    </section>
+
+    <!-- HISTORIAL -->
+    <section id="view-historial" class="hidden space-y-4">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 shadow-sm flex items-center justify-between gap-3 flex-wrap">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Biblioteca</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Historial de piezas</h2>
+                <p id="hist-mode" class="text-xs text-swiss-600 mt-1"></p>
+            </div>
+            <div>
+                <label for="hist-filter" class="sr-only">Filtrar por estado</label>
+                <select id="hist-filter" class="text-sm bg-swiss-50 border border-swiss-300 rounded-xl p-3 min-h-[44px]">
+                    <option value="">Todos los estados</option>
+                    <option value="borrador">Borrador</option>
+                    <option value="revisado">Revisado</option>
+                    <option value="publicado">Publicado</option>
+                </select>
+            </div>
+        </div>
+        <div id="hist-list" class="space-y-3"></div>
+    </section>
+
+    <!-- AJUSTES -->
+    <section id="view-ajustes" class="hidden space-y-4">
+        <div class="bg-white border border-swiss-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-swiss-500 bg-swiss-100 px-2 py-0.5 rounded">Conexión</span>
+                <h2 class="font-serif font-bold text-2xl mt-2">Ajustes</h2>
+                <p class="text-xs text-swiss-600 mt-1">La <em>anon key</em> de Supabase es pública por diseño. Las credenciales de Gemini y WordPress nunca se cargan acá: viven como secretos de las Edge Functions.</p>
+            </div>
+            <div>
+                <label for="cfg-url" class="block text-xs font-medium text-swiss-700 mb-1">URL del proyecto Supabase</label>
+                <input id="cfg-url" type="url" placeholder="https://xxxx.supabase.co" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black font-mono">
+            </div>
+            <div>
+                <label for="cfg-anon" class="block text-xs font-medium text-swiss-700 mb-1">Anon / publishable key</label>
+                <input id="cfg-anon" type="text" autocomplete="off" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black font-mono">
+            </div>
+            <div>
+                <label for="cfg-model" class="block text-xs font-medium text-swiss-700 mb-1">Modelo (debe estar en la lista permitida del proxy)</label>
+                <input id="cfg-model" type="text" placeholder="gemini-3-flash-preview" class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black font-mono">
+            </div>
+            <div>
+                <p class="text-xs font-medium text-swiss-700 mb-1">Guía de estilo del diario</p>
+                <p class="text-xs text-swiss-600 bg-swiss-100 border border-swiss-200 rounded-xl p-3">La <strong>Guía de Estilo Editorial de El Independiente (v1.0)</strong> ya está incorporada y se aplica automáticamente en todas las generaciones.</p>
+                <label for="cfg-style" class="block text-xs font-medium text-swiss-700 mt-3 mb-1">Instrucciones adicionales (opcional)</label>
+                <textarea id="cfg-style" rows="3" placeholder="Solo si la redacción quiere sumar algo puntual a la guía. Puede dejarse vacío." class="w-full p-3 text-sm rounded-xl border border-swiss-300 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button id="btn-save-cfg" class="bg-black text-white text-sm font-medium rounded-xl px-5 py-3 min-h-[44px] hover:bg-swiss-800">Guardar ajustes</button>
+                <button id="btn-test" class="bg-swiss-100 text-swiss-900 text-sm font-medium rounded-xl px-5 py-3 min-h-[44px] hover:bg-swiss-200">Probar conexión</button>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="text-center text-[10px] font-mono text-swiss-500 py-6">El Independiente 2030 · Módulo 3 · Madre v2.1</footer>
+
+<div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2.5 rounded-full shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 max-w-[90vw] text-center"></div>
+
+<script type="module" src="../assets/js/madre/app.js"></script>
+</body>
+</html>
